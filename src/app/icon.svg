@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6" />
+      <stop offset="100%" stop-color="#10b981" />
+    </linearGradient>
+  </defs>
+  <!-- Stylized hexagons and nodes representing chemical structures -->
+  <polygon points="16,4 26,10 26,22 16,28 6,22 6,10" fill="none" stroke="url(#grad)" stroke-width="2.5" stroke-linejoin="round" />
+  <circle cx="16" cy="16" r="7" fill="none" stroke="url(#grad)" stroke-width="1.5" stroke-dasharray="3 2" />
+  <circle cx="16" cy="4" r="3.5" fill="#ef4444" />
+  <circle cx="26" cy="10" r="3.5" fill="#3b82f6" />
+  <circle cx="26" cy="22" r="3.5" fill="#10b981" />
+  <circle cx="16" cy="28" r="3.5" fill="#f59e0b" />
+  <circle cx="6" cy="22" r="3.5" fill="#8b5cf6" />
+  <circle cx="6" cy="10" r="3.5" fill="#06b6d4" />
+  <line x1="16" y1="4" x2="16" y2="10" stroke="url(#grad)" stroke-width="2.2" />
+  <circle cx="16" cy="11.5" r="2" fill="#3b82f6" />
+</svg>
