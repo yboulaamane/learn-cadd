@@ -573,7 +573,7 @@ export default function LigandReceptorInteractionsPage() {
               <svg 
                 ref={svgRef}
                 viewBox="0 0 300 200" 
-                className="w-full h-auto cursor-default"
+                className="w-full h-auto cursor-default touch-none"
                 onMouseMove={handleMouseMove}
                 onTouchMove={handleTouchMove}
               >

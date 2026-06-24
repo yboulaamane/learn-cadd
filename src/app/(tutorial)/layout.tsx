@@ -24,7 +24,7 @@ export default function TutorialLayout({
       <SideNav />
       <MobileChapterNav />
       <main className="min-w-0 flex-1 px-6 py-10 lg:px-12">
-        <article className="prose prose-lg max-w-none">
+        <article className="prose prose-sm sm:prose-base lg:prose-lg max-w-none w-full overflow-x-hidden">
           {children}
         </article>
         <ChapterNav prev={prevModule} next={nextModule} />

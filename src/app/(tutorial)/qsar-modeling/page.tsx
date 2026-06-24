@@ -594,7 +594,7 @@ export default function QsarModelingPage() {
               <svg 
                 ref={svgRef}
                 viewBox="0 0 300 200" 
-                className="w-full h-auto cursor-crosshair"
+                className="w-full h-auto cursor-crosshair touch-none"
                 onMouseDown={handleMouseDown}
                 onTouchStart={handleTouchStart}
                 onMouseMove={handleMouseMove}
