@@ -19,7 +19,7 @@ export function SiteHeader() {
         </Link>
         <nav className="ml-auto flex items-center gap-6 text-sm text-slate-600">
           <a
-            href="https://github.com/yassir/cadd-course"
+            href="https://github.com/yboulaamane/computational-drug-discovery-course"
             target="_blank"
             rel="noopener noreferrer"
             className="transition-colors hover:text-foreground"
