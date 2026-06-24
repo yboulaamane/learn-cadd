@@ -5,7 +5,6 @@ import {
   Activity, 
   Layers, 
   Flame,
-  Link2,
   Move,
   Info,
   RefreshCw,
@@ -343,7 +342,7 @@ export default function LigandReceptorInteractionsPage() {
       {/* Interactive Widget 1: Bond energy curve */}
       <section className="p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-4">
         <div className="flex items-center gap-2">
-          <Link2 size={16} className="text-slate-900" />
+          <Activity size={16} className="text-slate-900" />
           <h3 className="font-bold text-sm text-slate-900">Interactive Playground: H-Bond Potential Energy Curve</h3>
         </div>
         <p className="text-sm text-slate-800">

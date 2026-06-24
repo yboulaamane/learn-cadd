@@ -251,7 +251,7 @@ export default function IntroToDrugDiscoveryPage() {
               1
             </div>
             <div>
-              <h3 className="font-bold text-sm">High-Throughput Screening (HTS)</h3>
+              <h3 className="font-bold text-sm !mt-0">High-Throughput Screening (HTS)</h3>
               <p className="text-sm text-slate-650 leading-relaxed mt-1">
                 Automated robotic testing of chemical libraries containing millions of synthesized compounds. Highly robust and unbiased, but extremely costly to configure.
               </p>
@@ -263,7 +263,7 @@ export default function IntroToDrugDiscoveryPage() {
               2
             </div>
             <div>
-              <h3 className="font-bold text-sm">Exploitation of Biological Information</h3>
+              <h3 className="font-bold text-sm !mt-0">Exploitation of Biological Information</h3>
               <p className="text-sm text-slate-650 leading-relaxed mt-1">
                 Repurposing existing drugs based on unexpected clinical observation of side effects (e.g. sildenafil) or traditional medicine extracts.
               </p>
@@ -275,7 +275,7 @@ export default function IntroToDrugDiscoveryPage() {
               3
             </div>
             <div>
-              <h3 className="font-bold text-sm">Rational Drug Design</h3>
+              <h3 className="font-bold text-sm !mt-0">Rational Drug Design</h3>
               <p className="text-sm text-slate-650 leading-relaxed mt-1">
                 Using structural knowledge of the target protein (structure-based) or active ligands (ligand-based) to construct compounds atom-by-atom.
               </p>
