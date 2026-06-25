@@ -164,8 +164,11 @@ export default function VirtualScreeningPage() {
     return path;
   };
 
+  const factor = enrichmentLevel / 100;
   const auc = 0.5 + (enrichmentLevel / 200);
-  const ef5 = (auc * 20).toFixed(1);
+  // EF at 5% = fraction of actives retrieved in top 5% (TPR at FPR = 0.05) divided by 0.05
+  const tprAt5 = Math.min(Math.pow(0.05, 1 - factor), 1.0);
+  const ef5 = (tprAt5 / 0.05).toFixed(1);
 
   return (
     <div className="space-y-8">
