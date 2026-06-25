@@ -278,7 +278,7 @@ export default function LigandReceptorInteractionsPage() {
 
         <div className="flex flex-col items-center justify-center p-5 bg-slate-50 border border-slate-200 rounded-xl select-none my-2 not-prose">
           <div className="text-2xl font-mono font-bold tracking-wider text-slate-900">
-            ΔG = R * T * ln(K_d)
+            ΔG = R × T × ln(K_d)
           </div>
           <div className="text-sm text-slate-800 font-bold uppercase tracking-widest mt-1">
              Relationship to Equilibrium Dissociation Constant

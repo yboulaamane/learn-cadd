@@ -126,7 +126,7 @@ export default function AdvancedFrontiersPage() {
           <div className="p-4 rounded-xl border border-border bg-white space-y-1">
             <h4 className="font-bold text-sm text-slate-900">Continuous Denoising Diffusion</h4>
             <p className="text-sm text-slate-800 leading-relaxed font-medium">
-              The model begins with a random swarm of atoms in the pocket coordinates. Over multiple denoising steps, it shifts their Cartesian coordinates $(x,y,z)$ and atom identities (C, N, O) toward states of local chemical energy minimum and electrostatic complementarity.
+              The model begins with a random swarm of atoms in the pocket coordinates. Over multiple denoising steps, it shifts their Cartesian coordinates (x, y, z) and atom identities (C, N, O) toward states of local chemical energy minimum and electrostatic complementarity.
             </p>
           </div>
           <div className="p-4 rounded-xl border border-border bg-white space-y-1">

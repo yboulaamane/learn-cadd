@@ -316,7 +316,7 @@ export default function VirtualScreeningPage() {
               Boltzmann-Enhanced Discrimination of ROC (BEDROC) resolves the early recognition problem by applying an exponential weighting function to ranks:
             </p>
             <div className="my-2 font-mono text-center text-[10px] bg-slate-50 py-2 px-1 rounded text-slate-800 font-bold border border-slate-200 overflow-x-auto">
-              {"BEDROC = Σ [ exp(-α * r_i / N) ] / Z"}
+              {"BEDROC = Σ [ exp(-α × r_i / N) ] / Z"}
             </div>
             <p className="text-[11px] text-slate-600 leading-relaxed">
               Where <em>r_i</em> is the rank of the <em>i</em>-th active compound, <em>N</em> is total compounds, <em>α</em> is the exponential scaling parameter (usually set to 20 or 160.9 to prioritize the top 8% or 1%), and <em>Z</em> is a normalization factor.
@@ -708,7 +708,7 @@ export default function VirtualScreeningPage() {
           <div className="p-4 rounded-xl border border-border bg-white space-y-1">
             <h4 className="font-bold text-sm text-slate-900">Pairwise Statistical Superiority</h4>
             <p className="text-sm text-slate-800 leading-relaxed font-medium">
-              When comparing two models on the same test set, their predictions are correlated. DeLong's method computes the <strong>covariance</strong> of their AUC estimates. This enables a z-test to calculate a p-value: if $p &lt; 0.05$, we reject the null hypothesis and confirm one model is statistically superior.
+              When comparing two models on the same test set, their predictions are correlated. DeLong's method computes the <strong>covariance</strong> of their AUC estimates. This enables a z-test to calculate a p-value: if <em>p</em> &lt; 0.05, we reject the null hypothesis and confirm one model is statistically superior.
             </p>
           </div>
         </div>

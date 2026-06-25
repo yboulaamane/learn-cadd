@@ -503,7 +503,7 @@ export default function MolecularDynamicsPage() {
               Measures the average distance deviation between a set of atoms (usually the protein backbone) in a snapshot at time <em>t</em> compared to their positions in a reference coordinate set:
             </p>
             <div className="my-2 font-mono text-center text-xs bg-slate-50 py-2.5 rounded text-slate-805 font-bold border border-slate-200">
-              {"RMSD(t) = √[ (1/N) * Σ || r_i(t) - r_i,ref ||² ]"}
+              {"RMSD(t) = √[ (1/N) × Σ || r_i(t) - r_i,ref ||² ]"}
             </div>
             <p className="text-[11px] text-slate-600 leading-relaxed">
               Where <em>N</em> is the number of atoms, <em>r_i(t)</em> is the Cartesian coordinates of atom <em>i</em> at time <em>t</em>, and <em>r_i,ref</em> is its coordinates in the reference structure (typically the crystal structure or first frame).

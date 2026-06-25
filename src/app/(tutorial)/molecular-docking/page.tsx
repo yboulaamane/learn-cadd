@@ -385,7 +385,7 @@ export default function MolecularDockingPage() {
       <section className="space-y-4">
         <h2>5. Types of Scoring Functions</h2>
         
-        <div className="space-y-3">
+        <div className="space-y-3 not-prose">
           <div className="flex gap-3 p-3.5 rounded-lg border border-slate-200 bg-white">
             <span className="h-6 w-6 text-xs font-bold bg-slate-100 border border-slate-200 rounded flex items-center justify-center flex-shrink-0 text-slate-800">A</span>
             <div>
@@ -426,7 +426,7 @@ export default function MolecularDockingPage() {
             Empirical scoring models (like the one used in AutoDock Vina) estimate the free energy of binding by summing distinct, weighted interaction contributions:
           </p>
           <div className="my-3 font-mono text-center text-xs bg-slate-150 py-3 px-4 rounded text-slate-800 font-bold border border-slate-200 overflow-x-auto leading-relaxed">
-            {"ΔG_score = w_vdW * Σ vdW(r_ij) + w_hbond * Σ hbond(r_ij) + w_electro * Σ electro(r_ij) + w_desolv * Σ desolv(r_ij) + w_rotor * N_rot"}
+            {"ΔG_score = w_vdW × Σ vdW(r_ij) + w_hbond × Σ hbond(r_ij) + w_electro × Σ electro(r_ij) + w_desolv × Σ desolv(r_ij) + w_rotor × N_rot"}
           </div>
           <p className="text-xs text-slate-700 leading-relaxed">
             Where each contribution corresponds to a specific physical force:
@@ -436,7 +436,7 @@ export default function MolecularDockingPage() {
             <li><strong>hbond (Hydrogen Bonding):</strong> Directional and distance-dependent interaction scoring for donor-acceptor atom pairs.</li>
             <li><strong>electro (Electrostatics):</strong> Coulombic attraction or repulsion calculated using partial charges and distance-dependent dielectric shielding.</li>
             <li><strong>desolv (Desolvation):</strong> Energy penalty for stripping away water molecules from polar groups as they enter hydrophobic pockets.</li>
-            <li><strong>w_rotor * N_rot:</strong> Entropic penalty proportional to the number of rotatable bonds (<em>N_rot</em>) frozen upon binding, weighted by <em>w_rotor</em>.</li>
+            <li><strong>w_rotor × N_rot:</strong> Entropic penalty proportional to the number of rotatable bonds (<em>N_rot</em>) frozen upon binding, weighted by <em>w_rotor</em>.</li>
           </ul>
         </div>
       </section>
