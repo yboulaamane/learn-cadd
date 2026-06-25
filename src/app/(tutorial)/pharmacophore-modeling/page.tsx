@@ -473,65 +473,148 @@ export default function PharmacophoreModelingPage() {
 
                 {/* Candidate Molecule Skeleton Overlay */}
                 <g className="transition-all duration-300">
-                  {/* Molecule A - Estradiol Analogue (Steroid backbone) */}
+
+                  {/* Molecule A — Estradiol Analogue (4-ring steroidal backbone) */}
                   {selectedMolecule === 0 && (
-                    <g stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none">
-                      {/* Aromatic ring (Phenol A-ring) */}
-                      <polygon points="150,100 125,85 100,100 100,130 125,145 150,130" className="stroke-slate-500 fill-slate-50/20" />
-                      <line x1="145" y1="105" x2="128" y2="95" stroke="#cbd5e1" strokeWidth="1" />
-                      <line x1="105" y1="105" x2="105" y2="125" stroke="#cbd5e1" strokeWidth="1" />
-                      <line x1="128" y1="135" x2="145" y2="125" stroke="#cbd5e1" strokeWidth="1" />
-                      {/* B-ring */}
-                      <polygon points="150,130 175,145 200,130 200,100 175,85 150,100" />
-                      {/* C-ring */}
-                      <polygon points="200,130 225,145 250,130 250,100 225,85 200,100" />
-                      {/* D-ring (5-membered) */}
-                      <polygon points="250,130 280,135 295,115 280,95 250,100" />
-                      {/* Acceptor connection (Hydroxyl O at C3) */}
-                      <line x1="100" y1="130" x2="75" y2="145" className="stroke-red-400 stroke-2" />
-                      <circle cx="75" cy="145" r="4" fill="#ef4444" />
-                      {/* Donor connection (Hydroxyl O at C17) */}
-                      <line x1="295" y1="115" x2="320" y2="115" className="stroke-blue-400 stroke-2" />
-                      <circle cx="320" cy="115" r="4" fill="#3b82f6" />
+                    <g strokeLinecap="round" strokeLinejoin="round">
+                      {/* A-ring: phenol aromatic ring. Vertices:
+                          C1=(150,130) C2=(125,145) C3=(100,130) C4=(100,100) C5=(125,85) C6=(150,100)
+                          Center ≈ (125, 115). C3 = bottom-left vertex (100,130) bears the phenol –OH. */}
+                      <polygon points="150,100 125,85 100,100 100,130 125,145 150,130"
+                               stroke="#64748b" strokeWidth="2" fill="#fef9c3" fillOpacity="0.5" />
+                      {/* Inscribed dashed circle = aromatic delocalization */}
+                      <circle cx="125" cy="115" r="10"
+                              stroke="#a16207" strokeWidth="1" fill="none" strokeDasharray="3,2" />
+                      {/* B-ring (cyclohexane) */}
+                      <polygon points="150,130 175,145 200,130 200,100 175,85 150,100"
+                               stroke="#94a3b8" strokeWidth="2" fill="none" />
+                      {/* C-ring (cyclohexane) */}
+                      <polygon points="200,130 225,145 250,130 250,100 225,85 200,100"
+                               stroke="#94a3b8" strokeWidth="2" fill="none" />
+                      {/* D-ring (cyclopentane) */}
+                      <polygon points="250,130 280,135 295,115 280,95 250,100"
+                               stroke="#94a3b8" strokeWidth="2" fill="none" />
+
+                      {/* C3 carbon atom — vertex where phenolic –OH is attached */}
+                      <circle cx="100" cy="130" r="4.5" fill="#475569" stroke="white" strokeWidth="1.5" />
+
+                      {/* C3–O bond (HBA: phenolic oxygen) */}
+                      <line x1="100" y1="130" x2="75" y2="145" stroke="#ef4444" strokeWidth="2.5" />
+                      {/* Oxygen atom circle + label */}
+                      <circle cx="75" cy="145" r="8" fill="#fee2e2" stroke="#ef4444" strokeWidth="1.5" />
+                      <text x="75" y="149" textAnchor="middle" fill="#dc2626"
+                            fontSize="9" fontWeight="bold" fontFamily="sans-serif">O</text>
+
+                      {/* C17 carbon atom — vertex on D-ring where aliphatic –OH is attached */}
+                      <circle cx="295" cy="115" r="4.5" fill="#475569" stroke="white" strokeWidth="1.5" />
+
+                      {/* C17–O bond (HBD: aliphatic hydroxyl) */}
+                      <line x1="295" y1="115" x2="320" y2="115" stroke="#3b82f6" strokeWidth="2.5" />
+                      {/* Oxygen atom circle + label */}
+                      <circle cx="320" cy="115" r="8" fill="#dbeafe" stroke="#3b82f6" strokeWidth="1.5" />
+                      <text x="320" y="119" textAnchor="middle" fill="#1d4ed8"
+                            fontSize="9" fontWeight="bold" fontFamily="sans-serif">O</text>
                     </g>
                   )}
 
-                  {/* Molecule B - Diethylstilbestrol (Stilbene backbone) */}
+                  {/* Molecule B — Diethylstilbestrol (DES, non-steroidal stilbene) */}
                   {selectedMolecule === 1 && (
-                    <g stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none">
-                      {/* Left Aromatic Ring */}
-                      <polygon points="150,100 128,85 105,100 105,130 128,145 150,130" className="stroke-slate-500 fill-slate-50/20" />
-                      {/* Central alkene connection */}
-                      <line x1="150" y1="115" x2="180" y2="115" />
-                      <line x1="180" y1="115" x2="210" y2="115" strokeWidth="3" /> {/* Double bond */}
-                      <line x1="180" y1="115" x2="180" y2="140" /> {/* Ethyl group 1 */}
-                      <line x1="210" y1="115" x2="210" y2="90" /> {/* Ethyl group 2 */}
-                      {/* Right Aromatic Ring */}
-                      <polygon points="210,115 225,100 250,100 265,115 250,130 225,130" className="stroke-slate-500 fill-slate-50/20" />
-                      {/* Acceptor connector */}
-                      <line x1="105" y1="130" x2="78" y2="145" className="stroke-red-400 stroke-2" />
-                      <circle cx="78" cy="145" r="4" fill="#ef4444" />
-                      {/* Donor connector */}
-                      <line x1="265" y1="115" x2="320" y2="115" className="stroke-blue-400 stroke-2" />
-                      <circle cx="320" cy="115" r="4" fill="#3b82f6" />
+                    <g strokeLinecap="round" strokeLinejoin="round">
+                      {/* Left phenol ring. Vertices:
+                          C1=(150,100) C2=(128,85) C3=(105,100) C4=(105,130) C5=(128,145) C6=(150,130)
+                          C4=(105,130) bears phenol –OH. C1=(150,100) connects to central alkene (para). */}
+                      <polygon points="150,100 128,85 105,100 105,130 128,145 150,130"
+                               stroke="#64748b" strokeWidth="2" fill="#fef9c3" fillOpacity="0.5" />
+                      <circle cx="128" cy="115" r="10"
+                              stroke="#a16207" strokeWidth="1" fill="none" strokeDasharray="3,2" />
+
+                      {/* C4 carbon atom — where left phenol –OH attaches */}
+                      <circle cx="105" cy="130" r="4.5" fill="#475569" stroke="white" strokeWidth="1.5" />
+
+                      {/* C4–O bond (HBA phenolic oxygen) */}
+                      <line x1="105" y1="130" x2="75" y2="145" stroke="#ef4444" strokeWidth="2.5" />
+                      <circle cx="75" cy="145" r="8" fill="#fee2e2" stroke="#ef4444" strokeWidth="1.5" />
+                      <text x="75" y="149" textAnchor="middle" fill="#dc2626"
+                            fontSize="9" fontWeight="bold" fontFamily="sans-serif">O</text>
+
+                      {/* C1 carbon atom — para vertex connecting to central (E)-alkene */}
+                      <circle cx="150" cy="100" r="4.5" fill="#475569" stroke="white" strokeWidth="1.5" />
+
+                      {/* Central (E)-C(Et)=C(Et)- linkage */}
+                      {/* C1 → C_a */}
+                      <line x1="150" y1="100" x2="183" y2="100" stroke="#94a3b8" strokeWidth="2" />
+                      {/* Ethyl branch at C_a (upward) */}
+                      <line x1="183" y1="100" x2="183" y2="75" stroke="#94a3b8" strokeWidth="1.5" />
+                      <text x="183" y="70" textAnchor="middle" fill="#64748b"
+                            fontSize="8" fontWeight="bold" fontFamily="monospace">Et</text>
+                      {/* C_a=C_b double bond (two parallel lines = double bond notation) */}
+                      <line x1="183" y1="100" x2="217" y2="100" stroke="#64748b" strokeWidth="2.5" />
+                      <line x1="185" y1="108" x2="215" y2="108" stroke="#94a3b8" strokeWidth="1.5" />
+                      {/* Ethyl branch at C_b (upward) */}
+                      <line x1="217" y1="100" x2="217" y2="75" stroke="#94a3b8" strokeWidth="1.5" />
+                      <text x="217" y="70" textAnchor="middle" fill="#64748b"
+                            fontSize="8" fontWeight="bold" fontFamily="monospace">Et</text>
+                      {/* C_b → right ring leftmost vertex */}
+                      <line x1="217" y1="100" x2="252" y2="115" stroke="#94a3b8" strokeWidth="2" />
+
+                      {/* Right phenol ring. Vertices:
+                          C1'=(252,115) C2'=(266,96) C3'=(292,96) C4'=(306,115) C5'=(292,134) C6'=(266,134)
+                          C1'=(252,115) connects from chain. C4'=(306,115) bears phenol –OH (para). */}
+                      <polygon points="306,115 292,96 266,96 252,115 266,134 292,134"
+                               stroke="#64748b" strokeWidth="2" fill="#fef9c3" fillOpacity="0.5" />
+                      <circle cx="279" cy="115" r="10"
+                              stroke="#a16207" strokeWidth="1" fill="none" strokeDasharray="3,2" />
+
+                      {/* C1' carbon atom — connects to chain */}
+                      <circle cx="252" cy="115" r="4.5" fill="#475569" stroke="white" strokeWidth="1.5" />
+
+                      {/* C4' carbon atom — where right phenol –OH attaches */}
+                      <circle cx="306" cy="115" r="4.5" fill="#475569" stroke="white" strokeWidth="1.5" />
+
+                      {/* C4'–O bond (HBD: right phenolic oxygen) */}
+                      <line x1="306" y1="115" x2="320" y2="115" stroke="#3b82f6" strokeWidth="2.5" />
+                      <circle cx="320" cy="115" r="8" fill="#dbeafe" stroke="#3b82f6" strokeWidth="1.5" />
+                      <text x="320" y="119" textAnchor="middle" fill="#1d4ed8"
+                            fontSize="9" fontWeight="bold" fontFamily="sans-serif">O</text>
                     </g>
                   )}
 
-                  {/* Molecule C - Incompatible regioisomer */}
+                  {/* Molecule C — Incompatible regioisomer (HBD in wrong position) */}
                   {selectedMolecule === 2 && (
-                    <g stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none">
-                      {/* Benzene Ring */}
-                      <polygon points="150,100 128,85 105,100 105,130 128,145 150,130" className="stroke-slate-500 fill-slate-50/20" />
-                      {/* Side chain leading to misplaced donor */}
-                      <line x1="128" y1="145" x2="160" y2="185" />
-                      <line x1="160" y1="185" x2="230" y2="210" />
-                      {/* Misplaced donor point */}
-                      <circle cx="230" cy="210" r="4" fill="#3b82f6" />
-                      <line x1="230" y1="210" x2="260" y2="235" strokeDasharray="2,2" strokeWidth="1" className="stroke-rose-400" />
-                      
-                      {/* Acceptor connection */}
-                      <line x1="105" y1="130" x2="78" y2="145" className="stroke-red-400 stroke-2" />
-                      <circle cx="78" cy="145" r="4" fill="#ef4444" />
+                    <g strokeLinecap="round" strokeLinejoin="round">
+                      {/* Benzene ring. Vertices identical to Mol A A-ring.
+                          C3=(105,130) has the matching HBA oxygen. */}
+                      <polygon points="150,100 128,85 105,100 105,130 128,145 150,130"
+                               stroke="#64748b" strokeWidth="2" fill="#fef9c3" fillOpacity="0.5" />
+                      <circle cx="128" cy="115" r="10"
+                              stroke="#a16207" strokeWidth="1" fill="none" strokeDasharray="3,2" />
+
+                      {/* C3 carbon atom — bearing matching HBA oxygen */}
+                      <circle cx="105" cy="130" r="4.5" fill="#475569" stroke="white" strokeWidth="1.5" />
+
+                      {/* C3–O bond (HBA: matches pharmacophore query) */}
+                      <line x1="105" y1="130" x2="78" y2="145" stroke="#ef4444" strokeWidth="2.5" />
+                      <circle cx="78" cy="145" r="8" fill="#fee2e2" stroke="#ef4444" strokeWidth="1.5" />
+                      <text x="78" y="149" textAnchor="middle" fill="#dc2626"
+                            fontSize="9" fontWeight="bold" fontFamily="sans-serif">O</text>
+
+                      {/* C5 carbon atom — where misplaced side chain branches off */}
+                      <circle cx="128" cy="145" r="4.5" fill="#475569" stroke="white" strokeWidth="1.5" />
+
+                      {/* Aliphatic side chain leading to the WRONG donor position */}
+                      <line x1="128" y1="145" x2="158" y2="180" stroke="#94a3b8" strokeWidth="2" />
+                      <line x1="158" y1="180" x2="220" y2="205" stroke="#94a3b8" strokeWidth="2" />
+
+                      {/* HBD oxygen at wrong regiochemical position */}
+                      <circle cx="220" cy="205" r="8" fill="#dbeafe" stroke="#3b82f6" strokeWidth="1.5" />
+                      <text x="220" y="209" textAnchor="middle" fill="#1d4ed8"
+                            fontSize="9" fontWeight="bold" fontFamily="sans-serif">O</text>
+
+                      {/* Dashed red indicator = outside tolerance zone */}
+                      <line x1="228" y1="205" x2="255" y2="220" stroke="#f87171"
+                            strokeDasharray="3,2" strokeWidth="1.5" />
+                      <text x="262" y="225" fill="#dc2626" fontSize="10" fontWeight="bold"
+                            fontFamily="sans-serif">✗</text>
                     </g>
                   )}
                 </g>
