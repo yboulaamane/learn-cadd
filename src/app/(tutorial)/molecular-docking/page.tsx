@@ -11,14 +11,14 @@ import {
 import { Quiz } from "@/components/Quiz";
 
 export default function MolecularDockingPage() {
-  const [posX, setPosX] = useState(-10); // Offset X
-  const [posY, setPosY] = useState(-10); // Offset Y
+  const [posX, setPosX] = useState(15); // Offset X (centered)
+  const [posY, setPosY] = useState(-15); // Offset Y (in bulk solvent)
   const [rotation, setRotation] = useState(0); // Angle in degrees
 
-  // Target coordinates for optimal docking: X = 15, Y = 10, Rotation = 120 deg
+  // Target coordinates for optimal docking: X = 15, Y = 14, Rotation = 22 deg
   const targetX = 15;
-  const targetY = 10;
-  const targetRot = 120;
+  const targetY = 14;
+  const targetRot = 22;
 
   const dx = posX - targetX;
   const dy = posY - targetY;
@@ -27,32 +27,87 @@ export default function MolecularDockingPage() {
   let rotDiff = Math.abs((rotation % 360) - targetRot);
   if (rotDiff > 180) rotDiff = 360 - rotDiff;
 
-  // Electrostatic attraction: maximum at target pose (-8.0 kcal/mol)
-  const electrostatic = -8.0 * Math.exp(-dist / 6) * Math.exp(-rotDiff / 40);
-  
+  // Compute pocket cleft surface boundary
+  const pocketY = (x: number) => {
+    if (x < 35 || x > 70) return 20;
+    // Quadratic curve defining the pocket cleft surface
+    return -0.183 * Math.pow(x - 50, 2) + 61.25;
+  };
+
+  const getVertices = (x: number, y: number, rot: number) => {
+    const rad = (rot * Math.PI) / 180;
+    const cos = Math.cos(rad);
+    const sin = Math.sin(rad);
+
+    // Scaled local vertices (factor 0.7) relative to rotation center (35, 35)
+    const localVertices = [
+      { x: -7, y: -7 },
+      { x: 7, y: -7 },
+      { x: 7, y: 7 },
+      { x: 0, y: 7 },
+      { x: 0, y: 0 },
+      { x: -7, y: 0 }
+    ];
+
+    const cx = 35 + x;
+    const cy = 35 + y;
+
+    return localVertices.map(v => {
+      const rx = v.x * cos - v.y * sin;
+      const ry = v.x * sin + v.y * cos;
+      return { x: cx + rx, y: cy + ry };
+    });
+  };
+
+  const vertices = getVertices(posX, posY, rotation);
   let stericClash = 0;
-  // Scientifically accurate steric clash detection:
-  // 1. If pushed too deep into the pocket bottom (Y-axis collision)
-  if (posY > 18) {
-    stericClash = 12; // Unfavorable overlap penalty
-  }
-  // 2. If pushed into the pocket side walls (X-axis collision inside pocket)
-  else if (posY > 8 && (posX < 8 || posX > 22)) {
-    stericClash = 8;
-  }
-  // 3. Rotational clash: if close but in the wrong orientation, causing side chains to collide
-  else if (dist < 5 && rotDiff > 80) {
-    stericClash = 6;
+  let clashReason = "";
+
+  // Check each vertex for protein penetration
+  for (let i = 0; i < vertices.length; i++) {
+    const v = vertices[i];
+    const surfaceY = pocketY(v.x);
+    if (v.y > surfaceY) {
+      // Determine the type of clash based on where the vertex is
+      if (v.x < 35) {
+        stericClash = 15;
+        clashReason = "Steric Clash: Colliding with the left protein wall!";
+        break;
+      } else if (v.x > 70) {
+        stericClash = 15;
+        clashReason = "Steric Clash: Colliding with the right protein wall!";
+        break;
+      } else {
+        // Inside the cleft
+        if (surfaceY > 55) {
+          stericClash = 15;
+          clashReason = "Steric Clash: Colliding with pocket bottom residues!";
+          break;
+        } else {
+          // Hitting side slopes
+          stericClash = 12;
+          clashReason = "Steric Clash: Wrong ligand orientation causes collision with pocket walls!";
+          break;
+        }
+      }
+    }
   }
 
-  // If the ligand is far away in bulk solvent (e.g. negative coords), no clash occurs
-  // and the final score simply decays to 0.0 kcal/mol
-  const finalScore = electrostatic + stericClash;
-  const isDocked = finalScore < -6.0 && dist < 4 && rotDiff < 20;
+  // Electrostatic score (charge-charge attraction, favorable negative energy)
+  const electrostatic = -10.5 * Math.exp(-dist / 8);
+
+  // Orientation/Hydrophobic score (requires correct conformation & rotation)
+  const orientationScore = -3.5 * Math.exp(-rotDiff / 25) * Math.exp(-dist / 10);
+
+  // Combined score (kcal/mol)
+  const finalScore = electrostatic + orientationScore + stericClash;
+  
+  // Docked state: strong binding energy (favorable negative energy) and zero clashes
+  const isDocked = stericClash === 0 && finalScore < -7.5;
 
   const resetDocking = () => {
-    setPosX(-10);
-    setPosY(-10);
+    setPosX(15);
+    setPosY(-15);
     setRotation(0);
   };
 
@@ -123,22 +178,36 @@ export default function MolecularDockingPage() {
           
           {/* Simulation Display */}
           <div className="md:col-span-6 flex justify-center">
-            <div className="w-full max-w-[240px] aspect-square relative bg-slate-50 border border-slate-250 rounded-lg p-4 flex flex-col justify-center items-center">
+            <div className="w-full max-w-[240px] aspect-square relative bg-white border border-slate-200 rounded-xl p-4 flex flex-col justify-center items-center shadow-inner overflow-hidden">
               <svg viewBox="0 0 100 100" className="w-full h-full">
-                <path d="M20,20 L35,20 C40,45 65,45 70,20 L85,20 L85,85 L20,85 Z" fill="currentColor" className="text-slate-200" stroke="currentColor" strokeWidth="1" />
+                <defs>
+                  <linearGradient id="proteinGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor="#f8fafc" />
+                    <stop offset="100%" stopColor="#e2e8f0" />
+                  </linearGradient>
+                  <linearGradient id="receptorGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor="#e2e8f0" />
+                    <stop offset="100%" stopColor="#cbd5e1" />
+                  </linearGradient>
+                </defs>
+                {/* Background grid */}
+                <rect x="0" y="0" width="100" height="100" fill="url(#proteinGrad)" />
+                
+                {/* Receptor Protein pocket cleft */}
+                <path d="M20,20 L35,20 C40,75 60,75 70,20 L85,20 L85,85 L20,85 Z" fill="url(#receptorGrad)" stroke="#94a3b8" strokeWidth="1" />
                 
                 {/* Target electrostatic center (-) */}
-                <circle cx="50" cy="50" r="3.5" fill="currentColor" className="text-slate-800" />
-                <text x="50" y="58" textAnchor="middle" fill="currentColor" className="text-slate-900 animate-pulse font-bold" fontSize="6.5" fontWeight="bold">-</text>
+                <circle cx="50" cy="49" r="4.5" className="fill-red-500 stroke-white stroke-[0.75]" />
+                <text x="50" y="50.8" textAnchor="middle" fill="#ffffff" className="font-black font-sans select-none" fontSize="6.5" fontWeight="bold">-</text>
 
                 {/* Ligand container that translates and rotates */}
                 <g 
                   className="transition-transform duration-100 ease-out" 
                   style={{ transform: `translate(${posX}px, ${posY}px) rotate(${rotation}deg)`, transformOrigin: "35px 35px" }}
                 >
-                  <path d="M25,25 L45,25 L45,45 L35,45 L35,35 L25,35 Z" fill="none" stroke="currentColor" className="text-slate-800" strokeWidth="1.2" />
-                  <circle cx="35" cy="35" r="3" fill="currentColor" className="text-slate-900" />
-                  <text x="35" y="37" textAnchor="middle" fill="currentColor" className="text-white font-bold" fontSize="5.5" fontWeight="bold">+</text>
+                  <path d="M28,28 L42,28 L42,42 L35,42 L35,35 L28,35 Z" fill="#3b82f6" fillOpacity="0.15" stroke="#2563eb" strokeWidth="1.5" strokeLinejoin="round" />
+                  <circle cx="35" cy="35" r="3.5" className="fill-blue-600 stroke-white stroke-[0.75]" />
+                  <text x="35" y="36.8" textAnchor="middle" fill="#ffffff" className="font-black font-sans select-none" fontSize="5.5" fontWeight="bold">+</text>
                 </g>
               </svg>
             </div>
@@ -170,6 +239,12 @@ export default function MolecularDockingPage() {
                 </span>
                 <span className="text-sm text-slate-800 font-semibold ml-1">kcal/mol</span>
               </p>
+
+              {stericClash > 0 && (
+                <p className="text-xs text-red-600 font-semibold mt-1 pt-1 border-t border-red-150">
+                  {clashReason}
+                </p>
+              )}
             </div>
 
             {/* Translation X slider */}
