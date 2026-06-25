@@ -36,9 +36,9 @@ export default function PharmacophoreModelingPage() {
       scaffold: "Steroidal",
       features: ["acceptor", "aromatic", "donor"],
       coords: {
-        aromatic: { x: 150, y: 100, match: true },
-        acceptor: { x: 80, y: 220, match: true },
-        donor: { x: 320, y: 180, match: true }
+        aromatic: { x: 125, y: 115, match: true },
+        acceptor: { x: 75, y: 115, match: true },
+        donor: { x: 320, y: 115, match: true }
       },
       desc: "An organic compound built on a four-ring steroidal skeleton. The phenolic A-ring acts as the aromatic center and H-bond acceptor, while the cyclopentane D-ring hydroxyl acts as the H-bond donor. Both match the 3D distances perfectly.",
       chemicalFormula: "C₁₈H₂₄O₂",
@@ -50,9 +50,9 @@ export default function PharmacophoreModelingPage() {
       scaffold: "Stilbene (Non-Steroidal)",
       features: ["acceptor", "aromatic", "donor"],
       coords: {
-        aromatic: { x: 150, y: 100, match: true },
-        acceptor: { x: 80, y: 220, match: true },
-        donor: { x: 320, y: 180, match: true }
+        aromatic: { x: 128, y: 115, match: true },
+        acceptor: { x: 78, y: 115, match: true },
+        donor: { x: 320, y: 115, match: true }
       },
       desc: "A synthetic, non-steroidal estrogen analogue. Chemically, it is a stilbene derivative. Despite having zero skeletal similarity to a steroid, its flexible ethyl chains allow it to adopt a conformation that places its two phenolic hydroxyl groups in the exact same 3D spatial points as Estradiol. This is a classic example of Scaffold Hopping.",
       chemicalFormula: "C₁₈H₂₀O₂",
@@ -64,8 +64,8 @@ export default function PharmacophoreModelingPage() {
       scaffold: "Benzene Derivative",
       features: ["aromatic", "acceptor"],
       coords: {
-        aromatic: { x: 150, y: 100, match: true },
-        acceptor: { x: 80, y: 220, match: true },
+        aromatic: { x: 128, y: 115, match: true },
+        acceptor: { x: 78, y: 115, match: true },
         donor: { x: 230, y: 210, match: false } // Too short/different direction
       },
       desc: "A smaller benzene derivative. While it contains an aromatic core and a matching H-bond acceptor, its aliphatic alcohol group is positioned on a different carbon atom, placing the H-bond donor center far outside the tolerance zone of the receptor's active site pharmacophore model.",
@@ -84,11 +84,11 @@ export default function PharmacophoreModelingPage() {
   };
 
   // Check if a molecule feature matches based on spatial tolerance
-  // Query center coordinates: AR(150, 100), HBA(80, 220), HBD(320, 180)
+  // Query center coordinates: AR(125, 115), HBA(75, 115), HBD(320, 115)
   const queryCoords = {
-    aromatic: { x: 150, y: 100 },
-    acceptor: { x: 80, y: 220 },
-    donor: { x: 320, y: 180 }
+    aromatic: { x: 125, y: 115 },
+    acceptor: { x: 75, y: 115 },
+    donor: { x: 320, y: 115 }
   };
 
   const checkFeatureMatch = (featureId: "aromatic" | "acceptor" | "donor", mol: typeof dbMolecules[0]) => {
@@ -448,24 +448,24 @@ export default function PharmacophoreModelingPage() {
                 {/* Distance Dimension Lines in background */}
                 {selectedFeatures.includes("aromatic") && selectedFeatures.includes("acceptor") && (
                   <g className="opacity-60">
-                    <line x1="150" y1="100" x2="80" y2="220" stroke="#475569" strokeWidth="1" strokeDasharray="3,3" />
-                    <text x="105" y="155" fill="#334155" className="text-xs font-mono font-bold" textAnchor="middle">
+                    <line x1="125" y1="115" x2="75" y2="115" stroke="#475569" strokeWidth="1" strokeDasharray="3,3" />
+                    <text x="100" y="105" fill="#334155" className="text-xs font-mono font-bold" textAnchor="middle">
                       {getDistance(queryCoords.aromatic, queryCoords.acceptor)} Å
                     </text>
                   </g>
                 )}
                 {selectedFeatures.includes("aromatic") && selectedFeatures.includes("donor") && (
                   <g className="opacity-60">
-                    <line x1="150" y1="100" x2="320" y2="180" stroke="#475569" strokeWidth="1" strokeDasharray="3,3" />
-                    <text x="245" y="135" fill="#334155" className="text-xs font-mono font-bold" textAnchor="middle">
+                    <line x1="125" y1="115" x2="320" y2="115" stroke="#475569" strokeWidth="1" strokeDasharray="3,3" />
+                    <text x="222" y="105" fill="#334155" className="text-xs font-mono font-bold" textAnchor="middle">
                       {getDistance(queryCoords.aromatic, queryCoords.donor)} Å
                     </text>
                   </g>
                 )}
                 {selectedFeatures.includes("acceptor") && selectedFeatures.includes("donor") && (
                   <g className="opacity-60">
-                    <line x1="80" y1="220" x2="320" y2="180" stroke="#475569" strokeWidth="1" strokeDasharray="3,3" />
-                    <text x="200" y="215" fill="#334155" className="text-xs font-mono font-bold" textAnchor="middle">
+                    <line x1="75" y1="115" x2="320" y2="115" stroke="#475569" strokeWidth="1" strokeDasharray="3,3" />
+                    <text x="197" y="130" fill="#334155" className="text-xs font-mono font-bold" textAnchor="middle">
                       {getDistance(queryCoords.acceptor, queryCoords.donor)} Å
                     </text>
                   </g>
@@ -476,7 +476,7 @@ export default function PharmacophoreModelingPage() {
                   {/* Molecule A - Estradiol Analogue (Steroid backbone) */}
                   {selectedMolecule === 0 && (
                     <g stroke="#94a3b8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none">
-                      {/* Aromatic ring (Phenol) */}
+                      {/* Aromatic ring (Phenol A-ring) */}
                       <polygon points="150,100 125,85 100,100 100,130 125,145 150,130" className="stroke-slate-500 fill-slate-50/20" />
                       <line x1="145" y1="105" x2="128" y2="95" stroke="#cbd5e1" strokeWidth="1" />
                       <line x1="105" y1="105" x2="105" y2="125" stroke="#cbd5e1" strokeWidth="1" />
@@ -486,13 +486,13 @@ export default function PharmacophoreModelingPage() {
                       {/* C-ring */}
                       <polygon points="200,130 225,145 250,130 250,100 225,85 200,100" />
                       {/* D-ring (5-membered) */}
-                      <polygon points="250,130 280,138 295,115 272,92 250,100" />
-                      {/* Acceptor connection (Hydroxyl O) */}
-                      <line x1="100" y1="100" x2="80" y2="220" className="stroke-red-400 stroke-2" />
-                      <circle cx="80" cy="220" r="4" fill="#ef4444" />
-                      {/* Donor connection (Hydroxyl H) */}
-                      <line x1="295" y1="115" x2="320" y2="180" className="stroke-blue-400 stroke-2" />
-                      <circle cx="320" cy="180" r="4" fill="#3b82f6" />
+                      <polygon points="250,130 280,135 295,115 280,95 250,100" />
+                      {/* Acceptor connection (Hydroxyl O at C3) */}
+                      <line x1="100" y1="115" x2="75" y2="115" className="stroke-red-400 stroke-2" />
+                      <circle cx="75" cy="115" r="4" fill="#ef4444" />
+                      {/* Donor connection (Hydroxyl O at C17) */}
+                      <line x1="295" y1="115" x2="320" y2="115" className="stroke-blue-400 stroke-2" />
+                      <circle cx="320" cy="115" r="4" fill="#3b82f6" />
                     </g>
                   )}
 
@@ -502,18 +502,18 @@ export default function PharmacophoreModelingPage() {
                       {/* Left Aromatic Ring */}
                       <polygon points="150,100 128,85 105,100 105,130 128,145 150,130" className="stroke-slate-500 fill-slate-50/20" />
                       {/* Central alkene connection */}
-                      <line x1="150" y1="130" x2="180" y2="148" />
-                      <line x1="180" y1="148" x2="210" y2="135" strokeWidth="3" /> {/* Double bond */}
-                      <line x1="180" y1="148" x2="185" y2="175" /> {/* Ethyl group 1 */}
-                      <line x1="210" y1="135" x2="205" y2="108" /> {/* Ethyl group 2 */}
+                      <line x1="150" y1="115" x2="180" y2="115" />
+                      <line x1="180" y1="115" x2="210" y2="115" strokeWidth="3" /> {/* Double bond */}
+                      <line x1="180" y1="115" x2="180" y2="140" /> {/* Ethyl group 1 */}
+                      <line x1="210" y1="115" x2="210" y2="90" /> {/* Ethyl group 2 */}
                       {/* Right Aromatic Ring */}
-                      <polygon points="210,135 235,148 262,135 262,105 235,92 210,105" className="stroke-slate-500 fill-slate-50/20" />
+                      <polygon points="210,115 225,100 250,100 265,115 250,130 225,130" className="stroke-slate-500 fill-slate-50/20" />
                       {/* Acceptor connector */}
-                      <line x1="105" y1="100" x2="80" y2="220" className="stroke-red-400 stroke-2" />
-                      <circle cx="80" cy="220" r="4" fill="#ef4444" />
+                      <line x1="105" y1="115" x2="78" y2="115" className="stroke-red-400 stroke-2" />
+                      <circle cx="78" cy="115" r="4" fill="#ef4444" />
                       {/* Donor connector */}
-                      <line x1="262" y1="135" x2="320" y2="180" className="stroke-blue-400 stroke-2" />
-                      <circle cx="320" cy="180" r="4" fill="#3b82f6" />
+                      <line x1="265" y1="115" x2="320" y2="115" className="stroke-blue-400 stroke-2" />
+                      <circle cx="320" cy="115" r="4" fill="#3b82f6" />
                     </g>
                   )}
 
@@ -530,8 +530,8 @@ export default function PharmacophoreModelingPage() {
                       <line x1="230" y1="210" x2="260" y2="235" strokeDasharray="2,2" strokeWidth="1" className="stroke-rose-400" />
                       
                       {/* Acceptor connection */}
-                      <line x1="105" y1="100" x2="80" y2="220" className="stroke-red-400 stroke-2" />
-                      <circle cx="80" cy="220" r="4" fill="#ef4444" />
+                      <line x1="105" y1="115" x2="78" y2="115" className="stroke-red-400 stroke-2" />
+                      <circle cx="78" cy="115" r="4" fill="#ef4444" />
                     </g>
                   )}
                 </g>
@@ -540,32 +540,32 @@ export default function PharmacophoreModelingPage() {
                 {selectedFeatures.includes("aromatic") && (
                   <g className="transition-all duration-300">
                     <circle 
-                      cx="150" 
-                      cy="100" 
+                      cx="125" 
+                      cy="115" 
                       r={tolerance * 25} 
                       className={`stroke-amber-500 fill-amber-100/20 transition-all ${
                         hoveredFeature === "aromatic" ? "stroke-2" : "stroke-[1.5]"
                       }`}
                       strokeDasharray="4,2" 
                     />
-                    <circle cx="150" cy="100" r="8" className="fill-amber-500 stroke-white stroke-2" />
-                    <text x="150" y="80" className="text-xs font-bold fill-amber-800 text-center" textAnchor="middle">AR Center</text>
+                    <circle cx="125" cy="115" r="8" className="fill-amber-500 stroke-white stroke-2" />
+                    <text x="125" y="95" className="text-xs font-bold fill-amber-800 text-center" textAnchor="middle">AR Center</text>
                   </g>
                 )}
 
                 {selectedFeatures.includes("acceptor") && (
                   <g className="transition-all duration-300">
                     <circle 
-                      cx="80" 
-                      cy="220" 
+                      cx="75" 
+                      cy="115" 
                       r={tolerance * 25} 
                       className={`stroke-red-500 fill-red-100/20 transition-all ${
                         hoveredFeature === "acceptor" ? "stroke-2" : "stroke-[1.5]"
                       }`}
                       strokeDasharray="4,2" 
                     />
-                    <circle cx="80" cy="220" r="8" className="fill-red-500 stroke-white stroke-2" />
-                    <text x="80" y="248" className="text-xs font-bold fill-red-800 text-center" textAnchor="middle">HBA Center</text>
+                    <circle cx="75" cy="115" r="8" className="fill-red-500 stroke-white stroke-2" />
+                    <text x="75" y="143" className="text-xs font-bold fill-red-800 text-center" textAnchor="middle">HBA Center</text>
                   </g>
                 )}
 
@@ -573,15 +573,15 @@ export default function PharmacophoreModelingPage() {
                   <g className="transition-all duration-300">
                     <circle 
                       cx="320" 
-                      cy="180" 
+                      cy="115" 
                       r={tolerance * 25} 
                       className={`stroke-blue-500 fill-blue-100/20 transition-all ${
                         hoveredFeature === "donor" ? "stroke-2" : "stroke-[1.5]"
                       }`}
                       strokeDasharray="4,2" 
                     />
-                    <circle cx="320" cy="180" r="8" className="fill-blue-500 stroke-white stroke-2" />
-                    <text x="320" y="160" className="text-xs font-bold fill-blue-800 text-center" textAnchor="middle">HBD Center</text>
+                    <circle cx="320" cy="115" r="8" className="fill-blue-500 stroke-white stroke-2" />
+                    <text x="320" y="95" className="text-xs font-bold fill-blue-800 text-center" textAnchor="middle">HBD Center</text>
                   </g>
                 )}
               </svg>

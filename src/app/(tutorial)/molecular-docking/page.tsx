@@ -11,8 +11,8 @@ import {
 import { Quiz } from "@/components/Quiz";
 
 export default function MolecularDockingPage() {
-  const [posX, setPosX] = useState(0); // Offset X
-  const [posY, setPosY] = useState(0); // Offset Y
+  const [posX, setPosX] = useState(-10); // Offset X
+  const [posY, setPosY] = useState(-10); // Offset Y
   const [rotation, setRotation] = useState(0); // Angle in degrees
 
   // Target coordinates for optimal docking: X = 15, Y = 10, Rotation = 120 deg
@@ -27,17 +27,28 @@ export default function MolecularDockingPage() {
   let rotDiff = Math.abs((rotation % 360) - targetRot);
   if (rotDiff > 180) rotDiff = 360 - rotDiff;
 
-  const electrostatic = -8.0 * Math.exp(-dist / 5) * Math.exp(-rotDiff / 30);
+  // Electrostatic attraction: maximum at target pose (-8.0 kcal/mol)
+  const electrostatic = -8.0 * Math.exp(-dist / 6) * Math.exp(-rotDiff / 40);
   
   let stericClash = 0;
-  if (posX > 25 || posY > 22 || posX < -10 || posY < -10) {
-    stericClash = 15;
-  } else if (dist < 5 && rotDiff > 90) {
+  // Scientifically accurate steric clash detection:
+  // 1. If pushed too deep into the pocket bottom (Y-axis collision)
+  if (posY > 18) {
+    stericClash = 12; // Unfavorable overlap penalty
+  }
+  // 2. If pushed into the pocket side walls (X-axis collision inside pocket)
+  else if (posY > 8 && (posX < 8 || posX > 22)) {
     stericClash = 8;
   }
+  // 3. Rotational clash: if close but in the wrong orientation, causing side chains to collide
+  else if (dist < 5 && rotDiff > 80) {
+    stericClash = 6;
+  }
 
+  // If the ligand is far away in bulk solvent (e.g. negative coords), no clash occurs
+  // and the final score simply decays to 0.0 kcal/mol
   const finalScore = electrostatic + stericClash;
-  const isDocked = finalScore < -6.5 && dist < 4 && rotDiff < 20;
+  const isDocked = finalScore < -6.0 && dist < 4 && rotDiff < 20;
 
   const resetDocking = () => {
     setPosX(-10);
