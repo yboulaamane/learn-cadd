@@ -470,7 +470,13 @@ export default function QsarModelingPage() {
             The Williams Plot is a diagnostic scatter plot used to simultaneously identify structurally influential compounds and poorly predicted compounds. The <strong>X-axis</strong> represents the leverage (hat values, h_i), quantifying how far each compound lies from the centroid of the training set descriptor space. The <strong>Y-axis</strong> represents the standardized residuals (difference between predicted and observed values, scaled by standard deviation).
           </p>
           <p className="text-sm text-slate-800 leading-relaxed font-medium">
-            The critical warning limit is defined as <strong>h* = 3p/n</strong>, where p is the number of model parameters and n is the number of training compounds. Compounds with h &gt; h* <strong>AND</strong> |standardized residual| &gt; 3 are both structural outliers (outside the training chemical space) and poorly predicted; these data points should be flagged for manual review or removed from the model.
+            Mathematically, the leverage <span className="font-semibold">h_i</span> of a query compound represented by descriptor vector <span className="font-mono">x_i</span> is calculated using the hat matrix diagonal:
+          </p>
+          <div className="my-2 font-mono text-center text-xs bg-slate-50 py-1.5 rounded text-slate-800 font-bold border border-slate-200">
+            {"h_i = x_i × (X^T × X)^(-1) × x_i^T"}
+          </div>
+          <p className="text-sm text-slate-800 leading-relaxed font-medium">
+            Where <span className="font-semibold">X</span> is the training set descriptor matrix. The critical warning limit is defined as <strong>h* = 3p/n</strong>, where p is the number of model parameters (descriptors) plus 1, and n is the number of training compounds. Compounds with h &gt; h* lie outside the applicability domain of the model, meaning predictions for them represent extrapolation rather than interpolation and are highly unreliable.
           </p>
         </div>
 

@@ -192,7 +192,13 @@ export default function InSilicoToxicologyPage() {
           Historically, machine learning models in toxicology were viewed as black boxes. Modern regulatory bodies require model predictions to be interpretable. <strong>SHAP (SHapley Additive exPlanations)</strong>, derived from cooperative game theory, provides a solution by assigning each molecular descriptor a value that quantifies its contribution to the final prediction.
         </p>
         <p>
-          In chemoinformatics, SHAP analysis maps back onto a molecule's 2D structure, highlighting exactly which chemical bits increase the probability of toxicity (toxicophores) and which structural fragments lower the risk.
+          In cooperative game theory, Shapley values distribute a total payoff fairly among players based on their marginal contributions. In machine learning, the "payoff" is the model prediction, and the "players" are the individual molecular features. The Shapley value for a feature <span className="font-semibold">i</span> is defined as:
+        </p>
+        <div className="my-3 font-mono text-center text-xs bg-slate-50 py-2 rounded text-slate-805 font-bold border border-slate-200">
+          {"φ_i = Σ [ (|S|! × (|F| - |S| - 1)!) / |F|! ] × [ f(S ∪ {i}) - f(S) ]"}
+        </div>
+        <p className="text-sm text-slate-800 leading-relaxed font-medium">
+          Where <span className="font-semibold">F</span> is the set of all features, <span className="font-semibold">S</span> is a subset of features excluding feature <span className="font-semibold">i</span>, and <span className="font-semibold">f(S)</span> is the prediction function. This checks every possible permutation of features to isolate the independent effect of a single chemical bit. In chemoinformatics, SHAP analysis maps these values back onto a molecule's 2D structure, highlighting exactly which chemical bits increase the probability of toxicity (toxicophores) and which structural fragments lower the risk.
         </p>
       </section>
 

@@ -30,8 +30,8 @@ export default function MolecularDockingPage() {
   // Compute pocket cleft surface boundary
   const pocketY = (x: number) => {
     if (x < 35 || x > 70) return 20;
-    // Quadratic curve defining the pocket cleft surface
-    return -0.183 * Math.pow(x - 50, 2) + 61.25;
+    // Quadratic curve defining the pocket cleft surface (symmetric from x=35 to x=70, peaking at 61.25)
+    return -0.13469 * Math.pow(x - 52.5, 2) + 61.25;
   };
 
   const getVertices = (x: number, y: number, rot: number) => {

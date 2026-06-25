@@ -161,6 +161,19 @@ export default function AdvancedFrontiersPage() {
             </div>
           </div>
         </div>
+
+        <div className="p-4 rounded-xl border border-border bg-white space-y-2">
+          <h4 className="font-bold text-sm text-slate-900">Ternary Thermodynamics &amp; Cooperativity (α)</h4>
+          <p className="text-sm text-slate-800 leading-relaxed font-medium">
+            The formation of the ternary complex [Target-PROTAC-E3] is governed by thermodynamic cooperativity. The cooperativity factor <span className="font-semibold">α</span> relates the ternary dissociation constant (<span className="font-mono">K_D12</span>, binding of the second protein to the binary complex) to the binary dissociation constant (<span className="font-mono">K_D1</span>, binding to the isolated protein):
+          </p>
+          <div className="my-2 font-mono text-center text-xs bg-slate-50 py-1.5 rounded text-slate-800 font-bold border border-slate-200">
+            {"α = K_D1 / K_D12"}
+          </div>
+          <p className="text-sm text-slate-800 leading-relaxed font-medium">
+            Where <span className="font-semibold">α &gt; 1</span> represents positive cooperativity (the binary complex has a higher affinity for the second partner than the free protein does, stabilizing the ternary assembly), and <span className="font-semibold">α &lt; 1</span> represents negative cooperativity (steric clashes or electrostatic repulsion between the two proteins destabilize the complex).
+          </p>
+        </div>
       </section>
 
       {/* Interactive Widget: PROTAC Simulator */}
