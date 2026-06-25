@@ -583,7 +583,7 @@ export default function QsarModelingPage() {
         </div>
         <p className="text-sm text-slate-800">
           A machine learning model cannot make reliable predictions outside its training envelope. We compress multidimensional descriptors onto a 2D Principal Component Analysis (PCA) projection.
-          <strong> Drag the yellow star (Test Compound)</strong> on the plot (or use the sliders) to see how its position relative to the 95% confidence boundary (the green shaded ellipse) dictates leverage ($h$) and prediction reliability!
+          <strong> Drag the yellow star (Test Compound)</strong> on the plot (or use the sliders) to see how its position relative to the 95% confidence boundary (the green shaded ellipse) dictates leverage (h) and prediction reliability!
         </p>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 bg-white p-5 rounded-lg border border-slate-200">
@@ -862,7 +862,7 @@ export default function QsarModelingPage() {
               Important clinical parameters modeled in modern pipelines include:
             </p>
             <ul className="list-disc pl-5 text-xs text-slate-800 space-y-1 font-medium">
-              <li><strong>hERG Inhibition:</strong> Potassium channel block causing cardiotoxicity. Modeled using regression ($IC_{50}$ values).</li>
+              <li><strong>hERG Inhibition:</strong> Potassium channel block causing cardiotoxicity. Modeled using regression (IC<sub>50</sub> values).</li>
               <li><strong>Mitochondrial Toxicity:</strong> A major driver of drug-induced liver injury (DILI). Evaluated via binary classification.</li>
               <li><strong>Volume of Distribution (Vdss) & Clearance (CL):</strong> Pharmacokinetic parameters indicating tissue distribution and elimination rate.</li>
             </ul>
@@ -886,7 +886,7 @@ export default function QsarModelingPage() {
         <div className="space-y-2 pt-2">
           <h4 className="font-bold text-sm text-slate-900">Coding Similarity-Based Applicability Domains</h4>
           <p>
-            In addition to leverage-based applicability domains, models also use <strong>similarity-based applicability domains</strong>. This involves calculating the maximum Tanimoto similarity of a test compound against all compounds in the training set (`max_similarity_to_train`). If the similarity drops below a threshold (e.g., $Tc &lt; 0.70$), the model's error (RMSE) degrades significantly.
+            In addition to leverage-based applicability domains, models also use <strong>similarity-based applicability domains</strong>. This involves calculating the maximum Tanimoto similarity of a test compound against all compounds in the training set (`max_similarity_to_train`). If the similarity drops below a threshold (e.g., Tc &lt; 0.70), the model's error (RMSE) degrades significantly.
           </p>
           <p>
             Below is a Python RDKit code block showing how to calculate similarity metrics to define an applicability domain envelope:

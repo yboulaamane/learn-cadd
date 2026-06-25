@@ -705,7 +705,7 @@ for idx, isomer in enumerate(isomers):
           While basic 1D descriptors capture simple properties (like logP or molecular weight), advanced machine learning relies on molecular fingerprints to encode spatial networks:
         </p>
 
-        <div className="space-y-4">
+        <div className="space-y-4 not-prose">
           <div className="flex gap-4 p-4 rounded-lg border border-border bg-white">
             <span className="h-6 w-6 text-xs font-bold bg-slate-100 border border-border rounded flex items-center justify-center flex-shrink-0">A</span>
             <div>
