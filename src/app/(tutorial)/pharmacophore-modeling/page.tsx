@@ -541,19 +541,17 @@ export default function PharmacophoreModelingPage() {
                       {/* Central (E)-C(Et)=C(Et)- linkage with accurate zig-zag trans geometry */}
                       {/* C1 → C_a */}
                       <line x1="150" y1="100" x2="185" y2="120" stroke="#94a3b8" strokeWidth="2" />
-                      {/* Ethyl branch at C_a (downward) */}
-                      <line x1="185" y1="120" x2="185" y2="145" stroke="#94a3b8" strokeWidth="1.5" />
-                      <text x="185" y="155" textAnchor="middle" fill="#64748b"
-                            fontSize="8" fontWeight="bold" fontFamily="monospace">Et</text>
+                      {/* Ethyl branch at C_a (CH2-CH3) pointing downward */}
+                      <line x1="185" y1="120" x2="185" y2="145" stroke="#94a3b8" strokeWidth="2" />
+                      <line x1="185" y1="145" x2="205" y2="157" stroke="#94a3b8" strokeWidth="2" />
                       
                       {/* C_a=C_b double bond */}
                       <line x1="185" y1="120" x2="215" y2="95" stroke="#64748b" strokeWidth="2.5" />
                       <line x1="190" y1="126" x2="220" y2="101" stroke="#94a3b8" strokeWidth="1.5" />
 
-                      {/* Ethyl branch at C_b (upward) */}
-                      <line x1="215" y1="95" x2="215" y2="70" stroke="#94a3b8" strokeWidth="1.5" />
-                      <text x="215" y="65" textAnchor="middle" fill="#64748b"
-                            fontSize="8" fontWeight="bold" fontFamily="monospace">Et</text>
+                      {/* Ethyl branch at C_b (CH2-CH3) pointing upward */}
+                      <line x1="215" y1="95" x2="215" y2="70" stroke="#94a3b8" strokeWidth="2" />
+                      <line x1="215" y1="70" x2="195" y2="58" stroke="#94a3b8" strokeWidth="2" />
 
                       {/* C_b → right ring leftmost vertex */}
                       <line x1="215" y1="95" x2="252" y2="115" stroke="#94a3b8" strokeWidth="2" />
