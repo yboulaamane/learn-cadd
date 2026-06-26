@@ -11,8 +11,8 @@ import {
 import { Quiz } from "@/components/Quiz";
 
 export default function MolecularDockingPage() {
-  const [posX, setPosX] = useState(15); // Offset X (centered)
-  const [posY, setPosY] = useState(-15); // Offset Y (in bulk solvent)
+  const [posX, setPosX] = useState(0); // Offset X (centered)
+  const [posY, setPosY] = useState(-12); // Offset Y (in bulk solvent)
   const [rotation, setRotation] = useState(0); // Angle in degrees
 
   // Target coordinates for optimal docking: X = 15, Y = 14, Rotation = 22 deg
@@ -93,21 +93,30 @@ export default function MolecularDockingPage() {
     }
   }
 
-  // Electrostatic score (charge-charge attraction, favorable negative energy)
-  const electrostatic = -10.5 * Math.exp(-dist / 8);
+  // Electrostatic/vdW score: attractive only near the binding site (short-range)
+  // At dist=30 (bulk solvent): exp(-30/4) ≈ 0.00055 → score ≈ 0.00 kcal/mol
+  const electrostatic = -11.0 * Math.exp(-dist / 4);
 
   // Orientation/Hydrophobic score (requires correct conformation & rotation)
-  const orientationScore = -3.5 * Math.exp(-rotDiff / 25) * Math.exp(-dist / 10);
+  const orientationScore = -3.0 * Math.exp(-rotDiff / 20) * Math.exp(-dist / 4);
 
-  // Combined score (kcal/mol)
-  const finalScore = electrostatic + orientationScore + stericClash;
+  // Desolvation penalty: peaks at pocket entry (~dist 10), zero in bulk and pocket core
+  const desolvation = dist < 18 ? 1.5 * (dist / 10) * Math.exp(-(dist - 8) / 6) : 0;
+
+  // Net score: ~0 in bulk solvent, slightly unfavorable at pocket entry, strongly negative deep inside
+  const rawScore = electrostatic + orientationScore + desolvation + stericClash;
+  const finalScore = Math.max(-14, Math.min(15, rawScore));
   
-  // Docked state: strong binding energy (favorable negative energy) and zero clashes
-  const isDocked = stericClash === 0 && finalScore < -7.5;
+  // Docked state: strong binding energy and zero clashes
+  const isDocked = stericClash === 0 && finalScore < -8.5;
+
+  // Display score: clamp tiny near-zero values (bulk solvent) to exactly 0.00
+  const displayScore = Math.abs(finalScore) < 0.05 ? 0 : finalScore;
+  const isFarFromPocket = Math.abs(finalScore) < 0.5 && stericClash === 0;
 
   const resetDocking = () => {
-    setPosX(15);
-    setPosY(-15);
+    setPosX(0);
+    setPosY(-12);
     setRotation(0);
   };
 
@@ -219,26 +228,36 @@ export default function MolecularDockingPage() {
             {/* Real-time score card */}
             <div className="p-3.5 bg-slate-50 border border-slate-250 rounded-lg space-y-1">
               <div className="flex justify-between items-center">
-                <span className="text-xs text-slate-800 font-bold uppercase tracking-wider block">Docking Affinity</span>
+                <span className="text-xs text-slate-800 font-bold uppercase tracking-wider block">Docking Score (ΔG)</span>
                 {isDocked ? (
                   <span className="text-xs font-bold text-emerald-700 flex items-center gap-1">
-                    <CheckCircle size={14} /> Target Docked!
+                    <CheckCircle size={14} /> Optimal Binding!
                   </span>
                 ) : stericClash > 0 ? (
                   <span className="text-xs font-bold text-red-650 flex items-center gap-1">
                     <AlertTriangle size={14} /> Steric Clash!
                   </span>
+                ) : isFarFromPocket ? (
+                  <span className="text-xs text-slate-500 font-semibold flex items-center gap-1">
+                    <Info size={14} /> In Bulk Solvent
+                  </span>
                 ) : (
-                  <span className="text-xs text-slate-700 font-semibold">Searching...</span>
+                  <span className="text-xs text-amber-600 font-semibold">Approaching pocket...</span>
                 )}
               </div>
               
               <p className="text-2xl font-black">
-                <span className={isDocked ? "text-emerald-700" : stericClash > 0 ? "text-red-650" : "text-amber-600"}>
-                  {finalScore.toFixed(2)}
+                <span className={isDocked ? "text-emerald-700" : stericClash > 0 ? "text-red-650" : isFarFromPocket ? "text-slate-400" : "text-amber-600"}>
+                  {displayScore.toFixed(2)}
                 </span>
                 <span className="text-sm text-slate-800 font-semibold ml-1">kcal/mol</span>
               </p>
+
+              {isFarFromPocket && (
+                <p className="text-xs text-slate-500 mt-1 pt-1 border-t border-slate-200">
+                  No significant binding. Drag the ligand into the pocket above.
+                </p>
+              )}
 
               {stericClash > 0 && (
                 <p className="text-xs text-red-600 font-semibold mt-1 pt-1 border-t border-red-150">
