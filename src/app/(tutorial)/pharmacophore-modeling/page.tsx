@@ -495,6 +495,9 @@ export default function PharmacophoreModelingPage() {
                       <polygon points="250,130 280,135 295,115 280,95 250,100"
                                stroke="#94a3b8" strokeWidth="2" fill="none" />
 
+                      {/* C18 Angular Methyl group (typical for steroids) at C13 (C/D junction) */}
+                      <line x1="250" y1="100" x2="250" y2="75" stroke="#94a3b8" strokeWidth="2" />
+
                       {/* C3 carbon atom — vertex where phenolic –OH is attached */}
                       <circle cx="100" cy="130" r="4.5" fill="#475569" stroke="white" strokeWidth="1.5" />
 
@@ -600,8 +603,10 @@ export default function PharmacophoreModelingPage() {
                       <circle cx="125" cy="145" r="4.5" fill="#475569" stroke="white" strokeWidth="1.5" />
 
                       {/* Aliphatic side chain leading to the WRONG donor position */}
-                      <line x1="125" y1="145" x2="158" y2="180" stroke="#94a3b8" strokeWidth="2" />
-                      <line x1="158" y1="180" x2="220" y2="205" stroke="#94a3b8" strokeWidth="2" />
+                      {/* Drawn with proper sp3 zig-zag geometry */}
+                      <line x1="125" y1="145" x2="160" y2="170" stroke="#94a3b8" strokeWidth="2" />
+                      <line x1="160" y1="170" x2="195" y2="185" stroke="#94a3b8" strokeWidth="2" />
+                      <line x1="195" y1="185" x2="220" y2="205" stroke="#94a3b8" strokeWidth="2" />
 
                       {/* HBD oxygen at wrong regiochemical position */}
                       <circle cx="220" cy="205" r="8" fill="#dbeafe" stroke="#3b82f6" strokeWidth="1.5" />
