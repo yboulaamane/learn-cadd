@@ -30,7 +30,7 @@ const molecules: Record<string, MoleculeData> = {
   dopamine: {
     id: "dopamine",
     name: "Dopamine",
-    smiles: "C1=CC(=C(C=C1)O)OCCN",
+    smiles: "NCCc1ccc(O)c(O)c1",
     formula: "C₈H₁₁NO₂",
     desc: "An organic chemical of the catecholamine family that functions as a hormone and neurotransmitter in the brain.",
     nodes: [
@@ -214,19 +214,19 @@ export default function CheminformaticsPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-2 not-prose">
           <div className="border border-border rounded-xl p-4 bg-white shadow-sm space-y-1">
             <h4 className="font-bold text-sm text-foreground">Discrete Representations</h4>
-            <p className="text-xs text-slate-655 leading-relaxed">
+            <p className="text-xs text-slate-600 leading-relaxed">
               Express structures as distinct symbolic units. Includes molecular graphs (atoms and bonds), 1D text strings (SMILES, SELFIES), and binary bit vectors. They are human-interpretable and highly traceable.
             </p>
           </div>
           <div className="border border-border rounded-xl p-4 bg-white shadow-sm space-y-1">
             <h4 className="font-bold text-sm text-foreground">Continuous Representations</h4>
-            <p className="text-xs text-slate-655 leading-relaxed">
+            <p className="text-xs text-slate-600 leading-relaxed">
               Express chemical features as real-valued vectors or spatial functions (like Cartesian coordinate arrays or learned neural embeddings from GNNs). Essential for gradient-based deep learning.
             </p>
           </div>
           <div className="border border-border rounded-xl p-4 bg-white shadow-sm space-y-1">
             <h4 className="font-bold text-sm text-foreground">Hybrid Architectures (LLMs)</h4>
-            <p className="text-xs text-slate-655 leading-relaxed">
+            <p className="text-xs text-slate-600 leading-relaxed">
               Large Language Models that tokenize discrete chemical notations into continuous embeddings, perform reasoning in latent spaces, and decode them back to discrete structures.
             </p>
           </div>
@@ -410,7 +410,7 @@ for idx, isomer in enumerate(isomers):
           <GitBranch size={16} />
           <h3 className="font-bold text-sm">Interactive Playground: Chemical Graph & Tanimoto Similarity</h3>
         </div>
-        <p className="text-sm text-slate-655 leading-normal">
+        <p className="text-sm text-slate-600 leading-normal">
           Select structural templates to project their graphs and generated fingerprints. Click any atom in Molecule A to explore how circular ECFP neighborhoods are hashed at increasing radii.
         </p>
 
@@ -720,7 +720,7 @@ for idx, isomer in enumerate(isomers):
             <span className="h-6 w-6 text-xs font-bold bg-slate-100 border border-border rounded flex items-center justify-center flex-shrink-0">B</span>
             <div>
               <h4 className="font-bold text-sm text-foreground">Extended Connectivity Fingerprints (ECFPs)</h4>
-              <p className="text-sm text-slate-650 mt-1 leading-relaxed">
+              <p className="text-sm text-slate-600 mt-1 leading-relaxed">
                 Topological or circular fingerprints. ECFP doesn't use a dictionary. Instead, it systematically identifies every atom in a molecule and lists its neighbors at increasing radii (e.g. radius 2, matching a diameter of 4 for <strong>ECFP4</strong>). The resulting substructures are hashed into integers, which are mapped onto a fixed-size bit array (typically 1024 or 2048 bits).
               </p>
             </div>

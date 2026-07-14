@@ -105,7 +105,7 @@ export default function AdvancedFrontiersPage() {
       {/* Header */}
       <div>
         <h1>Module 9: Advanced Frontiers in Drug Discovery</h1>
-        <p className="lead text-slate-850">
+        <p className="lead text-slate-800">
           Step into the state-of-the-art of 2026. Master de novo generative chemistry (3D diffusion), targeted protein degradation (PROTACs), and neural network machine learning force fields.
         </p>
       </div>
@@ -456,7 +456,7 @@ export default function AdvancedFrontiersPage() {
                 <th className="px-4 py-2 text-left">Chemoinformatics Integration</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200 bg-white text-slate-850">
+            <tbody className="divide-y divide-slate-200 bg-white text-slate-800">
               <tr>
                 <td className="px-4 py-2 font-bold">1. Barcoded Synthesis</td>
                 <td className="px-4 py-2">Compounds are synthesized in a split-and-pool scheme. Each building block addition is coupled with a specific DNA barcode sequence.</td>

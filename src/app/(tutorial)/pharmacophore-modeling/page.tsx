@@ -50,8 +50,8 @@ export default function PharmacophoreModelingPage() {
       scaffold: "Stilbene (Non-Steroidal)",
       features: ["acceptor", "aromatic", "donor"],
       coords: {
-        aromatic: { x: 128, y: 115, match: true },
-        acceptor: { x: 78, y: 145, match: true },
+        aromatic: { x: 125, y: 115, match: true },
+        acceptor: { x: 75, y: 145, match: true },
         donor: { x: 320, y: 115, match: true }
       },
       desc: "A synthetic, non-steroidal estrogen analogue. Chemically, it is a stilbene derivative. Despite having zero skeletal similarity to a steroid, its flexible ethyl chains allow it to adopt a conformation that places its two phenolic hydroxyl groups in the exact same 3D spatial points as Estradiol. This is a classic example of Scaffold Hopping.",
@@ -62,11 +62,11 @@ export default function PharmacophoreModelingPage() {
       id: 2,
       name: "Molecule C (Incompatible Regioisomer)",
       scaffold: "Benzene Derivative",
-      features: ["aromatic", "acceptor"],
+      features: ["aromatic", "acceptor", "donor"],
       coords: {
-        aromatic: { x: 128, y: 115, match: true },
-        acceptor: { x: 78, y: 145, match: true },
-        donor: { x: 230, y: 210, match: false } // Too short/different direction
+        aromatic: { x: 125, y: 115, match: true },
+        acceptor: { x: 75, y: 145, match: true },
+        donor: { x: 263, y: 155, match: false } // Too short/different direction
       },
       desc: "A smaller benzene derivative. While it contains an aromatic core and a matching H-bond acceptor, its aliphatic alcohol group is positioned on a different carbon atom, placing the H-bond donor center far outside the tolerance zone of the receptor's active site pharmacophore model.",
       chemicalFormula: "C₁₀H₁₄O₂",
@@ -231,7 +231,7 @@ export default function PharmacophoreModelingPage() {
                 <span className="h-6 w-6 font-mono font-bold text-xs bg-slate-100 border border-slate-200 rounded flex items-center justify-center flex-shrink-0 text-slate-800">1</span>
                 <div>
                   <h4 className="font-bold text-sm text-slate-900">Database Mining (Biotite & RCSB API)</h4>
-                  <p className="text-xs text-slate-850 mt-1 leading-relaxed">
+                  <p className="text-xs text-slate-800 mt-1 leading-relaxed">
                     Uses RCSB GraphQL queries to retrieve structures bound to active ligands with strict filters: resolved via X-ray crystallography, resolution ≤ 3.0 Å, and drug-like ligand size &gt; 100 Da.
                   </p>
                 </div>
@@ -240,7 +240,7 @@ export default function PharmacophoreModelingPage() {
                 <span className="h-6 w-6 font-mono font-bold text-xs bg-slate-100 border border-slate-200 rounded flex items-center justify-center flex-shrink-0 text-slate-800">2</span>
                 <div>
                   <h4 className="font-bold text-sm text-slate-900">Pocket Superposition (MDAnalysis)</h4>
-                  <p className="text-xs text-slate-850 mt-1 leading-relaxed">
+                  <p className="text-xs text-slate-800 mt-1 leading-relaxed">
                     As structures exist in different crystallographic frames, the pipeline superposes all protein backbones (C-alpha atoms) onto a high-resolution template. This drags the co-crystallized ligands into a common 3D coordinate space inside the pocket.
                   </p>
                 </div>
@@ -249,7 +249,7 @@ export default function PharmacophoreModelingPage() {
                 <span className="h-6 w-6 font-mono font-bold text-xs bg-slate-100 border border-slate-200 rounded flex items-center justify-center flex-shrink-0 text-slate-800">3</span>
                 <div>
                   <h4 className="font-bold text-sm text-slate-900">Spatial Pocket Clustering (scikit-learn DBSCAN)</h4>
-                  <p className="text-xs text-slate-850 mt-1 leading-relaxed">
+                  <p className="text-xs text-slate-800 mt-1 leading-relaxed">
                     Runs DBSCAN (Density-Based Spatial Clustering of Applications with Noise) on all aligned ligand atoms. This separates orthosteric binding groups from allosteric pockets and discards random solvent outliers.
                   </p>
                 </div>
@@ -258,7 +258,7 @@ export default function PharmacophoreModelingPage() {
                 <span className="h-6 w-6 font-mono font-bold text-xs bg-slate-100 border border-slate-200 rounded flex items-center justify-center flex-shrink-0 text-slate-800">4</span>
                 <div>
                   <h4 className="font-bold text-sm text-slate-900">Bond Correction & Feature Tagging (RDKit)</h4>
-                  <p className="text-xs text-slate-850 mt-1 leading-relaxed">
+                  <p className="text-xs text-slate-800 mt-1 leading-relaxed">
                     PDB files do not store bond orders. The pipeline matches co-crystallized coords to 2D SMILES templates to correct bond orders. RDKit's Feature Factory then tags features (HB donors/acceptors, aromatics, hydrophobes) with their exact 3D coordinates.
                   </p>
                 </div>
@@ -267,7 +267,7 @@ export default function PharmacophoreModelingPage() {
                 <span className="h-6 w-6 font-mono font-bold text-xs bg-slate-100 border border-slate-200 rounded flex items-center justify-center flex-shrink-0 text-slate-800">5</span>
                 <div>
                   <h4 className="font-bold text-sm text-slate-900">Consensus Extraction (k-means)</h4>
-                  <p className="text-xs text-slate-850 mt-1 leading-relaxed">
+                  <p className="text-xs text-slate-800 mt-1 leading-relaxed">
                     Groups coordinates of matching features (e.g. all HB donors) and clusters them using k-means. Centroids matching at least 50% of the active ligands are kept as a consensus blueprint for virtual screening.
                   </p>
                 </div>
@@ -353,7 +353,7 @@ export default function PharmacophoreModelingPage() {
 
         {/* Slider for Spatial Tolerance */}
         <div className="space-y-2">
-          <div className="flex justify-between items-center text-sm text-slate-850 font-bold">
+          <div className="flex justify-between items-center text-sm text-slate-800 font-bold">
             <span className="font-semibold text-foreground">2. Spatial Tolerance (Radius)</span>
             <span className="font-bold text-foreground bg-surface border border-border px-2 py-0.5 rounded font-mono text-xs">
               {tolerance.toFixed(2)} Å
@@ -400,15 +400,44 @@ export default function PharmacophoreModelingPage() {
                       <XCircle className="h-5 w-5 text-rose-600" />
                     )}
                   </div>
-                  <div>
+                  <div className="flex-1 min-w-0">
                     <h5 className="font-bold text-sm text-foreground">
                       {isMoleculeMatch(currentMolecule) ? "Supramolecular Match!" : "Validation Failed"}
                     </h5>
                     <p className="text-xs font-semibold leading-relaxed mt-1 opacity-90">
-                      {isMoleculeMatch(currentMolecule) 
+                      {isMoleculeMatch(currentMolecule)
                         ? `${currentMolecule.name} satisfies all active distance constraints within the ${tolerance}Å tolerance boundaries.`
                         : `${currentMolecule.name} does not align. One or more active features lie outside the tolerance sphere coordinates.`}
                     </p>
+                    <div className="mt-2 pt-2 border-t border-current/20 space-y-1">
+                      {selectedFeatures.map((featureId) => {
+                        const fId = featureId as "aromatic" | "acceptor" | "donor";
+                        const hasFeat = currentMolecule.features.includes(featureId);
+                        const dist = hasFeat
+                          ? Math.sqrt(
+                              Math.pow(currentMolecule.coords[fId].x - queryCoords[fId].x, 2) +
+                              Math.pow(currentMolecule.coords[fId].y - queryCoords[fId].y, 2)
+                            ) / 25
+                          : null;
+                        const matches = checkFeatureMatch(fId, currentMolecule);
+                        const label = fId === "acceptor" ? "HBA" : fId === "donor" ? "HBD" : "AR";
+                        return (
+                          <div key={featureId} className="flex items-center justify-between text-xs font-mono gap-2">
+                            <div className="flex items-center gap-1">
+                              {matches
+                                ? <CheckCircle className="h-3 w-3 text-emerald-600 flex-shrink-0" />
+                                : <XCircle className="h-3 w-3 text-rose-600 flex-shrink-0" />}
+                              <span className="font-bold">{label}</span>
+                            </div>
+                            <span className={matches ? "text-emerald-700" : "text-rose-700"}>
+                              {hasFeat
+                                ? `${dist!.toFixed(2)} Å ${matches ? "≤" : ">"} ${tolerance.toFixed(1)} Å`
+                                : "feature absent"}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
               )}
@@ -433,7 +462,7 @@ export default function PharmacophoreModelingPage() {
                   <span className="truncate pr-2">{currentMolecule.name.split(" (")[0]}</span>
                   <span className="text-accent">{currentMolecule.chemicalFormula}</span>
                 </div>
-                <div className="text-xs text-slate-850 border-t border-border pt-1">
+                <div className="text-xs text-slate-800 border-t border-border pt-1">
                   Affinity: <span className="font-semibold text-foreground">{currentMolecule.bindingAffinity}</span>
                 </div>
               </div>
@@ -495,6 +524,9 @@ export default function PharmacophoreModelingPage() {
                       <polygon points="250,130 280,135 295,115 280,95 250,100"
                                stroke="#94a3b8" strokeWidth="2" fill="none" />
 
+                      {/* C18 Angular Methyl group (typical for steroids) at C13 (C/D junction) */}
+                      <line x1="250" y1="100" x2="250" y2="75" stroke="#94a3b8" strokeWidth="2" />
+
                       {/* C3 carbon atom — vertex where phenolic –OH is attached */}
                       <circle cx="100" cy="130" r="4.5" fill="#475569" stroke="white" strokeWidth="1.5" />
 
@@ -503,7 +535,7 @@ export default function PharmacophoreModelingPage() {
                       {/* Oxygen atom circle + label */}
                       <circle cx="75" cy="145" r="8" fill="#fee2e2" stroke="#ef4444" strokeWidth="1.5" />
                       <text x="75" y="149" textAnchor="middle" fill="#dc2626"
-                            fontSize="9" fontWeight="bold" fontFamily="sans-serif">O</text>
+                            fontSize="9" fontWeight="bold" fontFamily="sans-serif">OH</text>
 
                       {/* C17 carbon atom — vertex on D-ring where aliphatic –OH is attached */}
                       <circle cx="295" cy="115" r="4.5" fill="#475569" stroke="white" strokeWidth="1.5" />
@@ -513,107 +545,107 @@ export default function PharmacophoreModelingPage() {
                       {/* Oxygen atom circle + label */}
                       <circle cx="320" cy="115" r="8" fill="#dbeafe" stroke="#3b82f6" strokeWidth="1.5" />
                       <text x="320" y="119" textAnchor="middle" fill="#1d4ed8"
-                            fontSize="9" fontWeight="bold" fontFamily="sans-serif">O</text>
+                            fontSize="9" fontWeight="bold" fontFamily="sans-serif">OH</text>
                     </g>
                   )}
 
                   {/* Molecule B — Diethylstilbestrol (DES, non-steroidal stilbene) */}
                   {selectedMolecule === 1 && (
                     <g strokeLinecap="round" strokeLinejoin="round">
-                      {/* Left phenol ring. Vertices:
-                          C1=(150,100) C2=(128,85) C3=(105,100) C4=(105,130) C5=(128,145) C6=(150,130)
-                          C4=(105,130) bears phenol –OH. C1=(150,100) connects to central alkene (para). */}
-                      <polygon points="150,100 128,85 105,100 105,130 128,145 150,130"
+                      {/* Left phenol ring. Identical to Molecule A's A-ring for perfect alignment. */}
+                      <polygon points="150,100 125,85 100,100 100,130 125,145 150,130"
                                stroke="#64748b" strokeWidth="2" fill="#fef9c3" fillOpacity="0.5" />
-                      <circle cx="128" cy="115" r="10"
+                      <circle cx="125" cy="115" r="10"
                               stroke="#a16207" strokeWidth="1" fill="none" strokeDasharray="3,2" />
 
-                      {/* C4 carbon atom — where left phenol –OH attaches */}
-                      <circle cx="105" cy="130" r="4.5" fill="#475569" stroke="white" strokeWidth="1.5" />
+                      {/* C3 carbon atom — where left phenol –OH attaches */}
+                      <circle cx="100" cy="130" r="4.5" fill="#475569" stroke="white" strokeWidth="1.5" />
 
-                      {/* C4–O bond (HBA phenolic oxygen) */}
-                      <line x1="105" y1="130" x2="75" y2="145" stroke="#ef4444" strokeWidth="2.5" />
+                      {/* C3–O bond (HBA phenolic oxygen) */}
+                      <line x1="100" y1="130" x2="75" y2="145" stroke="#ef4444" strokeWidth="2.5" />
                       <circle cx="75" cy="145" r="8" fill="#fee2e2" stroke="#ef4444" strokeWidth="1.5" />
                       <text x="75" y="149" textAnchor="middle" fill="#dc2626"
-                            fontSize="9" fontWeight="bold" fontFamily="sans-serif">O</text>
+                            fontSize="9" fontWeight="bold" fontFamily="sans-serif">OH</text>
 
                       {/* C1 carbon atom — para vertex connecting to central (E)-alkene */}
                       <circle cx="150" cy="100" r="4.5" fill="#475569" stroke="white" strokeWidth="1.5" />
 
-                      {/* Central (E)-C(Et)=C(Et)- linkage */}
+                      {/* Central (E)-C(Et)=C(Et)- linkage with accurate zig-zag trans geometry */}
                       {/* C1 → C_a */}
-                      <line x1="150" y1="100" x2="183" y2="100" stroke="#94a3b8" strokeWidth="2" />
-                      {/* Ethyl branch at C_a (upward) */}
-                      <line x1="183" y1="100" x2="183" y2="75" stroke="#94a3b8" strokeWidth="1.5" />
-                      <text x="183" y="70" textAnchor="middle" fill="#64748b"
-                            fontSize="8" fontWeight="bold" fontFamily="monospace">Et</text>
-                      {/* C_a=C_b double bond (two parallel lines = double bond notation) */}
-                      <line x1="183" y1="100" x2="217" y2="100" stroke="#64748b" strokeWidth="2.5" />
-                      <line x1="185" y1="108" x2="215" y2="108" stroke="#94a3b8" strokeWidth="1.5" />
-                      {/* Ethyl branch at C_b (upward) */}
-                      <line x1="217" y1="100" x2="217" y2="75" stroke="#94a3b8" strokeWidth="1.5" />
-                      <text x="217" y="70" textAnchor="middle" fill="#64748b"
-                            fontSize="8" fontWeight="bold" fontFamily="monospace">Et</text>
-                      {/* C_b → right ring leftmost vertex */}
-                      <line x1="217" y1="100" x2="252" y2="115" stroke="#94a3b8" strokeWidth="2" />
+                      <line x1="150" y1="100" x2="185" y2="120" stroke="#94a3b8" strokeWidth="2" />
+                      {/* Ethyl branch at C_a (CH2-CH3) pointing downward */}
+                      <line x1="185" y1="120" x2="185" y2="145" stroke="#94a3b8" strokeWidth="2" />
+                      <line x1="185" y1="145" x2="205" y2="157" stroke="#94a3b8" strokeWidth="2" />
 
-                      {/* Right phenol ring. Vertices:
-                          C1'=(252,115) C2'=(266,96) C3'=(292,96) C4'=(306,115) C5'=(292,134) C6'=(266,134)
-                          C1'=(252,115) connects from chain. C4'=(306,115) bears phenol –OH (para). */}
-                      <polygon points="306,115 292,96 266,96 252,115 266,134 292,134"
+                      {/* C_a=C_b double bond */}
+                      <line x1="185" y1="120" x2="215" y2="95" stroke="#64748b" strokeWidth="2.5" />
+                      <line x1="190" y1="126" x2="220" y2="101" stroke="#94a3b8" strokeWidth="1.5" />
+
+                      {/* Ethyl branch at C_b (CH2-CH3) pointing upward */}
+                      <line x1="215" y1="95" x2="215" y2="70" stroke="#94a3b8" strokeWidth="2" />
+                      <line x1="215" y1="70" x2="195" y2="58" stroke="#94a3b8" strokeWidth="2" />
+
+                      {/* C_b → right ring top-left vertex (C1') */}
+                      <line x1="215" y1="95" x2="254" y2="100" stroke="#94a3b8" strokeWidth="2" />
+
+                      {/* Right phenol ring — point-top orientation matching left ring.
+                          Center=(280,115). C1'=(254,100) top-left, connects from chain.
+                          C4'=(306,130) bottom-right, bears phenol –OH (para to C1'). */}
+                      <polygon points="280,85 306,100 306,130 280,145 254,130 254,100"
                                stroke="#64748b" strokeWidth="2" fill="#fef9c3" fillOpacity="0.5" />
-                      <circle cx="279" cy="115" r="10"
+                      <circle cx="280" cy="115" r="10"
                               stroke="#a16207" strokeWidth="1" fill="none" strokeDasharray="3,2" />
 
                       {/* C1' carbon atom — connects to chain */}
-                      <circle cx="252" cy="115" r="4.5" fill="#475569" stroke="white" strokeWidth="1.5" />
+                      <circle cx="254" cy="100" r="4.5" fill="#475569" stroke="white" strokeWidth="1.5" />
 
                       {/* C4' carbon atom — where right phenol –OH attaches */}
-                      <circle cx="306" cy="115" r="4.5" fill="#475569" stroke="white" strokeWidth="1.5" />
+                      <circle cx="306" cy="130" r="4.5" fill="#475569" stroke="white" strokeWidth="1.5" />
 
-                      {/* C4'–O bond (HBD: right phenolic oxygen) */}
-                      <line x1="306" y1="115" x2="320" y2="115" stroke="#3b82f6" strokeWidth="2.5" />
+                      {/* C4'–O bond (HBD: right phenolic oxygen, diagonal to pharmacophore point) */}
+                      <line x1="306" y1="130" x2="320" y2="115" stroke="#3b82f6" strokeWidth="2.5" />
                       <circle cx="320" cy="115" r="8" fill="#dbeafe" stroke="#3b82f6" strokeWidth="1.5" />
                       <text x="320" y="119" textAnchor="middle" fill="#1d4ed8"
-                            fontSize="9" fontWeight="bold" fontFamily="sans-serif">O</text>
+                            fontSize="9" fontWeight="bold" fontFamily="sans-serif">OH</text>
                     </g>
                   )}
 
                   {/* Molecule C — Incompatible regioisomer (HBD in wrong position) */}
                   {selectedMolecule === 2 && (
                     <g strokeLinecap="round" strokeLinejoin="round">
-                      {/* Benzene ring. Vertices identical to Mol A A-ring.
-                          C3=(105,130) has the matching HBA oxygen. */}
-                      <polygon points="150,100 128,85 105,100 105,130 128,145 150,130"
+                      {/* Benzene ring. Vertices identical to Mol A A-ring. */}
+                      <polygon points="150,100 125,85 100,100 100,130 125,145 150,130"
                                stroke="#64748b" strokeWidth="2" fill="#fef9c3" fillOpacity="0.5" />
-                      <circle cx="128" cy="115" r="10"
+                      <circle cx="125" cy="115" r="10"
                               stroke="#a16207" strokeWidth="1" fill="none" strokeDasharray="3,2" />
 
                       {/* C3 carbon atom — bearing matching HBA oxygen */}
-                      <circle cx="105" cy="130" r="4.5" fill="#475569" stroke="white" strokeWidth="1.5" />
+                      <circle cx="100" cy="130" r="4.5" fill="#475569" stroke="white" strokeWidth="1.5" />
 
                       {/* C3–O bond (HBA: matches pharmacophore query) */}
-                      <line x1="105" y1="130" x2="78" y2="145" stroke="#ef4444" strokeWidth="2.5" />
-                      <circle cx="78" cy="145" r="8" fill="#fee2e2" stroke="#ef4444" strokeWidth="1.5" />
-                      <text x="78" y="149" textAnchor="middle" fill="#dc2626"
-                            fontSize="9" fontWeight="bold" fontFamily="sans-serif">O</text>
+                      <line x1="100" y1="130" x2="75" y2="145" stroke="#ef4444" strokeWidth="2.5" />
+                      <circle cx="75" cy="145" r="8" fill="#fee2e2" stroke="#ef4444" strokeWidth="1.5" />
+                      <text x="75" y="149" textAnchor="middle" fill="#dc2626"
+                            fontSize="9" fontWeight="bold" fontFamily="sans-serif">OH</text>
 
                       {/* C5 carbon atom — where misplaced side chain branches off */}
-                      <circle cx="128" cy="145" r="4.5" fill="#475569" stroke="white" strokeWidth="1.5" />
+                      <circle cx="125" cy="145" r="4.5" fill="#475569" stroke="white" strokeWidth="1.5" />
 
-                      {/* Aliphatic side chain leading to the WRONG donor position */}
-                      <line x1="128" y1="145" x2="158" y2="180" stroke="#94a3b8" strokeWidth="2" />
-                      <line x1="158" y1="180" x2="220" y2="205" stroke="#94a3b8" strokeWidth="2" />
+                      {/* Aliphatic side chain — 4-bond zig-zag gives C₁₀ total (6 ring + 4 chain) */}
+                      <line x1="125" y1="145" x2="158" y2="168" stroke="#94a3b8" strokeWidth="2" />
+                      <line x1="158" y1="168" x2="193" y2="151" stroke="#94a3b8" strokeWidth="2" />
+                      <line x1="193" y1="151" x2="228" y2="172" stroke="#94a3b8" strokeWidth="2" />
+                      <line x1="228" y1="172" x2="263" y2="155" stroke="#94a3b8" strokeWidth="2" />
 
                       {/* HBD oxygen at wrong regiochemical position */}
-                      <circle cx="220" cy="205" r="8" fill="#dbeafe" stroke="#3b82f6" strokeWidth="1.5" />
-                      <text x="220" y="209" textAnchor="middle" fill="#1d4ed8"
-                            fontSize="9" fontWeight="bold" fontFamily="sans-serif">O</text>
+                      <circle cx="263" cy="155" r="8" fill="#dbeafe" stroke="#3b82f6" strokeWidth="1.5" />
+                      <text x="263" y="159" textAnchor="middle" fill="#1d4ed8"
+                            fontSize="9" fontWeight="bold" fontFamily="sans-serif">OH</text>
 
-                      {/* Dashed red indicator = outside tolerance zone */}
-                      <line x1="228" y1="205" x2="255" y2="220" stroke="#f87171"
+                      {/* Dashed red indicator pointing toward correct HBD position (320,115) */}
+                      <line x1="271" y1="152" x2="305" y2="133" stroke="#f87171"
                             strokeDasharray="3,2" strokeWidth="1.5" />
-                      <text x="262" y="225" fill="#dc2626" fontSize="10" fontWeight="bold"
+                      <text x="313" y="130" fill="#dc2626" fontSize="10" fontWeight="bold"
                             fontFamily="sans-serif">✗</text>
                     </g>
                   )}
@@ -632,7 +664,7 @@ export default function PharmacophoreModelingPage() {
                       strokeDasharray="4,2" 
                     />
                     <circle cx="125" cy="115" r="8" className="fill-amber-500 stroke-white stroke-2" />
-                    <text x="125" y="95" className="text-xs font-bold fill-amber-800 text-center" textAnchor="middle">AR Center</text>
+                    <text x="125" y={115 - tolerance * 25 - 8} className="text-xs font-bold fill-amber-800 text-center" textAnchor="middle">AR Center</text>
                   </g>
                 )}
 
@@ -648,7 +680,7 @@ export default function PharmacophoreModelingPage() {
                       strokeDasharray="4,2" 
                     />
                     <circle cx="75" cy="145" r="8" className="fill-red-500 stroke-white stroke-2" />
-                    <text x="75" y="175" className="text-xs font-bold fill-red-800 text-center" textAnchor="middle">HBA Center</text>
+                    <text x="75" y={145 + tolerance * 25 + 14} className="text-xs font-bold fill-red-800 text-center" textAnchor="middle">HBA Center</text>
                   </g>
                 )}
 
@@ -664,7 +696,7 @@ export default function PharmacophoreModelingPage() {
                       strokeDasharray="4,2" 
                     />
                     <circle cx="320" cy="115" r="8" className="fill-blue-500 stroke-white stroke-2" />
-                    <text x="320" y="95" className="text-xs font-bold fill-blue-800 text-center" textAnchor="middle">HBD Center</text>
+                    <text x="320" y={115 - tolerance * 25 - 8} className="text-xs font-bold fill-blue-800 text-center" textAnchor="middle">HBD Center</text>
                   </g>
                 )}
               </svg>
@@ -691,7 +723,7 @@ export default function PharmacophoreModelingPage() {
               <span className="h-2 w-2 rounded-full bg-red-500" />
               Hydrogen Bond Acceptor (HBA)
             </h4>
-            <p className="text-slate-855 leading-relaxed text-sm">
+            <p className="text-slate-900 leading-relaxed text-sm">
               Electronegative atoms (like nitrogen or oxygen) containing lone pairs that attract electron-deficient hydrogen atoms from the receptor. e.g. carbonyls, ethers, tertiary amines.
             </p>
           </div>
@@ -700,7 +732,7 @@ export default function PharmacophoreModelingPage() {
               <span className="h-2 w-2 rounded-full bg-blue-500" />
               Hydrogen Bond Donor (HBD)
             </h4>
-            <p className="text-slate-855 leading-relaxed text-sm">
+            <p className="text-slate-900 leading-relaxed text-sm">
               Hydrogen atoms attached to highly electronegative elements (like nitrogen, oxygen, or fluorine) that interact with lone pairs. e.g. hydroxyls, primary/secondary amines.
             </p>
           </div>
@@ -709,7 +741,7 @@ export default function PharmacophoreModelingPage() {
               <span className="h-2 w-2 rounded-full bg-amber-500" />
               Aromatic Ring (AR)
             </h4>
-            <p className="text-slate-855 leading-relaxed text-sm">
+            <p className="text-slate-900 leading-relaxed text-sm">
               Planar ring systems capable of forming stacking interactions (pi-pi staking) with phenylalanine, tyrosine, or tryptophan residues in the receptor.
             </p>
           </div>
@@ -718,7 +750,7 @@ export default function PharmacophoreModelingPage() {
               <span className="h-2 w-2 rounded-full bg-emerald-500" />
               Hydrophobic Center (HY)
             </h4>
-            <p className="text-slate-855 leading-relaxed text-sm">
+            <p className="text-slate-900 leading-relaxed text-sm">
               Aliphatic chains or carbon networks that partition into hydrophobic protein cavities to drive target affinity via favorable entropy release. e.g. t-butyl, isopropyl groups.
             </p>
           </div>
