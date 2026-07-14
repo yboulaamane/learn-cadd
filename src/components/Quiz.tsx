@@ -106,7 +106,7 @@ export function Quiz({ moduleTitle, questions }: QuizProps) {
         {/* Options */}
         <div className="space-y-2">
           {currentQuestion.options.map((option, idx) => {
-            let optionStyle = "border-slate-200 bg-white text-slate-850 hover:bg-slate-50 hover:border-slate-300";
+            let optionStyle = "border-slate-200 bg-white text-slate-800 hover:bg-slate-50 hover:border-slate-300";
             let Icon = null;
 
             if (isAnswered) {
@@ -145,7 +145,7 @@ export function Quiz({ moduleTitle, questions }: QuizProps) {
           <AlertCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
           <div className="space-y-1">
             <h5 className="font-black text-blue-900">Explanation</h5>
-            <p className="text-slate-850 leading-relaxed font-semibold">{currentQuestion.explanation}</p>
+            <p className="text-slate-800 leading-relaxed font-semibold">{currentQuestion.explanation}</p>
           </div>
         </div>
       )}

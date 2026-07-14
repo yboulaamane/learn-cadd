@@ -154,19 +154,19 @@ export default function MolecularDockingPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 not-prose">
           <div className="p-4 rounded-xl border border-border bg-white space-y-1.5">
             <h3 className="font-bold text-sm text-slate-900">Systematic Search</h3>
-            <p className="text-sm text-slate-850 leading-relaxed">
+            <p className="text-sm text-slate-800 leading-relaxed">
               Exhaustively rotates every rotatable bond by increments (e.g. 60°). It guarantees finding global minima but suffers from a combinatorial explosion.
             </p>
           </div>
           <div className="p-4 rounded-xl border border-border bg-white space-y-1.5">
             <h3 className="font-bold text-sm text-slate-900">Stochastic Search</h3>
-            <p className="text-sm text-slate-850 leading-relaxed">
+            <p className="text-sm text-slate-800 leading-relaxed">
               Performs random conformational moves. Prominent algorithms include Monte Carlo and Genetic Algorithms, where coordinates mutate and cross over.
             </p>
           </div>
           <div className="p-4 rounded-xl border border-border bg-white space-y-1.5">
             <h3 className="font-bold text-sm text-slate-900">Incremental Construction</h3>
-            <p className="text-sm text-slate-850 leading-relaxed">
+            <p className="text-sm text-slate-800 leading-relaxed">
               Splits the ligand into fragments. The anchor fragment is docked first, and the remaining segments are attached step-by-step.
             </p>
           </div>
@@ -179,7 +179,7 @@ export default function MolecularDockingPage() {
           <Compass size={18} className="text-slate-800" />
           <h3 className="font-bold text-base text-slate-900">Interactive Playground: Manual Pose Matcher</h3>
         </div>
-        <p className="text-sm text-slate-850 leading-normal">
+        <p className="text-sm text-slate-800 leading-normal">
           Use the translation (X, Y) and rotation sliders to dock the ligand into the active site pocket. Align the positive charge (+) with the negative charge (-) to optimize the binding score.
         </p>
 
@@ -226,7 +226,7 @@ export default function MolecularDockingPage() {
           <div className="md:col-span-6 space-y-4">
             
             {/* Real-time score card */}
-            <div className="p-3.5 bg-slate-50 border border-slate-250 rounded-lg space-y-1">
+            <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-lg space-y-1">
               <div className="flex justify-between items-center">
                 <span className="text-xs text-slate-800 font-bold uppercase tracking-wider block">Docking Score (ΔG)</span>
                 {isDocked ? (
@@ -337,7 +337,7 @@ export default function MolecularDockingPage() {
             <Info className="h-4 w-4 text-blue-600" />
             Checklist for Systematic PDB Selection:
           </h4>
-          <ol className="list-decimal pl-5 space-y-2 text-slate-850 text-sm leading-relaxed">
+          <ol className="list-decimal pl-5 space-y-2 text-slate-800 text-sm leading-relaxed">
             <li>
               <strong>Sequence Fidelity via UniProt:</strong> Search by UniProt accession ID, not common protein names, to filter out homologous species variants and ensure exact sequence identity.
             </li>
@@ -361,7 +361,7 @@ export default function MolecularDockingPage() {
 
         <div className="p-4 border-l-4 border-amber-500 bg-amber-50/50 rounded-r-xl space-y-1.5 text-sm">
           <strong className="text-slate-900 block">The mmCIF Format Transition:</strong>
-          <p className="text-slate-850 leading-relaxed">
+          <p className="text-slate-800 leading-relaxed">
             The legacy <code>.pdb</code> file format (designed in the 1970s for punch cards) suffers from a hard limit of 99,999 atoms and 62 chains. In the era of cryo-EM macromolecular assemblies, the format breaks down. The PDB has formally deprecated it in favor of <strong>PDBx/mmCIF (<code>.cif</code>)</strong>. By mid-2027, new depositions will only receive 12-character IDs (e.g. <code>pdb_00002v5z</code>) and <code>.pdb</code> formats will no longer be generated. Modern pipelines should migrate to <code>.cif</code> inputs exclusively.
           </p>
         </div>
@@ -375,32 +375,32 @@ export default function MolecularDockingPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 not-prose">
           <div className="p-4 rounded-xl border border-border bg-white space-y-2">
             <h3 className="font-bold text-sm text-slate-900">Homology Modeling</h3>
-            <p className="text-sm text-slate-850 leading-relaxed">
+            <p className="text-sm text-slate-800 leading-relaxed">
               When no experimental structure exists, a 3D model can be predicted from a homologous template with known structure. The process involves four key steps:
             </p>
-            <ol className="list-decimal pl-5 space-y-1 text-sm text-slate-850 leading-relaxed">
+            <ol className="list-decimal pl-5 space-y-1 text-sm text-slate-800 leading-relaxed">
               <li><strong>Sequence alignment</strong> to the template</li>
               <li><strong>Backbone modeling</strong> from aligned coordinates</li>
               <li><strong>Loop refinement</strong> for insertions/deletions</li>
               <li><strong>Side-chain packing</strong> with rotamer libraries</li>
             </ol>
-            <p className="text-sm text-slate-850 leading-relaxed">
+            <p className="text-sm text-slate-800 leading-relaxed">
               <strong>Tools:</strong> SWISS-MODEL, MODELLER, I-TASSER.
             </p>
           </div>
 
           <div className="p-4 rounded-xl border border-border bg-white space-y-2">
             <h3 className="font-bold text-sm text-slate-900">AlphaFold2 / AlphaFold3</h3>
-            <p className="text-sm text-slate-850 leading-relaxed">
+            <p className="text-sm text-slate-800 leading-relaxed">
               Deep learning structure prediction achieving near-experimental accuracy (median GDT &gt; 90). The AlphaFold Protein Structure Database provides ~200M predicted structures covering most known protein sequences.
             </p>
-            <div className="p-3 bg-amber-50/60 border border-amber-200 rounded-lg text-sm text-slate-850 leading-relaxed space-y-1.5">
+            <div className="p-3 bg-amber-50/60 border border-amber-200 rounded-lg text-sm text-slate-800 leading-relaxed space-y-1.5">
               <strong className="text-slate-900 block">Critical Caveat:</strong>
               <p>
                 pLDDT confidence scores must always be checked before using predicted structures for docking. Regions with pLDDT &lt; 70 are unreliable and should not be used as docking targets without further refinement.
               </p>
             </div>
-            <p className="text-sm text-slate-850 leading-relaxed">
+            <p className="text-sm text-slate-800 leading-relaxed">
               <strong>AlphaFold3</strong> extends prediction to protein-ligand, protein-DNA, and protein-RNA complexes, enabling structure-based drug design even for multi-molecular assemblies.
             </p>
           </div>
@@ -428,7 +428,7 @@ export default function MolecularDockingPage() {
                 <th className="px-4 py-2 text-left font-bold text-slate-900">Recommended Use Case</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200 bg-white text-slate-850">
+            <tbody className="divide-y divide-slate-200 bg-white text-slate-800">
               <tr>
                 <td className="px-4 py-2 font-mono font-bold text-blue-700">AM1-BCC</td>
                 <td className="px-4 py-2">Very High (errors &lt; 0.1 e)</td>
@@ -495,7 +495,7 @@ export default function MolecularDockingPage() {
             <span className="h-6 w-6 text-xs font-bold bg-slate-100 border border-slate-200 rounded flex items-center justify-center flex-shrink-0 text-slate-800">A</span>
             <div>
               <h4 className="font-bold text-sm text-slate-900">Force-Field-Based Functions</h4>
-              <p className="text-sm text-slate-850 mt-1 leading-relaxed">
+              <p className="text-sm text-slate-800 mt-1 leading-relaxed">
                 Calculate binding energy from electrostatics (Coulomb) and van der Waals interactions, using mechanical parameters. Examples: DOCK, GOLDScore.
               </p>
             </div>
@@ -505,7 +505,7 @@ export default function MolecularDockingPage() {
             <span className="h-6 w-6 text-xs font-bold bg-slate-100 border border-slate-200 rounded flex items-center justify-center flex-shrink-0 text-slate-800">B</span>
             <div>
               <h4 className="font-bold text-sm text-slate-900">Empirical Scoring Functions</h4>
-              <p className="text-sm text-slate-850 mt-1 leading-relaxed">
+              <p className="text-sm text-slate-800 mt-1 leading-relaxed">
                 Sum of weighted terms (hydrogen bonds, contacts, rotatable bonds) parameterized using experimental binding affinities. Examples: ChemScore, GlideScore.
               </p>
             </div>
@@ -515,7 +515,7 @@ export default function MolecularDockingPage() {
             <span className="h-6 w-6 text-xs font-bold bg-slate-100 border border-slate-200 rounded flex items-center justify-center flex-shrink-0 text-slate-800">C</span>
             <div>
               <h4 className="font-bold text-sm text-slate-900">Knowledge-Based Functions</h4>
-              <p className="text-sm text-slate-850 mt-1 leading-relaxed">
+              <p className="text-sm text-slate-800 mt-1 leading-relaxed">
                 Derived from statistical distributions of atom-atom contact pairs in structural databases. Favorable shapes yield lower potentials. Examples: PMF, DrugScore.
               </p>
             </div>
@@ -530,7 +530,7 @@ export default function MolecularDockingPage() {
           <p className="text-xs text-slate-700 leading-relaxed">
             Empirical scoring models (like the one used in AutoDock Vina) estimate the free energy of binding by summing distinct, weighted interaction contributions:
           </p>
-          <div className="my-3 font-mono text-center text-xs bg-slate-150 py-3 px-4 rounded text-slate-800 font-bold border border-slate-200 overflow-x-auto leading-relaxed">
+          <div className="my-3 font-mono text-center text-xs bg-slate-100 py-3 px-4 rounded text-slate-800 font-bold border border-slate-200 overflow-x-auto leading-relaxed">
             {"ΔG_score = w_vdW × Σ vdW(r_ij) + w_hbond × Σ hbond(r_ij) + w_electro × Σ electro(r_ij) + w_desolv × Σ desolv(r_ij) + w_rotor × N_rot"}
           </div>
           <p className="text-xs text-slate-700 leading-relaxed">
@@ -564,7 +564,7 @@ export default function MolecularDockingPage() {
                 <th className="px-4 py-2 text-left font-bold text-slate-900">Best For</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200 bg-white text-slate-850">
+            <tbody className="divide-y divide-slate-200 bg-white text-slate-800">
               <tr>
                 <td className="px-4 py-2 font-mono font-bold text-blue-700">AutoDock Vina</td>
                 <td className="px-4 py-2">Iterated Local Search</td>
@@ -617,7 +617,7 @@ export default function MolecularDockingPage() {
             <span className="h-6 w-6 text-xs font-bold bg-slate-100 border border-slate-200 rounded flex items-center justify-center flex-shrink-0 text-slate-800">1</span>
             <div>
               <h4 className="font-bold text-sm text-slate-900">Target Preparation</h4>
-              <p className="text-sm text-slate-850 mt-1 leading-relaxed">
+              <p className="text-sm text-slate-800 mt-1 leading-relaxed">
                 Download the PDB structure, remove crystallographic waters (except conserved ones mediating key interactions), assign protonation states using PropKa or H++ at physiological pH, and add missing hydrogens.
               </p>
             </div>
@@ -627,7 +627,7 @@ export default function MolecularDockingPage() {
             <span className="h-6 w-6 text-xs font-bold bg-slate-100 border border-slate-200 rounded flex items-center justify-center flex-shrink-0 text-slate-800">2</span>
             <div>
               <h4 className="font-bold text-sm text-slate-900">Binding Site Definition</h4>
-              <p className="text-sm text-slate-850 mt-1 leading-relaxed">
+              <p className="text-sm text-slate-800 mt-1 leading-relaxed">
                 Define a grid box centered on the co-crystallized ligand with 0.375 &#197; spacing and a 10&ndash;15 &#197; buffer around the binding pocket to allow full ligand exploration.
               </p>
             </div>
@@ -637,7 +637,7 @@ export default function MolecularDockingPage() {
             <span className="h-6 w-6 text-xs font-bold bg-slate-100 border border-slate-200 rounded flex items-center justify-center flex-shrink-0 text-slate-800">3</span>
             <div>
               <h4 className="font-bold text-sm text-slate-900">Ligand Preparation</h4>
-              <p className="text-sm text-slate-850 mt-1 leading-relaxed">
+              <p className="text-sm text-slate-800 mt-1 leading-relaxed">
                 Generate 3D coordinates from SMILES, assign AM1-BCC partial charges, enumerate relevant tautomers at pH 7.4, and generate diverse low-energy conformers.
               </p>
             </div>
@@ -647,7 +647,7 @@ export default function MolecularDockingPage() {
             <span className="h-6 w-6 text-xs font-bold bg-slate-100 border border-slate-200 rounded flex items-center justify-center flex-shrink-0 text-slate-800">4</span>
             <div>
               <h4 className="font-bold text-sm text-slate-900">Docking Run</h4>
-              <p className="text-sm text-slate-850 mt-1 leading-relaxed">
+              <p className="text-sm text-slate-800 mt-1 leading-relaxed">
                 Set the exhaustiveness parameter to control thoroughness: 8 for fast screening, 32 for thorough sampling, and 128 for exhaustive poses. Generate 9&ndash;20 poses per ligand for adequate conformational coverage.
               </p>
             </div>
@@ -657,7 +657,7 @@ export default function MolecularDockingPage() {
             <span className="h-6 w-6 text-xs font-bold bg-slate-100 border border-slate-200 rounded flex items-center justify-center flex-shrink-0 text-slate-800">5</span>
             <div>
               <h4 className="font-bold text-sm text-slate-900">Post-Processing</h4>
-              <p className="text-sm text-slate-850 mt-1 leading-relaxed">
+              <p className="text-sm text-slate-800 mt-1 leading-relaxed">
                 Rank poses by docking score, filter candidates by interaction fingerprint similarity, visually inspect the top 20 hits for chemically sensible binding modes, and apply consensus scoring across multiple scoring functions to improve reliability.
               </p>
             </div>
