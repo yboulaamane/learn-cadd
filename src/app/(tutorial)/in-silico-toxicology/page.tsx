@@ -92,9 +92,57 @@ const COMPOUNDS_DATABASE: CompoundToxData[] = [
   }
 ];
 
+// Physicochemical profiles for the drug-likeness calculator.
+// HBA/HBD follow the Lipinski counting convention (HBA = N+O atoms, HBD = N-H/O-H).
+const DRUGLIKE_PRESETS: Record<string, { mw: number; logP: number; hbd: number; hba: number; tpsa: number; rotb: number }> = {
+  Aspirin:        { mw: 180, logP: 1.2, hbd: 1, hba: 4, tpsa: 63.6, rotb: 3 },
+  Acetaminophen:  { mw: 151, logP: 0.5, hbd: 2, hba: 3, tpsa: 49.3, rotb: 1 },
+  Terfenadine:    { mw: 472, logP: 6.2, hbd: 2, hba: 3, tpsa: 43.7, rotb: 8 },
+  Atorvastatin:   { mw: 559, logP: 5.0, hbd: 4, hba: 7, tpsa: 111.8, rotb: 12 },
+};
+
 export default function InSilicoToxicologyPage() {
   const [selectedComp, setSelectedComp] = useState<CompoundToxData>(COMPOUNDS_DATABASE[0]);
   const [informationGain, setInformationGain] = useState<number>(65); // Slider representing information added by Cell Painting
+
+  // Drug-likeness calculator state
+  const [dlPick, setDlPick] = useState<string>("Aspirin");
+  const [mw, setMw] = useState<number>(DRUGLIKE_PRESETS.Aspirin.mw);
+  const [dlLogP, setDlLogP] = useState<number>(DRUGLIKE_PRESETS.Aspirin.logP);
+  const [hbd, setHbd] = useState<number>(DRUGLIKE_PRESETS.Aspirin.hbd);
+  const [hba, setHba] = useState<number>(DRUGLIKE_PRESETS.Aspirin.hba);
+  const [tpsa, setTpsa] = useState<number>(DRUGLIKE_PRESETS.Aspirin.tpsa);
+  const [rotb, setRotb] = useState<number>(DRUGLIKE_PRESETS.Aspirin.rotb);
+
+  const applyPreset = (name: string) => {
+    const p = DRUGLIKE_PRESETS[name];
+    if (!p) return;
+    setDlPick(name);
+    setMw(p.mw); setDlLogP(p.logP); setHbd(p.hbd); setHba(p.hba); setTpsa(p.tpsa); setRotb(p.rotb);
+  };
+
+  // Lipinski Rule of Five: MW≤500, LogP≤5, HBD≤5, HBA≤10 (≤1 violation tolerated)
+  const ro5Checks = [
+    { label: "MW ≤ 500", ok: mw <= 500, value: `${mw.toFixed(0)} Da` },
+    { label: "LogP ≤ 5", ok: dlLogP <= 5, value: dlLogP.toFixed(1) },
+    { label: "HBD ≤ 5", ok: hbd <= 5, value: `${hbd}` },
+    { label: "HBA ≤ 10", ok: hba <= 10, value: `${hba}` },
+  ];
+  const ro5Violations = ro5Checks.filter((c) => !c.ok).length;
+  const ro5Pass = ro5Violations <= 1;
+  // Veber oral-bioavailability rules
+  const veberChecks = [
+    { label: "Rotatable bonds ≤ 10", ok: rotb <= 10, value: `${rotb}` },
+    { label: "TPSA ≤ 140 Å²", ok: tpsa <= 140, value: `${tpsa.toFixed(0)} Å²` },
+  ];
+  const veberPass = veberChecks.every((c) => c.ok);
+  // TPSA-based absorption heuristic
+  const absorptionNote =
+    tpsa > 140
+      ? "TPSA > 140 Å² — poor passive intestinal absorption expected."
+      : tpsa < 90
+      ? "TPSA < 90 Å² — good oral absorption; may also cross the blood-brain barrier."
+      : "TPSA 90–140 Å² — adequate oral absorption, unlikely to be CNS-penetrant.";
 
   // DeLong test calculations based on slider
   const modelAAuc = 0.72; // Morgan fingerprints baseline
@@ -137,9 +185,9 @@ export default function InSilicoToxicologyPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1>Module 10: In Silico Toxicology &amp; Safety Assessment</h1>
+        <h1>Module 10: In Silico ADMET &amp; Safety Assessment</h1>
         <p className="lead text-slate-600">
-          Identify and predict drug safety endpoints using machine learning. Explore cardiotoxicity, hepatotoxicity, and mutagenicity, compare models with DeLong's test, and interpret alerts using SHAP values.
+          Predict whether a molecule can become a drug and whether it will be safe. Start with the physicochemical rules of ADME and oral drug-likeness (Lipinski, Veber), then predict toxicity endpoints (cardiotoxicity, hepatotoxicity, mutagenicity) with machine learning, comparing models with DeLong's test and interpreting alerts using SHAP values.
         </p>
       </div>
 
@@ -185,16 +233,147 @@ export default function InSilicoToxicologyPage() {
         </div>
       </section>
 
-      {/* Section 2: Explainable AI and SHAP */}
+      {/* Section 2: ADME & Drug-Likeness */}
       <section className="space-y-4 border-t border-border pt-8">
-        <h2>2. Explainable AI: Demystifying Toxicophores with SHAP</h2>
+        <h2>2. ADME &amp; Drug-Likeness: The Physicochemical Gatekeepers</h2>
+        <p>
+          Before toxicity, a candidate must actually <em>reach</em> its target and survive the body. <strong>ADME</strong> — Absorption, Distribution, Metabolism, Excretion — is governed largely by a few physicochemical properties. Simple rule-based filters flag molecules unlikely to be orally bioavailable long before expensive assays.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 not-prose">
+          <div className="p-4 rounded-xl border border-border bg-white space-y-1">
+            <h4 className="font-bold text-sm text-slate-900">Lipophilicity (LogP / LogD)</h4>
+            <p className="text-xs text-slate-800 leading-relaxed font-medium">
+              The octanol/water partition coefficient. <strong>LogD</strong> accounts for ionization at a given pH. Too low → poor membrane permeation; too high (&gt;5) → poor solubility, promiscuity, and hERG/off-target risk.
+            </p>
+          </div>
+          <div className="p-4 rounded-xl border border-border bg-white space-y-1">
+            <h4 className="font-bold text-sm text-slate-900">Polar Surface Area (TPSA)</h4>
+            <p className="text-xs text-slate-800 leading-relaxed font-medium">
+              The surface area over polar (N, O) atoms and their attached hydrogens. Predicts passive absorption: <strong>&lt;140 Å²</strong> for gut absorption, <strong>&lt;90 Å²</strong> to cross the blood-brain barrier.
+            </p>
+          </div>
+          <div className="p-4 rounded-xl border border-border bg-white space-y-1">
+            <h4 className="font-bold text-sm text-slate-900">Metabolism &amp; Clearance</h4>
+            <p className="text-xs text-slate-800 leading-relaxed font-medium">
+              Hepatic <strong>CYP450</strong> enzymes (3A4, 2D6, 2C9) run phase-I oxidation; phase-II conjugation follows. Renal clearance favors small, polar compounds. These set the dose and half-life.
+            </p>
+          </div>
+        </div>
+
+        <div className="not-prose bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm text-slate-800 font-medium">
+          <span className="font-bold text-slate-900">Lipinski&apos;s Rule of Five</span> (Pfizer, 1997): poor absorption is more likely when <strong>MW &gt; 500</strong>, <strong>LogP &gt; 5</strong>, <strong>H-bond donors &gt; 5</strong>, or <strong>H-bond acceptors &gt; 10</strong>. A drug-like molecule violates at most one. <strong>Veber&apos;s rules</strong> add <strong>rotatable bonds ≤ 10</strong> and <strong>TPSA ≤ 140 Å²</strong> for oral bioavailability.
+        </div>
+      </section>
+
+      {/* Interactive Widget: Rule-of-Five Calculator */}
+      <section className="p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-4">
+        <div className="flex items-center gap-2">
+          <Sliders size={18} className="text-slate-900" />
+          <h3 className="font-bold text-base text-slate-900">Interactive Playground: Drug-Likeness Scorecard</h3>
+        </div>
+        <p className="text-sm text-slate-800 leading-normal">
+          Load a known drug or drag the sliders to profile a virtual molecule. Watch each Lipinski and Veber criterion flip pass/fail. Note that approved drugs (e.g. <strong>Atorvastatin</strong>) sometimes break a rule — the guidelines are alerts, not hard cutoffs.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 bg-white p-5 rounded-lg border border-slate-200">
+          {/* Sliders */}
+          <div className="md:col-span-7 space-y-3">
+            <div className="flex flex-wrap gap-1.5">
+              {Object.keys(DRUGLIKE_PRESETS).map((name) => (
+                <button
+                  key={name}
+                  onClick={() => applyPreset(name)}
+                  className={`px-2.5 py-1 rounded-md text-xs font-bold border transition-colors ${
+                    dlPick === name
+                      ? "bg-slate-900 text-white border-slate-900"
+                      : "bg-white text-slate-800 border-slate-300 hover:border-slate-500"
+                  }`}
+                >
+                  {name}
+                </button>
+              ))}
+            </div>
+
+            {[
+              { label: "Molecular Weight", val: mw, set: setMw, min: 100, max: 700, step: 1, unit: "Da", limit: mw > 500 },
+              { label: "LogP", val: dlLogP, set: setDlLogP, min: -2, max: 8, step: 0.1, unit: "", limit: dlLogP > 5 },
+              { label: "H-Bond Donors", val: hbd, set: setHbd, min: 0, max: 10, step: 1, unit: "", limit: hbd > 5 },
+              { label: "H-Bond Acceptors", val: hba, set: setHba, min: 0, max: 15, step: 1, unit: "", limit: hba > 10 },
+              { label: "TPSA", val: tpsa, set: setTpsa, min: 0, max: 200, step: 1, unit: "Å²", limit: tpsa > 140 },
+              { label: "Rotatable Bonds", val: rotb, set: setRotb, min: 0, max: 15, step: 1, unit: "", limit: rotb > 10 },
+            ].map((s) => (
+              <div key={s.label} className="space-y-1" onMouseDown={() => setDlPick("Custom")} onTouchStart={() => setDlPick("Custom")}>
+                <div className="flex justify-between items-center text-xs font-bold text-slate-800">
+                  <span>{s.label}</span>
+                  <span className={`font-mono ${s.limit ? "text-rose-600" : "text-slate-900"}`}>
+                    {s.step < 1 ? s.val.toFixed(1) : s.val.toFixed(0)} {s.unit}
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min={s.min}
+                  max={s.max}
+                  step={s.step}
+                  value={s.val}
+                  onChange={(e) => s.set(parseFloat(e.target.value))}
+                  className={`w-full h-1.5 rounded appearance-none cursor-pointer ${s.limit ? "accent-rose-600 bg-rose-100" : "accent-slate-900 bg-slate-100"}`}
+                />
+              </div>
+            ))}
+          </div>
+
+          {/* Scorecard */}
+          <div className="md:col-span-5 space-y-3">
+            <div className={`p-3 rounded-lg border ${ro5Pass ? "bg-emerald-50 border-emerald-200" : "bg-rose-50 border-rose-200"}`}>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-bold text-slate-900">Lipinski Ro5</span>
+                {ro5Pass ? (
+                  <span className="flex items-center gap-1 text-xs font-bold text-emerald-700"><CheckCircle className="h-4 w-4" /> Pass</span>
+                ) : (
+                  <span className="flex items-center gap-1 text-xs font-bold text-rose-700"><AlertTriangle className="h-4 w-4" /> Fail</span>
+                )}
+              </div>
+              <div className="mt-2 space-y-1">
+                {ro5Checks.map((c) => (
+                  <div key={c.label} className="flex items-center justify-between text-xs font-mono">
+                    <span className={c.ok ? "text-slate-700" : "text-rose-700 font-bold"}>{c.ok ? "✓" : "✗"} {c.label}</span>
+                    <span className={c.ok ? "text-slate-500" : "text-rose-700"}>{c.value}</span>
+                  </div>
+                ))}
+              </div>
+              <p className="text-[11px] text-slate-700 font-semibold mt-2">
+                {ro5Violations} violation{ro5Violations === 1 ? "" : "s"} — {ro5Pass ? "within the ≤ 1 tolerance." : "exceeds the ≤ 1 tolerance."}
+              </p>
+            </div>
+
+            <div className={`p-3 rounded-lg border ${veberPass ? "bg-emerald-50 border-emerald-200" : "bg-rose-50 border-rose-200"}`}>
+              <span className="text-sm font-bold text-slate-900">Veber (oral bioavailability)</span>
+              <div className="mt-2 space-y-1">
+                {veberChecks.map((c) => (
+                  <div key={c.label} className="flex items-center justify-between text-xs font-mono">
+                    <span className={c.ok ? "text-slate-700" : "text-rose-700 font-bold"}>{c.ok ? "✓" : "✗"} {c.label}</span>
+                    <span className={c.ok ? "text-slate-500" : "text-rose-700"}>{c.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <p className="text-[11px] text-slate-700 font-semibold leading-snug px-1">{absorptionNote}</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Section 3: Explainable AI and SHAP */}
+      <section className="space-y-4 border-t border-border pt-8">
+        <h2>3. Explainable AI: Demystifying Toxicophores with SHAP</h2>
         <p>
           Historically, machine learning models in toxicology were viewed as black boxes. Modern regulatory bodies require model predictions to be interpretable. <strong>SHAP (SHapley Additive exPlanations)</strong>, derived from cooperative game theory, provides a solution by assigning each molecular descriptor a value that quantifies its contribution to the final prediction.
         </p>
         <p>
           In cooperative game theory, Shapley values distribute a total payoff fairly among players based on their marginal contributions. In machine learning, the "payoff" is the model prediction, and the "players" are the individual molecular features. The Shapley value for a feature <span className="font-semibold">i</span> is defined as:
         </p>
-        <div className="my-3 font-mono text-center text-xs bg-slate-50 py-2 rounded text-slate-805 font-bold border border-slate-200">
+        <div className="my-3 font-mono text-center text-xs bg-slate-50 py-2 rounded text-slate-800 font-bold border border-slate-200">
           {"φ_i = Σ [ (|S|! × (|F| - |S| - 1)!) / |F|! ] × [ f(S ∪ {i}) - f(S) ]"}
         </div>
         <p className="text-sm text-slate-800 leading-relaxed font-medium">
@@ -204,7 +383,7 @@ export default function InSilicoToxicologyPage() {
 
       {/* Section 3: User Friendly Code Block */}
       <section className="space-y-4 border-t border-border pt-8">
-        <h2>3. Step-by-Step Toxicology Modeling &amp; SHAP Interpretation</h2>
+        <h2>4. Step-by-Step Toxicology Modeling &amp; SHAP Interpretation</h2>
         <p>
           Below is a highly documented Python implementation using RDKit, Scikit-learn, and SHAP to train a toxicity classifier, compute model applicability domains, and extract chemical explanations:
         </p>
@@ -324,7 +503,7 @@ print("Toxicity-driving fragment SHAP value: " + str(np.max(first_comp_shap[:, 1
 
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6 pt-2">
             {/* Left side: Molecule properties */}
-            <div className="md:col-span-5 p-4 rounded-xl border border-slate-150 bg-slate-50/50 space-y-3">
+            <div className="md:col-span-5 p-4 rounded-xl border border-slate-100 bg-slate-50/50 space-y-3">
               <div>
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">SMILES</span>
                 <code className="text-[10px] font-mono text-slate-800 break-all leading-normal">{selectedComp.smiles}</code>

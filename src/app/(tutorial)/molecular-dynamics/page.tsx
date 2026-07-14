@@ -146,35 +146,35 @@ export default function MolecularDynamicsPage() {
           <div className="p-3.5 rounded-lg border border-border bg-white space-y-1">
             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Stage 1</span>
             <h4 className="font-bold text-sm text-foreground">System Prep</h4>
-            <p className="text-xs text-slate-655 leading-relaxed">
+            <p className="text-xs text-slate-600 leading-relaxed">
               Standardizes nomenclature, assigns Histidine protonation states, adds hydrogens, and optimizes hydrogen bond networks.
             </p>
           </div>
           <div className="p-3.5 rounded-lg border border-border bg-white space-y-1">
             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Stage 2</span>
             <h4 className="font-bold text-sm text-foreground">Solvation</h4>
-            <p className="text-xs text-slate-655 leading-relaxed">
+            <p className="text-xs text-slate-600 leading-relaxed">
               Places the complex in a water box (cubic/orthorhombic) with a 10 Å water buffer, using models like TIP3P or SPC.
             </p>
           </div>
           <div className="p-3.5 rounded-lg border border-border bg-white space-y-1">
             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Stage 3</span>
             <h4 className="font-bold text-sm text-foreground">Minimization</h4>
-            <p className="text-xs text-slate-655 leading-relaxed">
+            <p className="text-xs text-slate-600 leading-relaxed">
               Uses steepest descent or conjugate gradient minimization to resolve steric clashes and correct bond distortions.
             </p>
           </div>
           <div className="p-3.5 rounded-lg border border-border bg-white space-y-1">
             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Stage 4</span>
             <h4 className="font-bold text-sm text-foreground">Equilibration</h4>
-            <p className="text-xs text-slate-655 leading-relaxed">
+            <p className="text-xs text-slate-600 leading-relaxed">
               NVT phase heats the solvent to 310 K. NPT phase applies a barostat to stabilize pressure fluctuations to 1 atm.
             </p>
           </div>
           <div className="p-3.5 rounded-lg border border-border bg-white space-y-1">
             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Stage 5</span>
             <h4 className="font-bold text-sm text-foreground">Production</h4>
-            <p className="text-xs text-slate-655 leading-relaxed">
+            <p className="text-xs text-slate-600 leading-relaxed">
               The system runs unconstrained. Snapshots are recorded at intervals (e.g. every 10 ps) to form a trajectory file.
             </p>
           </div>
@@ -190,13 +190,13 @@ export default function MolecularDynamicsPage() {
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="p-3 bg-white border border-slate-200 rounded-lg space-y-1">
-              <h5 className="font-bold text-xs text-slate-805">Explicit Solvation (e.g. TIP3P, TIP4P, OPC)</h5>
+              <h5 className="font-bold text-xs text-slate-800">Explicit Solvation (e.g. TIP3P, TIP4P, OPC)</h5>
               <p className="text-[11px] text-slate-600 leading-relaxed">
                 Surrounds the solute with thousands of individual, rigid physical water molecules. It accurately models hydrogen bond networks, solvent shells, and hydrophobic effects, but increases the calculation time exponentially because water-water interactions must be calculated.
               </p>
             </div>
             <div className="p-3 bg-white border border-slate-200 rounded-lg space-y-1">
-              <h5 className="font-bold text-xs text-slate-805">Implicit Solvation (e.g. GB/SA, PB/SA)</h5>
+              <h5 className="font-bold text-xs text-slate-800">Implicit Solvation (e.g. GB/SA, PB/SA)</h5>
               <p className="text-[11px] text-slate-600 leading-relaxed">
                 Treats water as a continuous, dielectric medium (or continuum) rather than individual atoms. It uses the <strong>Poisson-Boltzmann (PB)</strong> or <strong>Generalized Born (GB)</strong> equations paired with Surface Area (SA) approximations to estimate solvation energies quickly, ideal for fast free-energy calculations.
               </p>
@@ -211,7 +211,7 @@ export default function MolecularDynamicsPage() {
           <Activity size={16} />
           <h3 className="font-bold text-sm">Interactive Playground: MD Trajectory Analysis Dashboard</h3>
         </div>
-        <p className="text-sm text-slate-655 leading-normal">
+        <p className="text-sm text-slate-600 leading-normal">
           Select a system and click "Play Trajectory" to run the 100 ns simulation. Move the frame slider to inspect real-time shifts in RMSD, RMSF, Hydrogen Bonds, and Solvent Exposure.
         </p>
 
@@ -244,7 +244,7 @@ export default function MolecularDynamicsPage() {
                   <rect x="5" y="5" width="190" height="110" rx="3" fill="none" stroke="currentColor" className="text-slate-200" strokeWidth="0.8" strokeDasharray="3,3" />
                   
                   {/* Static active pocket indicator */}
-                  <path d="M 85 95 Q 100 65 115 95" fill="none" stroke="currentColor" className="text-slate-350" strokeWidth="1.5" strokeDasharray="2,2" />
+                  <path d="M 85 95 Q 100 65 115 95" fill="none" stroke="currentColor" className="text-slate-300" strokeWidth="1.5" strokeDasharray="2,2" />
                   <text x="100" y="112" textAnchor="middle" className="text-[6px] font-bold fill-slate-400 uppercase">Catalytic Pocket</text>
 
                   {/* Solvation water dots (randomized floating offsets) */}
@@ -295,7 +295,7 @@ export default function MolecularDynamicsPage() {
 
             {/* Animation Controls */}
             <div className="space-y-2">
-              <div className="flex justify-between text-xs text-slate-650">
+              <div className="flex justify-between text-xs text-slate-600">
                 <span className="font-semibold">Trajectory Timeline</span>
                 <span className="font-mono">Frame {frame + 1} / 20 ({((frame + 1) * 5).toFixed(0)} ns)</span>
               </div>
@@ -427,7 +427,7 @@ export default function MolecularDynamicsPage() {
                         {/* Trajectory plot path */}
                         <path d={`M ${points.join(" L ")}`} fill="none" stroke="currentColor" className="text-slate-800" strokeWidth="1.5" />
                         {/* Time indicator vertical line */}
-                        <line x1={currentX} y1="10" x2={currentX} y2="80" stroke="currentColor" className="text-slate-350" strokeWidth="0.8" strokeDasharray="2,2" />
+                        <line x1={currentX} y1="10" x2={currentX} y2="80" stroke="currentColor" className="text-slate-300" strokeWidth="0.8" strokeDasharray="2,2" />
                         {/* Current point node */}
                         <circle cx={currentX} cy={currentY} r="3.5" fill="currentColor" className="text-accent" stroke="white" strokeWidth="1" />
                       </g>
@@ -445,7 +445,7 @@ export default function MolecularDynamicsPage() {
             </div>
 
             {/* Text description explaining the selected metric tab */}
-            <div className="text-xs text-slate-655 bg-slate-50 border border-slate-200 rounded-lg p-3 leading-relaxed">
+            <div className="text-xs text-slate-600 bg-slate-50 border border-slate-200 rounded-lg p-3 leading-relaxed">
               {activeTab === "rmsd" ? (
                 <span><strong>Root-Mean-Square Deviation (RMSD):</strong> Measures structural changes compared to the starting frame. A stable EGFR system plateaus around <strong>2.0–2.3 Å</strong> (at ~50 ns), indicating complete structural equilibration.</span>
               ) : activeTab === "rmsf" ? (
@@ -472,7 +472,7 @@ export default function MolecularDynamicsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-2 not-prose">
           <div className="p-4 rounded-xl border border-border bg-white space-y-1">
             <h4 className="font-bold text-sm text-slate-900">Key Convergence Observables</h4>
-            <ul className="list-disc pl-5 text-xs text-slate-850 space-y-1.5 leading-relaxed font-semibold">
+            <ul className="list-disc pl-5 text-xs text-slate-800 space-y-1.5 leading-relaxed font-semibold">
               <li><strong>Backbone RMSD:</strong> Tracks coordinate deviation relative to the starting frame. A flat plateau (typically &lt; 2.5 Å) signifies that the structure has successfully equilibrated.</li>
               <li><strong>Secondary Structure Content:</strong> Tracks persistence of alpha-helices and beta-sheets. Rapid shifts signal structural denaturation.</li>
               <li><strong>Interaction Fingerprints:</strong> Tracks the persistence (occupancy percentage) of key hydrogen bonds, salt bridges, or pi-pi stacking contacts.</li>
@@ -480,7 +480,7 @@ export default function MolecularDynamicsPage() {
           </div>
           <div className="p-4 rounded-xl border border-border bg-white space-y-1">
             <h4 className="font-bold text-sm text-slate-900">Standard Simulation Timeframes</h4>
-            <ul className="list-disc pl-5 text-xs text-slate-850 space-y-1.5 leading-relaxed font-semibold">
+            <ul className="list-disc pl-5 text-xs text-slate-800 space-y-1.5 leading-relaxed font-semibold">
               <li><strong>50–100 ns:</strong> Standard for evaluating initial ligand pose stability in relatively rigid binding pockets.</li>
               <li><strong>100–200 ns:</strong> Standard for analyzing loop reorganizations, induced fit transitions, and side-chain rotamers.</li>
               <li><strong>200–500 ns:</strong> Necessary to observe slower events, such as domain-level hinge shifts and partial unbinding.</li>
@@ -499,10 +499,10 @@ export default function MolecularDynamicsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="p-4 rounded-xl border border-slate-200 bg-white space-y-2">
             <h4 className="font-bold text-sm text-slate-900">Root-Mean-Square Deviation (RMSD)</h4>
-            <p className="text-xs text-slate-755 leading-relaxed">
+            <p className="text-xs text-slate-700 leading-relaxed">
               Measures the average distance deviation between a set of atoms (usually the protein backbone) in a snapshot at time <em>t</em> compared to their positions in a reference coordinate set:
             </p>
-            <div className="my-2 font-mono text-center text-xs bg-slate-50 py-2.5 rounded text-slate-805 font-bold border border-slate-200">
+            <div className="my-2 font-mono text-center text-xs bg-slate-50 py-2.5 rounded text-slate-800 font-bold border border-slate-200">
               {"RMSD(t) = √[ (1/N) × Σ || r_i(t) - r_i,ref ||² ]"}
             </div>
             <p className="text-[11px] text-slate-600 leading-relaxed">
@@ -512,10 +512,10 @@ export default function MolecularDynamicsPage() {
 
           <div className="p-4 rounded-xl border border-slate-200 bg-white space-y-2">
             <h4 className="font-bold text-sm text-slate-900">Root-Mean-Square Fluctuation (RMSF)</h4>
-            <p className="text-xs text-slate-755 leading-relaxed">
+            <p className="text-xs text-slate-700 leading-relaxed">
               Measures the fluctuation of a single atom (or residue <em>i</em>) around its time-averaged coordinate position over the entire trajectory:
             </p>
-            <div className="my-2 font-mono text-center text-xs bg-slate-50 py-2.5 rounded text-slate-805 font-bold border border-slate-200">
+            <div className="my-2 font-mono text-center text-xs bg-slate-50 py-2.5 rounded text-slate-800 font-bold border border-slate-200">
               {"RMSF_i = √[ ⟨ || r_i(t) - ⟨r_i⟩ ||² ⟩ ]"}
             </div>
             <p className="text-[11px] text-slate-600 leading-relaxed">
@@ -541,7 +541,7 @@ export default function MolecularDynamicsPage() {
                 <th className="px-4 py-2 text-left">Mitigation Strategy</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200 bg-white text-slate-850">
+            <tbody className="divide-y divide-slate-200 bg-white text-slate-800">
               <tr>
                 <td className="px-4 py-2 font-bold">1. Poor Initial Coordinates</td>
                 <td className="px-4 py-2 text-red-650">Steric clashes, missing loops collapse.</td>
@@ -640,25 +640,25 @@ mpirun -np 8 gmx_mpi mdrun -multi 8 -replex 1000 -s topol_.tpr -deffnm remd`}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 not-prose">
           <div className="p-4 rounded-xl border border-border bg-white space-y-1">
             <h4 className="font-bold text-sm text-foreground">GROMACS</h4>
-            <p className="text-xs text-slate-850 leading-relaxed font-semibold">
+            <p className="text-xs text-slate-800 leading-relaxed font-semibold">
               Highly optimized open-source engine. Outstanding GPU-acceleration features make it the industry benchmark for standard biomolecular simulations.
             </p>
           </div>
           <div className="p-4 rounded-xl border border-border bg-white space-y-1">
             <h4 className="font-bold text-sm text-foreground">AMBER</h4>
-            <p className="text-xs text-slate-850 leading-relaxed font-semibold">
+            <p className="text-xs text-slate-800 leading-relaxed font-semibold">
               A comprehensive suite of programs combined with highly calibrated biomolecular and GAFF2 force fields for nucleic acids and organic ligands.
             </p>
           </div>
           <div className="p-4 rounded-xl border border-border bg-white space-y-1">
             <h4 className="font-bold text-sm text-foreground">Desmond</h4>
-            <p className="text-xs text-slate-850 leading-relaxed font-semibold">
+            <p className="text-xs text-slate-800 leading-relaxed font-semibold">
               Developed by DE Shaw Research. Known for extreme parallel scaling speed. Integrated natively within Schrödinger's Maestro GUI for drug discovery workflows.
             </p>
           </div>
           <div className="p-4 rounded-xl border border-border bg-white space-y-1">
             <h4 className="font-bold text-sm text-foreground">NAMD</h4>
-            <p className="text-xs text-slate-850 leading-relaxed font-semibold">
+            <p className="text-xs text-slate-800 leading-relaxed font-semibold">
               Developed by UIUC. Designed for extreme scaling on high-performance supercomputing clusters simulating massive molecular structures.
             </p>
           </div>
@@ -678,7 +678,7 @@ mpirun -np 8 gmx_mpi mdrun -multi 8 -replex 1000 -s topol_.tpr -deffnm remd`}
             <p className="text-sm text-slate-800 leading-relaxed font-medium">
               QM/MM is a multiscale approach that divides the system into two distinct regions:
             </p>
-            <ul className="list-disc pl-5 text-xs text-slate-850 space-y-1 font-semibold leading-relaxed">
+            <ul className="list-disc pl-5 text-xs text-slate-800 space-y-1 font-semibold leading-relaxed">
               <li><strong>QM Region (Active Site):</strong> The catalytic residues, reacting atoms, and covalent ligand head are modeled using quantum mechanics (DFT or semi-empirical methods), solving Schrödinger's equation to capture bond breaking, formation, and electronic polarization.</li>
               <li><strong>MM Region (Bulk Environment):</strong> The rest of the protein and the surrounding solvent water box are modeled using fast classical force fields (like AMBER or CHARMM) to compute electrostatic and steric boundary forces.</li>
             </ul>
@@ -689,7 +689,7 @@ mpirun -np 8 gmx_mpi mdrun -multi 8 -replex 1000 -s topol_.tpr -deffnm remd`}
             <p className="text-sm text-slate-800 leading-relaxed font-medium">
               Enhanced sampling methods like Replica Exchange (T-REMD) require massive computing resources because they run multiple parallel replicas. <strong>Gaussian Accelerated Molecular Dynamics (GaMD)</strong> provides a highly efficient alternative running on a <strong>single replica</strong>:
             </p>
-            <ul className="list-disc pl-5 text-xs text-slate-850 space-y-1 font-semibold leading-relaxed">
+            <ul className="list-disc pl-5 text-xs text-slate-800 space-y-1 font-semibold leading-relaxed">
               <li>It applies a continuous, harmonic boost potential to smooth the potential energy surface.</li>
               <li>The boost energy is automatically calculated from the statistics (variance and mean, following a Gaussian distribution) of the system's potential energy.</li>
               <li>This lowers transition barriers, allowing the simulation to escape deep local energy wells and capture millisecond-scale conformational changes using standard nanosecond simulation times.</li>

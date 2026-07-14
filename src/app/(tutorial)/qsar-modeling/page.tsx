@@ -138,6 +138,33 @@ export default function QsarModelingPage() {
     };
   }, [isDragging]);
 
+  // Widget 3 state (Classical Hansch analysis / Craig plot)
+  // Reference substituents with tabulated Hansch-Fujita π (hydrophobicity)
+  // and Hammett σ_para (electronic) constants.
+  const hanschSubstituents: { label: string; pi: number; sigma: number }[] = [
+    { label: "H", pi: 0.0, sigma: 0.0 },
+    { label: "CH₃", pi: 0.56, sigma: -0.17 },
+    { label: "C₂H₅", pi: 1.02, sigma: -0.15 },
+    { label: "F", pi: 0.14, sigma: 0.06 },
+    { label: "Cl", pi: 0.71, sigma: 0.23 },
+    { label: "Br", pi: 0.86, sigma: 0.23 },
+    { label: "OCH₃", pi: -0.02, sigma: -0.27 },
+    { label: "OH", pi: -0.67, sigma: -0.37 },
+    { label: "NH₂", pi: -1.23, sigma: -0.66 },
+    { label: "CF₃", pi: 0.88, sigma: 0.54 },
+    { label: "CN", pi: -0.57, sigma: 0.66 },
+    { label: "NO₂", pi: -0.28, sigma: 0.78 },
+  ];
+  const [hanschPick, setHanschPick] = useState("Cl");
+  const activeSub = hanschSubstituents.find((s) => s.label === hanschPick) ?? hanschSubstituents[0];
+  const piVal = activeSub.pi;
+  const sigmaVal = activeSub.sigma;
+  // Phenol antiseptic model (Hansch & Fujita): log(1/C) = 2.5·π − 0.2·σ + 2.3
+  const hanschActivity = 2.5 * piVal - 0.2 * sigmaVal + 2.3;
+  // Craig-plot pixel mapping (viewBox 300 x 200, origin at 150,100)
+  const craigX = 150 + piVal * 70;
+  const craigY = 100 - sigmaVal * 70;
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -161,16 +188,152 @@ export default function QsarModelingPage() {
         </p>
       </section>
 
-      {/* Section 2: QSAR Workflow */}
+      {/* Section 2: Classical Hansch Analysis */}
       <section className="space-y-4">
-        <h2>2. The QSAR Modeling Workflow</h2>
+        <h2>2. The Classical Foundation: Hansch Analysis</h2>
+        <p>
+          Long before machine learning, Corwin Hansch and Toshio Fujita (1964) established QSAR as a <em>linear free-energy relationship</em>. Instead of thousands of fingerprint bits, activity is correlated with a handful of physically interpretable substituent constants — the historical bedrock every modern QSAR still rests on.
+        </p>
+
+        <div className="flex flex-col items-center justify-center p-5 bg-slate-50 border border-slate-200 rounded-xl select-none my-2 not-prose">
+          <div className="text-xl sm:text-2xl font-mono font-bold tracking-wide text-slate-900">
+            log(1/C) = a·π + b·σ + c·E<sub>s</sub> + d
+          </div>
+          <div className="text-sm text-slate-800 font-bold uppercase tracking-widest mt-1 text-center">
+            The Hansch Equation
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 not-prose">
+          <div className="p-4 rounded-xl border border-border bg-white space-y-1">
+            <h4 className="font-bold text-sm text-slate-900">π — Hydrophobic Constant</h4>
+            <p className="text-sm text-slate-800 leading-relaxed">
+              π = log P<sub>RX</sub> − log P<sub>RH</sub>. Measures how much more lipophilic a substituent is than hydrogen. Governs membrane transport and hydrophobic contacts. Positive π = more lipophilic.
+            </p>
+          </div>
+          <div className="p-4 rounded-xl border border-border bg-white space-y-1">
+            <h4 className="font-bold text-sm text-slate-900">σ — Hammett Constant</h4>
+            <p className="text-sm text-slate-800 leading-relaxed">
+              An electronic term from the ionization of substituted benzoic acids. <strong>Electron-withdrawing</strong> groups give positive σ; <strong>electron-donating</strong> groups give negative σ. Controls polar interactions and reactivity.
+            </p>
+          </div>
+          <div className="p-4 rounded-xl border border-border bg-white space-y-1">
+            <h4 className="font-bold text-sm text-slate-900">E<sub>s</sub> — Taft Steric Term</h4>
+            <p className="text-sm text-slate-800 leading-relaxed">
+              A steric parameter from acid-catalyzed ester hydrolysis rates. Bulky substituents give more negative E<sub>s</sub>. Molar refractivity (MR) is often used alongside it to capture size and polarizability.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Interactive Widget: Hansch / Craig Plot */}
+      <section className="p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-4">
+        <div className="flex items-center gap-2">
+          <Sliders size={18} className="text-slate-900" />
+          <h3 className="font-bold text-base text-slate-900">Interactive Playground: Hansch Model &amp; Craig Plot</h3>
+        </div>
+        <p className="text-sm text-slate-800 leading-normal">
+          A real Hansch analysis of antiseptic phenols yielded <span className="font-mono font-semibold">log(1/C) = 2.5·π − 0.2·σ + 2.3</span> (n = 23, r² = 0.81). Pick a <em>para</em>-substituent to place it on the <strong>Craig plot</strong> and see its predicted activity. The lipophilic term dominates, so potency is maximized in the high-π / low-σ quadrant.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center bg-white p-5 rounded-lg border border-slate-200">
+          {/* Controls & readout */}
+          <div className="md:col-span-5 space-y-4">
+            <div className="space-y-1.5">
+              <span className="text-sm text-slate-800 font-bold">Substituent (R on phenol)</span>
+              <div className="flex flex-wrap gap-1.5">
+                {hanschSubstituents.map((s) => (
+                  <button
+                    key={s.label}
+                    onClick={() => setHanschPick(s.label)}
+                    className={`px-2.5 py-1 rounded-md text-xs font-mono font-bold border transition-colors ${
+                      hanschPick === s.label
+                        ? "bg-slate-900 text-white border-slate-900"
+                        : "bg-white text-slate-800 border-slate-300 hover:border-slate-500"
+                    }`}
+                  >
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-center">
+                <span className="text-[10px] text-slate-800 font-bold uppercase tracking-wider block">π (hydrophobic)</span>
+                <p className="text-lg font-bold font-mono text-slate-950">{piVal.toFixed(2)}</p>
+              </div>
+              <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-center">
+                <span className="text-[10px] text-slate-800 font-bold uppercase tracking-wider block">σ (electronic)</span>
+                <p className="text-lg font-bold font-mono text-slate-950">{sigmaVal.toFixed(2)}</p>
+              </div>
+            </div>
+
+            <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-lg space-y-1">
+              <span className="text-sm text-slate-800 font-bold uppercase tracking-wider block">Predicted Activity</span>
+              <p className="text-xl font-bold text-slate-950 font-mono">
+                log(1/C) = {hanschActivity.toFixed(2)}
+              </p>
+              <div className="text-sm leading-normal">
+                {hanschActivity >= 3.8 ? (
+                  <span className="text-emerald-700 font-bold">High antiseptic activity — lipophilic, weakly electron-donating.</span>
+                ) : hanschActivity >= 2.3 ? (
+                  <span className="text-amber-700 font-bold">Moderate activity.</span>
+                ) : (
+                  <span className="text-rose-700 font-bold">Low activity — too polar or strongly electron-withdrawing.</span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Craig plot */}
+          <div className="md:col-span-7 flex justify-center">
+            <div className="w-full max-w-[320px] aspect-[3/2] relative bg-slate-50 border border-slate-200 rounded-lg p-2">
+              <svg viewBox="0 0 300 200" className="w-full h-full">
+                {/* High-activity quadrant: +π (right), −σ (lower) */}
+                <rect x="150" y="100" width="150" height="100" className="fill-emerald-100/60" />
+                <text x="222" y="192" textAnchor="middle" fontSize="8" className="fill-emerald-700 font-bold">high activity</text>
+
+                {/* Axes */}
+                <line x1="10" y1="100" x2="290" y2="100" stroke="currentColor" className="text-slate-400" strokeWidth="0.8" />
+                <line x1="150" y1="10" x2="150" y2="190" stroke="currentColor" className="text-slate-400" strokeWidth="0.8" />
+                <text x="286" y="96" textAnchor="end" fontSize="9" className="fill-slate-600 font-bold">+π →</text>
+                <text x="153" y="17" fontSize="9" className="fill-slate-600 font-bold">+σ (EWG)</text>
+                <text x="153" y="188" fontSize="9" className="fill-slate-600 font-bold">−σ (EDG)</text>
+
+                {/* Reference substituents */}
+                {hanschSubstituents.map((s) => {
+                  const x = 150 + s.pi * 70;
+                  const y = 100 - s.sigma * 70;
+                  const active = s.label === hanschPick;
+                  return (
+                    <g key={s.label}>
+                      <circle cx={x} cy={y} r={active ? 4.5 : 2.5} className={active ? "fill-slate-900" : "fill-slate-400"} />
+                      {active && (
+                        <text x={x + 7} y={y + 3} fontSize="9" className="fill-slate-900 font-bold font-mono">{s.label}</text>
+                      )}
+                    </g>
+                  );
+                })}
+
+                {/* Active marker ring */}
+                <circle cx={craigX} cy={craigY} r="8" fill="none" stroke="currentColor" className="text-slate-900" strokeWidth="1.2" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Section 3: QSAR Workflow */}
+      <section className="space-y-4">
+        <h2>3. The QSAR Modeling Workflow</h2>
         
         <div className="space-y-3 not-prose">
           <div className="flex gap-3 p-3.5 rounded-lg border border-border bg-white">
             <span className="h-5 w-5 text-sm font-bold bg-slate-100 border border-border rounded flex items-center justify-center flex-shrink-0 text-slate-800">1</span>
             <div>
               <h4 className="font-bold text-sm text-slate-900">Data Collection & Curation</h4>
-              <p className="text-sm text-slate-855 mt-1 leading-relaxed">
+              <p className="text-sm text-slate-900 mt-1 leading-relaxed">
                 Bioactivity measurements are pulled from public databases (ChEMBL, PubChem). Structures are standardized by stripping salts, resolving stereocenters, and neutralizing molecules to match physiological pH.
               </p>
             </div>
@@ -180,7 +343,7 @@ export default function QsarModelingPage() {
             <span className="h-5 w-5 text-sm font-bold bg-slate-100 border border-border rounded flex items-center justify-center flex-shrink-0 text-slate-800">2</span>
             <div>
               <h4 className="font-bold text-sm text-slate-900">Descriptor Calculation</h4>
-              <p className="text-sm text-slate-855 mt-1 leading-relaxed">
+              <p className="text-sm text-slate-900 mt-1 leading-relaxed">
                 Molecules are translated into mathematical vectors. Descriptors range from 1D properties (molecular weight), to 2D topological properties (logP, polar surface area, circular <strong>ECFP4 fingerprints</strong> representing local environments), and 3D shapes.
               </p>
             </div>
@@ -190,7 +353,7 @@ export default function QsarModelingPage() {
             <span className="h-5 w-5 text-sm font-bold bg-slate-100 border border-border rounded flex items-center justify-center flex-shrink-0 text-slate-800">3</span>
             <div>
               <h4 className="font-bold text-sm text-slate-900">Machine Learning Training</h4>
-              <p className="text-sm text-slate-855 mt-1 leading-relaxed">
+              <p className="text-sm text-slate-900 mt-1 leading-relaxed">
                 Common algorithms include <strong>Decision Trees (DT)</strong>, <strong>Random Forests (RF)</strong> (ensembles of random trees), and <strong>Gradient Boosting Machines (GBM)</strong> (trees built sequentially).
               </p>
             </div>
@@ -301,7 +464,7 @@ export default function QsarModelingPage() {
               />
             </div>
 
-            <div className="p-3 bg-slate-50 border border-slate-250 rounded-lg space-y-0.5">
+            <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-0.5">
               <span className="text-xs text-slate-800 font-bold block uppercase">Predicted Class</span>
               <p className="text-lg font-black">
                 {resultActive ? (
@@ -346,16 +509,16 @@ export default function QsarModelingPage() {
 
                 {/* Leaf Labels */}
                 <circle cx="25" cy="115" r="7" fill="currentColor" className={!step1Passed && !step2Passed ? "text-slate-900" : "text-slate-200"} />
-                <text x="25" y="117" textAnchor="middle" fill="currentColor" className={!step1Passed && !step2Passed ? "text-white font-bold" : "text-slate-750 font-semibold"} fontSize="5.5" fontWeight="bold">Act</text>
+                <text x="25" y="117" textAnchor="middle" fill="currentColor" className={!step1Passed && !step2Passed ? "text-white font-bold" : "text-slate-700 font-semibold"} fontSize="5.5" fontWeight="bold">Act</text>
                 
                 <circle cx="65" cy="115" r="7" fill="currentColor" className={!step1Passed && step2Passed ? "text-slate-900" : "text-slate-200"} />
-                <text x="65" y="117" textAnchor="middle" fill="currentColor" className={!step1Passed && step2Passed ? "text-white font-bold" : "text-slate-750 font-semibold"} fontSize="5.5" fontWeight="bold">Ina</text>
+                <text x="65" y="117" textAnchor="middle" fill="currentColor" className={!step1Passed && step2Passed ? "text-white font-bold" : "text-slate-700 font-semibold"} fontSize="5.5" fontWeight="bold">Ina</text>
 
                 <circle cx="95" cy="115" r="7" fill="currentColor" className={step1Passed && !step2Passed ? "text-slate-900" : "text-slate-200"} />
-                <text x="95" y="117" textAnchor="middle" fill="currentColor" className={step1Passed && !step2Passed ? "text-white font-bold" : "text-slate-750 font-semibold"} fontSize="5.5" fontWeight="bold">Ina</text>
+                <text x="95" y="117" textAnchor="middle" fill="currentColor" className={step1Passed && !step2Passed ? "text-white font-bold" : "text-slate-700 font-semibold"} fontSize="5.5" fontWeight="bold">Ina</text>
 
                 <circle cx="135" cy="115" r="7" fill="currentColor" className={step1Passed && step2Passed ? "text-slate-900" : "text-slate-200"} />
-                <text x="135" y="117" textAnchor="middle" fill="currentColor" className={step1Passed && step2Passed ? "text-white font-bold" : "text-slate-750 font-semibold"} fontSize="5.5" fontWeight="bold">Act</text>
+                <text x="135" y="117" textAnchor="middle" fill="currentColor" className={step1Passed && step2Passed ? "text-white font-bold" : "text-slate-700 font-semibold"} fontSize="5.5" fontWeight="bold">Act</text>
               </svg>
             </div>
           </div>
@@ -364,7 +527,7 @@ export default function QsarModelingPage() {
 
       {/* Section 3: Model Curation / Validation Framework */}
       <section className="space-y-4">
-        <h2>3. Three-Tier Model Validation Framework</h2>
+        <h2>4. Three-Tier Model Validation Framework</h2>
         <p>
           Building a QSAR model is only half the job. Overfitted models routinely pass basic correlation checks but fail to predict active structures outside the training set. Establishing diagnostic parameters prevents this and validates predictive robustness.
         </p>
@@ -379,7 +542,7 @@ export default function QsarModelingPage() {
                 <th className="px-4 py-2.5 text-left">Scientific Rationale</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200 bg-white text-slate-850">
+            <tbody className="divide-y divide-slate-200 bg-white text-slate-800">
               <tr>
                 <td className="px-4 py-2 font-bold text-emerald-800 bg-emerald-50/20">1. Internal Validation</td>
                 <td className="px-4 py-2 font-mono">R²_tr, R²_adj, CCC_tr</td>
@@ -437,7 +600,7 @@ export default function QsarModelingPage() {
             </li>
             <li>
               <strong>The Jaccard Index / Method:</strong> In mathematical literature, the Tanimoto coefficient applied to binary vectors (like ECFP4 fingerprints) is formally identical to the <strong>Jaccard Similarity</strong>. It measures the size of the intersection of features divided by the size of their union:
-              <div className="my-1.5 font-mono text-center text-xs bg-slate-50 py-1.5 rounded text-slate-800 font-bold border border-slate-150">
+              <div className="my-1.5 font-mono text-center text-xs bg-slate-50 py-1.5 rounded text-slate-800 font-bold border border-slate-100">
                 {"Jaccard(A, B) = |A ∩ B| / |A ∪ B| = Tanimoto(A, B)"}
               </div>
               Calculating the Jaccard distance (which is 1 minus the Jaccard similarity coefficient) between all pairs in the dataset is the foundation for both Butina clustering and similarity-based applicability domain mapping.
@@ -492,7 +655,7 @@ export default function QsarModelingPage() {
                   <th className="px-4 py-2.5 text-left">Ideal</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-200 bg-white text-slate-850">
+              <tbody className="divide-y divide-slate-200 bg-white text-slate-800">
                 <tr>
                   <td className="px-4 py-2 font-bold">Sensitivity (Recall)</td>
                   <td className="px-4 py-2 font-mono text-xs">TP / (TP + FN)</td>
@@ -540,7 +703,7 @@ export default function QsarModelingPage() {
                   <th className="px-4 py-2.5 text-left">Ideal</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-200 bg-white text-slate-850">
+              <tbody className="divide-y divide-slate-200 bg-white text-slate-800">
                 <tr>
                   <td className="px-4 py-2 font-bold">R-squared (R²)</td>
                   <td className="px-4 py-2">Proportion of variance explained by the model</td>
@@ -799,7 +962,7 @@ export default function QsarModelingPage() {
 
       {/* Section 4: Evolution of Graph Neural Networks */}
       <section className="space-y-4">
-        <h2>4. The Deep Learning Paradigm: Graph Neural Networks (GNNs)</h2>
+        <h2>5. The Deep Learning Paradigm: Graph Neural Networks (GNNs)</h2>
         <p>
           While classical QSAR maps molecules to fixed binary fingerprints, modern drug discovery has migrated to Graph Neural Networks (GNNs). A small molecule is naturally represented as a graph where atoms are nodes and chemical bonds are edges.
         </p>
@@ -856,7 +1019,7 @@ export default function QsarModelingPage() {
 
       {/* Section 5: ADMET, SHAP, & Hybrid Modeling */}
       <section className="space-y-4">
-        <h2>5. In Silico ADMET, Explainable AI, & Hybrid Phenotypic Modeling</h2>
+        <h2>6. In Silico ADMET, Explainable AI, & Hybrid Phenotypic Modeling</h2>
         <p>
           While classical QSAR models general binding affinity, modern drug discovery requires optimization for Absorption, Distribution, Metabolism, Excretion, and Toxicity (ADMET) endpoints to prevent clinical trial failures.
         </p>

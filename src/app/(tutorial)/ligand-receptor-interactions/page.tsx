@@ -200,13 +200,14 @@ export default function LigandReceptorInteractionsPage() {
   }, [isDragging]);
 
   const calculateEnergy = (r: number) => {
-    if (r < 2.0) return 40; 
-    const r0 = 2.9;
-    const depth = -4.0;
+    const r0 = 2.9;     // equilibrium donor–acceptor distance (Å)
+    const depth = 4.0;  // well depth ε (kcal/mol); attraction is negative
+    // Minimized 12-6 form: V(r0) = -ε at the minimum, → 0 at large r, → +∞ at short r
     const term12 = Math.pow(r0 / r, 12);
-    const term6 = Math.pow(r0 / r, 6) * 2; 
+    const term6 = 2 * Math.pow(r0 / r, 6);
     const energy = depth * (term12 - term6);
-    return Math.min(Math.max(energy, -5), 20);
+    // Clamp the steep repulsive wall to +8 so it stays inside the chart viewBox
+    return Math.min(Math.max(energy, -depth), 8);
   };
 
   const currentEnergy = calculateEnergy(distance);
@@ -298,7 +299,7 @@ export default function LigandReceptorInteractionsPage() {
                 <th className="px-4 py-2 text-left font-bold text-slate-900">Qualitative Description</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200 bg-white text-slate-850">
+            <tbody className="divide-y divide-slate-200 bg-white text-slate-800">
               <tr>
                 <td className="px-4 py-2 font-mono font-semibold">-4.1 kcal/mol</td>
                 <td className="px-4 py-2 font-mono">1.0 mM (Millimolar)</td>
@@ -459,6 +460,26 @@ export default function LigandReceptorInteractionsPage() {
               </p>
             </div>
           </div>
+
+          <div className="flex gap-3 p-3.5 rounded-lg border border-border bg-white">
+            <span className="h-5 w-5 text-sm font-bold bg-slate-100 border border-border rounded flex items-center justify-center flex-shrink-0 text-slate-900">4</span>
+            <div>
+              <h4 className="font-bold text-sm text-slate-900">Cation-π Interactions</h4>
+              <p className="text-sm text-slate-800 mt-0.5 leading-relaxed">
+                A special ion-dipole interaction between a cation (e.g. a protonated amine, Lys-NH₃⁺, or Arg guanidinium) and the electron-rich π face of an aromatic ring. Because the effect depends on ring electron density, <strong>electron-donating</strong> substituents (e.g. -NH₂) strengthen it while <strong>electron-withdrawing</strong> groups (e.g. -CN) weaken it. This explains why electron-rich Trp and Tyr engage in cation-π contacts far more often than Phe.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-3 p-3.5 rounded-lg border border-border bg-white">
+            <span className="h-5 w-5 text-sm font-bold bg-slate-100 border border-border rounded flex items-center justify-center flex-shrink-0 text-slate-900">5</span>
+            <div>
+              <h4 className="font-bold text-sm text-slate-900">Van der Waals / London Dispersion & π-π Stacking</h4>
+              <p className="text-sm text-slate-800 mt-0.5 leading-relaxed">
+                Weak (~0.5–1 kcal/mol each), short-range forces from transient, induced dipoles between all atoms in close contact. Individually negligible, but summed over a well-packed binding pocket they contribute substantially to affinity — this is the energetic basis of shape complementarity. <strong>π-π stacking</strong> between aromatic rings (parallel-displaced or T-shaped, ~3.5–4.0 Å) is a directional special case.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -544,7 +565,7 @@ export default function LigandReceptorInteractionsPage() {
 
             <button
               onClick={() => setDesolvate(!desolvate)}
-              className="px-4 py-2.5 rounded-lg bg-slate-900 hover:bg-slate-850 text-white font-semibold text-sm transition-colors w-full text-center shadow-sm"
+              className="px-4 py-2.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm transition-colors w-full text-center shadow-sm"
             >
               {desolvate ? "Unbind Ligand (Reset)" : "Bind Ligand (Release Caged Waters)"}
             </button>
@@ -690,7 +711,7 @@ export default function LigandReceptorInteractionsPage() {
                 <text x={ligandPos.x} y={ligandPos.y - 16} textAnchor="middle" fill="#0f172a" className="text-[7px] font-extrabold bg-white p-0.5 rounded pointer-events-none">DRAG CORE</text>
               </svg>
               
-              <div className="absolute bottom-2 left-2 right-2 flex justify-between bg-white/90 px-3 py-1.5 rounded border border-slate-200/50 text-[10px] text-slate-850 font-bold select-none backdrop-blur-sm">
+              <div className="absolute bottom-2 left-2 right-2 flex justify-between bg-white/90 px-3 py-1.5 rounded border border-slate-200/50 text-[10px] text-slate-800 font-bold select-none backdrop-blur-sm">
                 <span>Amine-Asp: <strong>{dAmine.toFixed(2)} Å</strong></span>
                 <span>Hydroxyl-His: <strong>{dHydroxyl.toFixed(2)} Å</strong></span>
                 <span>Phenyl-Phe: <strong>{dPhenyl.toFixed(2)} Å</strong></span>
@@ -742,7 +763,7 @@ export default function LigandReceptorInteractionsPage() {
               <div className="space-y-2.5 text-xs">
                 {/* Salt Bridge readout */}
                 <div className="flex justify-between items-center py-0.5">
-                  <span className="font-semibold text-slate-850">1. Salt Bridge (Amine ⋯ Asp189)</span>
+                  <span className="font-semibold text-slate-800">1. Salt Bridge (Amine ⋯ Asp189)</span>
                   <span className={`font-mono font-bold ${clashAmine ? "text-red-700" : eAmine < -2.0 ? "text-emerald-700" : "text-slate-800"}`}>
                     {clashAmine ? "Steric Clash! (+15.0)" : `${eAmine.toFixed(2)} kcal/mol`}
                   </span>
@@ -750,7 +771,7 @@ export default function LigandReceptorInteractionsPage() {
 
                 {/* H-Bond readout */}
                 <div className="flex justify-between items-center py-0.5">
-                  <span className="font-semibold text-slate-850">2. Hydrogen Bond (OH ⋯ His41)</span>
+                  <span className="font-semibold text-slate-800">2. Hydrogen Bond (OH ⋯ His41)</span>
                   <span className={`font-mono font-bold ${clashHydroxyl ? "text-red-700" : eHydroxyl < -1.5 ? "text-emerald-700" : "text-slate-800"}`}>
                     {clashHydroxyl ? "Steric Clash! (+12.0)" : `${eHydroxyl.toFixed(2)} kcal/mol`}
                   </span>
@@ -758,7 +779,7 @@ export default function LigandReceptorInteractionsPage() {
 
                 {/* Stacking readout */}
                 <div className="flex justify-between items-center py-0.5">
-                  <span className="font-semibold text-slate-850">3. π-π Stacking (Phenyl ⋯ Phe140)</span>
+                  <span className="font-semibold text-slate-800">3. π-π Stacking (Phenyl ⋯ Phe140)</span>
                   <span className={`font-mono font-bold ${clashPhenyl ? "text-red-700" : ePhenyl < -0.8 ? "text-emerald-700" : "text-slate-800"}`}>
                     {clashPhenyl ? "Steric Clash! (+10.0)" : `${ePhenyl.toFixed(2)} kcal/mol`}
                   </span>
@@ -772,13 +793,13 @@ export default function LigandReceptorInteractionsPage() {
 
                 {/* Conformational Entropy cost */}
                 <div className="flex justify-between items-center py-0.5">
-                  <span className="font-semibold text-slate-850">4. Conformational Entropy Cost (-TΔS_conf)</span>
+                  <span className="font-semibold text-slate-800">4. Conformational Entropy Cost (-TΔS_conf)</span>
                   <span className="font-mono font-bold text-red-650">+{dSconf.toFixed(2)} kcal/mol</span>
                 </div>
 
                 {/* Desolvation entropy boost */}
                 <div className="flex justify-between items-center py-0.5">
-                  <span className="font-semibold text-slate-850">5. Hydrophobic Desolvation (-TΔS_desolv)</span>
+                  <span className="font-semibold text-slate-800">5. Hydrophobic Desolvation (-TΔS_desolv)</span>
                   <span className={`font-mono font-bold ${dSdesolv < -0.5 ? "text-emerald-700" : "text-slate-800"}`}>
                     {dSdesolv.toFixed(2)} kcal/mol
                   </span>
@@ -807,7 +828,7 @@ export default function LigandReceptorInteractionsPage() {
                 </span>
               </div>
               
-              <div className="text-[11px] leading-relaxed text-slate-350 font-medium pt-1.5 border-t border-slate-800">
+              <div className="text-[11px] leading-relaxed text-slate-300 font-medium pt-1.5 border-t border-slate-800">
                 {hasClash ? (
                   <span className="text-red-400 font-bold">WARNING: Steric strain prevents complex formation. Pull ligand core away from the clashing residues.</span>
                 ) : dG < -6.0 ? (

@@ -62,8 +62,8 @@ export const curriculum: Module[] = [
   },
   {
     slug: "in-silico-toxicology",
-    title: "Module 10: In Silico Toxicology & Safety Assessment",
-    description: "Predict cardiotoxicity (hERG), hepatotoxicity (DILI), and mutagenicity (Ames) using machine learning. Compare models with DeLong's test and interpret alerts with SHAP explainability.",
+    title: "Module 10: In Silico ADMET & Safety Assessment",
+    description: "Profile oral drug-likeness with Lipinski's Rule of Five and Veber's rules, then predict cardiotoxicity (hERG), hepatotoxicity (DILI), and mutagenicity (Ames) using machine learning. Compare models with DeLong's test and interpret alerts with SHAP explainability.",
     duration: "30 min",
   },
 ];

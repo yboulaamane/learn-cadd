@@ -242,11 +242,11 @@ export default function VirtualScreeningPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-3 text-center">
-              <div className="p-3 bg-slate-50 border border-slate-250 rounded-lg space-y-0.5">
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-0.5">
                 <span className="text-xs text-slate-800 font-bold block uppercase">ROC-AUC</span>
                 <span className="text-lg font-extrabold text-slate-900">{auc.toFixed(2)}</span>
               </div>
-              <div className="p-3 bg-slate-50 border border-slate-250 rounded-lg space-y-0.5">
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-0.5">
                 <span className="text-xs text-slate-800 font-bold block uppercase">EF at 5%</span>
                 <span className="text-lg font-extrabold text-slate-900">{ef5}x</span>
               </div>
@@ -268,8 +268,8 @@ export default function VirtualScreeningPage() {
             <div className="w-full max-w-[240px] aspect-square relative bg-slate-50 border border-slate-200 rounded-lg p-4 flex flex-col justify-between">
               <div className="relative flex-1">
                 <svg viewBox="0 0 200 200" className="w-full h-full">
-                  <line x1="40" y1="160" x2="160" y2="160" stroke="currentColor" className="text-slate-350" strokeWidth="0.8" />
-                  <line x1="40" y1="40" x2="40" y2="160" stroke="currentColor" className="text-slate-350" strokeWidth="0.8" />
+                  <line x1="40" y1="160" x2="160" y2="160" stroke="currentColor" className="text-slate-300" strokeWidth="0.8" />
+                  <line x1="40" y1="40" x2="40" y2="160" stroke="currentColor" className="text-slate-300" strokeWidth="0.8" />
 
                   {/* Diagonal random line (AUC = 0.5) */}
                   <line x1="40" y1="160" x2="160" y2="40" stroke="currentColor" className="text-slate-200" strokeWidth="0.5" strokeDasharray="3,3" />
@@ -293,7 +293,7 @@ export default function VirtualScreeningPage() {
       </section>
 
       {/* Mathematical Screening Metrics Section */}
-      <section className="space-y-4 border-t border-slate-250 pt-6">
+      <section className="space-y-4 border-t border-slate-200 pt-6">
         <h3>Mathematical Screening Metrics: EF and BEDROC</h3>
         <p className="text-sm text-slate-800 leading-relaxed">
           While ROC-AUC measures the overall ability of a model to distinguish active compounds from inactive decoys across the entire dataset, virtual screening pipelines are highly sensitive to the <strong>early recognition problem</strong>. Since researchers typically only synthesize or test the top-ranked fraction of candidates, we require metrics focused on early enrichment:
@@ -329,9 +329,9 @@ export default function VirtualScreeningPage() {
       </section>
 
       {/* Active Learning & Bayesian Optimization Subsection */}
-      <section className="space-y-4 border-t border-slate-250 pt-6">
+      <section className="space-y-4 border-t border-slate-200 pt-6">
         <h3>Active Learning &amp; Bayesian Optimization Loops</h3>
-        <p className="text-sm text-slate-805 leading-relaxed">
+        <p className="text-sm text-slate-800 leading-relaxed">
           Traditional virtual screening screens the entire database linearly. However, screening billions of compounds (like the Enamine REAL space) with heavy docking or quantum chemistry is computationally impossible. Modern discovery uses <strong>Active Learning</strong> (a branch of machine learning) to search these spaces dynamically:
         </p>
 
@@ -341,7 +341,7 @@ export default function VirtualScreeningPage() {
               <span className="h-2 w-2 rounded-full bg-blue-500" />
               1. The Surrogate Model
             </h4>
-            <p className="text-[11px] text-slate-705 leading-relaxed">
+            <p className="text-[11px] text-slate-700 leading-relaxed">
               A fast machine learning model (e.g., Gaussian Processes or Random Forests) is trained on a small, initial subset of docked or assayed compounds. It predicts the activity (or docking score) of unscreened compounds and crucially predicts its own <strong>uncertainty</strong> (standard deviation).
             </p>
           </div>
@@ -351,10 +351,10 @@ export default function VirtualScreeningPage() {
               <span className="h-2 w-2 rounded-full bg-teal-500" />
               2. The Acquisition Function
             </h4>
-            <p className="text-[11px] text-slate-755 leading-relaxed">
+            <p className="text-[11px] text-slate-700 leading-relaxed">
               Balances exploration (testing high-uncertainty regions to improve the model) and exploitation (testing high-activity regions to find hits). Common functions include <strong>Expected Improvement (EI)</strong> and <strong>Upper Confidence Bound (UCB)</strong>:
             </p>
-            <div className="my-1.5 font-mono text-center text-[10px] bg-slate-50 py-1.5 rounded text-slate-850 font-bold border border-slate-200">
+            <div className="my-1.5 font-mono text-center text-[10px] bg-slate-50 py-1.5 rounded text-slate-800 font-bold border border-slate-200">
               {"UCB(x) = μ(x) + β * σ(x)"}
             </div>
           </div>
@@ -364,7 +364,7 @@ export default function VirtualScreeningPage() {
               <span className="h-2 w-2 rounded-full bg-emerald-500" />
               3. The Closed-Loop Cycle
             </h4>
-            <p className="text-[11px] text-slate-705 leading-relaxed">
+            <p className="text-[11px] text-slate-700 leading-relaxed">
               The acquisition function ranks all unscreened compounds. A batch of the top-ranked candidates is screened (e.g. docked), their scores are added to the training set, the surrogate model is retrained, and the loop repeats, discovering hits after screening only 1% to 2% of the library.
             </p>
           </div>
@@ -527,7 +527,7 @@ export default function VirtualScreeningPage() {
               {!isRunning ? (
                 <button
                   onClick={handleStart}
-                  className="flex-1 flex items-center justify-center gap-1.5 bg-slate-900 hover:bg-slate-850 text-white py-2 px-4 rounded-lg font-bold text-sm shadow-sm transition-colors"
+                  className="flex-1 flex items-center justify-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white py-2 px-4 rounded-lg font-bold text-sm shadow-sm transition-colors"
                 >
                   <Play size={14} /> Start Screening
                 </button>
@@ -541,7 +541,7 @@ export default function VirtualScreeningPage() {
               )}
               <button
                 onClick={handleReset}
-                className="flex items-center justify-center gap-1.5 border border-slate-350 hover:bg-slate-50 text-slate-850 py-2 px-3 rounded-lg font-bold text-sm transition-colors"
+                className="flex items-center justify-center gap-1.5 border border-slate-300 hover:bg-slate-50 text-slate-800 py-2 px-3 rounded-lg font-bold text-sm transition-colors"
               >
                 <RotateCcw size={14} /> Reset
               </button>
@@ -668,15 +668,15 @@ export default function VirtualScreeningPage() {
                   <div className="flex gap-3 text-[10px] font-extrabold shrink-0 border-t md:border-t-0 pt-2 md:pt-0 border-slate-200">
                     <div className="flex items-center gap-1">
                       {currentEvaluation?.passLipinski ? <CheckCircle size={12} className="text-emerald-600" /> : <XCircle size={12} className="text-red-600" />}
-                      <span className="text-slate-850">Lipinski</span>
+                      <span className="text-slate-800">Lipinski</span>
                     </div>
                     <div className="flex items-center gap-1">
                       {currentEvaluation?.passPains ? <CheckCircle size={12} className="text-emerald-600" /> : <XCircle size={12} className="text-red-600" />}
-                      <span className="text-slate-850">PAINS</span>
+                      <span className="text-slate-800">PAINS</span>
                     </div>
                     <div className="flex items-center gap-1">
                       {currentEvaluation?.passDocking ? <CheckCircle size={12} className="text-emerald-600" /> : <XCircle size={12} className="text-red-600" />}
-                      <span className="text-slate-850">Docking</span>
+                      <span className="text-slate-800">Docking</span>
                     </div>
                   </div>
                 </>

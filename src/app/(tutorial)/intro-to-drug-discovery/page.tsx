@@ -107,7 +107,7 @@ export default function IntroToDrugDiscoveryPage() {
           <Layers size={16} />
           <h3 className="font-bold text-sm">Interactive Playground: R&D Funnel Simulation</h3>
         </div>
-        <p className="text-sm text-slate-650">
+        <p className="text-sm text-slate-600">
           Click "Advance Pipeline" to simulate compound screening through the five major stages of the drug discovery pipeline. Notice the scale of attrition at each barrier.
         </p>
 
@@ -199,7 +199,7 @@ export default function IntroToDrugDiscoveryPage() {
                   )}
                   <button
                     onClick={resetPipeline}
-                    className="px-4 py-2 rounded-lg bg-slate-150 text-slate-700 font-semibold text-sm hover:bg-slate-200 transition-colors"
+                    className="px-4 py-2 rounded-lg bg-slate-100 text-slate-700 font-semibold text-sm hover:bg-slate-200 transition-colors"
                   >
                     Reset
                   </button>
@@ -218,7 +218,7 @@ export default function IntroToDrugDiscoveryPage() {
           <div className="p-4 rounded-xl border border-border bg-white space-y-2">
             <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">Stage A</div>
             <h3 className="font-bold text-sm text-foreground">Hit Compound</h3>
-            <p className="text-sm text-slate-650 leading-relaxed">
+            <p className="text-sm text-slate-600 leading-relaxed">
               A molecule that shows reproducible, verified activity in a bioassay. It must possess validated structure/purity, novelty, and chemical tractability.
             </p>
           </div>
@@ -226,7 +226,7 @@ export default function IntroToDrugDiscoveryPage() {
           <div className="p-4 rounded-xl border border-border bg-white space-y-2">
             <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">Stage B</div>
             <h3 className="font-bold text-sm text-foreground">Lead Compound</h3>
-            <p className="text-sm text-slate-650 leading-relaxed">
+            <p className="text-sm text-slate-600 leading-relaxed">
               An optimized hit showing activity <em>in vivo</em>, clear Structure-Activity Relationships (SAR), no reactive groups, and clean cardiotoxicity markers.
             </p>
           </div>
@@ -234,7 +234,7 @@ export default function IntroToDrugDiscoveryPage() {
           <div className="p-4 rounded-xl border border-border bg-white space-y-2">
             <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">Stage C</div>
             <h3 className="font-bold text-sm text-foreground">Drug Candidate</h3>
-            <p className="text-sm text-slate-650 leading-relaxed">
+            <p className="text-sm text-slate-600 leading-relaxed">
               A fully optimized lead structure with robust preclinical safety profiles, ready for Investigational New Drug application and clinical trials.
             </p>
           </div>
@@ -247,36 +247,36 @@ export default function IntroToDrugDiscoveryPage() {
         
         <div className="space-y-3.5">
           <div className="flex gap-3">
-            <div className="flex-shrink-0 mt-0.5 p-1.5 rounded bg-slate-150 dark:bg-slate-900 text-slate-800 dark:text-slate-200 h-7 w-7 flex items-center justify-center font-bold text-xs border border-slate-200 dark:border-slate-800">
+            <div className="flex-shrink-0 mt-0.5 p-1.5 rounded bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200 h-7 w-7 flex items-center justify-center font-bold text-xs border border-slate-200 dark:border-slate-800">
               1
             </div>
             <div>
               <h3 className="font-bold text-sm !mt-0">High-Throughput Screening (HTS)</h3>
-              <p className="text-sm text-slate-650 leading-relaxed mt-1">
+              <p className="text-sm text-slate-600 leading-relaxed mt-1">
                 Automated robotic testing of chemical libraries containing millions of synthesized compounds. Highly robust and unbiased, but extremely costly to configure.
               </p>
             </div>
           </div>
 
           <div className="flex gap-3">
-            <div className="flex-shrink-0 mt-0.5 p-1.5 rounded bg-slate-150 dark:bg-slate-900 text-slate-800 dark:text-slate-200 h-7 w-7 flex items-center justify-center font-bold text-xs border border-slate-200 dark:border-slate-800">
+            <div className="flex-shrink-0 mt-0.5 p-1.5 rounded bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200 h-7 w-7 flex items-center justify-center font-bold text-xs border border-slate-200 dark:border-slate-800">
               2
             </div>
             <div>
               <h3 className="font-bold text-sm !mt-0">Exploitation of Biological Information</h3>
-              <p className="text-sm text-slate-650 leading-relaxed mt-1">
+              <p className="text-sm text-slate-600 leading-relaxed mt-1">
                 Repurposing existing drugs based on unexpected clinical observation of side effects (e.g. sildenafil) or traditional medicine extracts.
               </p>
             </div>
           </div>
 
           <div className="flex gap-3">
-            <div className="flex-shrink-0 mt-0.5 p-1.5 rounded bg-slate-150 dark:bg-slate-900 text-slate-800 dark:text-slate-200 h-7 w-7 flex items-center justify-center font-bold text-xs border border-slate-200 dark:border-slate-800">
+            <div className="flex-shrink-0 mt-0.5 p-1.5 rounded bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200 h-7 w-7 flex items-center justify-center font-bold text-xs border border-slate-200 dark:border-slate-800">
               3
             </div>
             <div>
               <h3 className="font-bold text-sm !mt-0">Rational Drug Design</h3>
-              <p className="text-sm text-slate-650 leading-relaxed mt-1">
+              <p className="text-sm text-slate-600 leading-relaxed mt-1">
                 Using structural knowledge of the target protein (structure-based) or active ligands (ligand-based) to construct compounds atom-by-atom.
               </p>
             </div>
@@ -297,19 +297,19 @@ export default function IntroToDrugDiscoveryPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 not-prose">
           <div className="p-4 rounded-xl border border-border bg-white space-y-1.5">
             <h3 className="font-bold text-sm text-foreground flex items-center gap-1.5"><Layers size={14} className="text-accent" /> Targeted Degradation (PROTACs)</h3>
-            <p className="text-xs text-slate-650 leading-relaxed">
+            <p className="text-xs text-slate-600 leading-relaxed">
               Bifunctional molecules that bind the target protein on one end and recruit an E3 ubiquitin ligase on the other, tagging the target for destruction by the proteasome rather than merely inhibiting it.
             </p>
           </div>
           <div className="p-4 rounded-xl border border-border bg-white space-y-1.5">
             <h3 className="font-bold text-sm text-foreground flex items-center gap-1.5"><Compass size={14} className="text-accent" /> PPI Inhibitors & glues</h3>
-            <p className="text-xs text-slate-655 leading-relaxed">
+            <p className="text-xs text-slate-600 leading-relaxed">
               Targeting flat, solvent-exposed protein-protein interfaces. Drugs like <strong>Venetoclax</strong> target the BCL-2 interface, while molecular glues stabilize target complexes to drive degradation.
             </p>
           </div>
           <div className="p-4 rounded-xl border border-border bg-white space-y-1.5">
             <h3 className="font-bold text-sm text-foreground flex items-center gap-1.5"><Flame size={14} className="text-accent" /> Drug Repurposing</h3>
-            <p className="text-xs text-slate-655 leading-relaxed">
+            <p className="text-xs text-slate-600 leading-relaxed">
               Finding new clinical indications for FDA-approved drugs (e.g., sildenafil, aspirin). This bypasses phase I safety barriers, accounting for nearly one-third of recent approvals.
             </p>
           </div>
