@@ -23,7 +23,7 @@ function ChapterItem({ slug, title, isActive, label, onNavigate }: ChapterItemPr
         className={`flex items-start gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
           isActive
             ? "bg-accent/10 text-accent-dark font-medium"
-            : "text-slate-650 hover:text-foreground hover:bg-surface"
+            : "text-slate-600 hover:text-foreground hover:bg-surface"
         }`}
       >
         <span className="mt-0.5 shrink-0 w-5 text-right font-mono text-xs text-slate-550">

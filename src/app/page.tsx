@@ -19,7 +19,7 @@ export default function HomePage() {
           An interactive, visual, first-principles guide to computational drug discovery.
         </p>
         <div className="mx-auto mt-6 max-w-md rounded-lg border border-accent/20 bg-accent/5 px-5 py-3 text-sm">
-          <p className="mt-1 text-slate-650">
+          <p className="mt-1 text-slate-600">
             Explore biochemical binding, molecular docking, and QSAR machine learning models through hands-on virtual sandbox playgrounds.
           </p>
         </div>
@@ -46,7 +46,7 @@ export default function HomePage() {
                 <h2 className="font-semibold text-foreground group-hover:text-accent-dark">
                   {ch.title.split(/ — |: /).slice(1).join(": ") || ch.title}
                 </h2>
-                <p className="mt-0.5 text-sm text-slate-650 leading-relaxed">
+                <p className="mt-0.5 text-sm text-slate-600 leading-relaxed">
                   {ch.description}
                 </p>
                 <span className="mt-2.5 inline-flex items-center rounded-full bg-slate-50 px-2 py-0.5 text-xs font-semibold text-slate-600 ring-1 ring-inset ring-slate-200">
