@@ -44,7 +44,7 @@ const molecules: Record<string, MoleculeData> = {
       { id: 8, label: "O", x: 150, y: 120, element: "O" }, // 4-OH
       { id: 9, label: "C", x: 30, y: 55, element: "C" },  // beta-carbon
       { id: 10, label: "C", x: 0, y: 70, element: "C" },   // alpha-carbon
-      { id: 11, label: "N", x: -30, y: 55, element: "N", charge: "+" }  // amine
+      { id: 11, label: "N", x: -30, y: 55, element: "N" }  // primary amine (neutral free base, matches SMILES + formula)
     ],
     edges: [
       { source: 1, target: 2, type: "double" },
@@ -117,10 +117,10 @@ const molecules: Record<string, MoleculeData> = {
       { id: 9, label: "O", x: 210, y: 55, element: "O" },  // acid OH
       { id: 10, label: "O", x: 180, y: 100, element: "O" }, // acid =O
       { id: 11, label: "C", x: 150, y: 25, element: "C" },  // methyl
-      { id: 12, label: "C", x: 30, y: 85, element: "C" },   // isobutyl CH2
-      { id: 13, label: "C", x: 0, y: 70, element: "C" },    // isobutyl CH
-      { id: 14, label: "C", x: -30, y: 85, element: "C" },  // isopropyl methyl 1
-      { id: 15, label: "C", x: 0, y: 40, element: "C" }     // isopropyl methyl 2
+      { id: 12, label: "C", x: 30, y: 120, element: "C" },  // isobutyl CH2 (para to acid, on C6)
+      { id: 13, label: "C", x: 0, y: 105, element: "C" },   // isobutyl CH
+      { id: 14, label: "C", x: -30, y: 120, element: "C" }, // isopropyl methyl 1
+      { id: 15, label: "C", x: 0, y: 75, element: "C" }     // isopropyl methyl 2
     ],
     edges: [
       { source: 1, target: 2, type: "double" },
@@ -134,7 +134,7 @@ const molecules: Record<string, MoleculeData> = {
       { source: 8, target: 9, type: "single" },
       { source: 8, target: 10, type: "double" },
       { source: 7, target: 11, type: "single" },
-      { source: 1, target: 12, type: "single" },
+      { source: 6, target: 12, type: "single" },
       { source: 12, target: 13, type: "single" },
       { source: 13, target: 14, type: "single" },
       { source: 13, target: 15, type: "single" }
@@ -344,11 +344,150 @@ if mol:
     print('InChIKey Hash: ', inchi_key)`}
           />
 
+          {/* The Isomerism Landscape */}
+          <div className="border-t border-slate-200 pt-6 mt-6 space-y-4">
+            <h4 className="font-bold text-sm text-slate-900">The Isomerism Landscape</h4>
+            <p className="text-sm text-slate-700 leading-relaxed">
+              <strong>Isomers</strong> share a molecular formula but differ in some other way — and almost every kind changes biological activity. R/S chirality is only one branch of the tree. The split that matters most for a cheminformatician is whether the <em>connectivity</em> changes (a different graph) or only the <em>spatial arrangement</em> does (the same graph).
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="p-4 rounded-xl border border-slate-200 bg-white space-y-2">
+                <h5 className="font-bold text-xs text-slate-900 flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-full bg-teal-500" />
+                  Constitutional (Structural) Isomers — different connectivity
+                </h5>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  The atoms are bonded together in a different order, so the molecular <strong>graph itself differs</strong>. These are trivially distinguished by any 2D representation — different SMILES, different fingerprints, different everything.
+                </p>
+                <ul className="list-disc pl-4 text-xs text-slate-600 space-y-1">
+                  <li><strong>Chain / skeletal:</strong> butane <code>CCCC</code> vs isobutane <code>CC(C)C</code>.</li>
+                  <li><strong>Positional (regioisomers):</strong> where a substituent sits on a ring. Ibuprofen is the <em>para</em> isomer <code>CC(C)Cc1ccc(...)cc1</code>; the <em>meta</em> isomer is a different, inactive compound.</li>
+                  <li><strong>Functional group:</strong> ethanol <code>CCO</code> vs dimethyl ether <code>COC</code> — same C₂H₆O, entirely different chemistry.</li>
+                  <li><strong>Tautomers:</strong> a special case that interconverts rapidly (keto ⇌ enol). See tautomer canonicalization in the curation section below.</li>
+                </ul>
+              </div>
+
+              <div className="p-4 rounded-xl border border-slate-200 bg-white space-y-2">
+                <h5 className="font-bold text-xs text-slate-900 flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-full bg-indigo-500" />
+                  Stereoisomers — same connectivity, different 3D arrangement
+                </h5>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  The graph is <strong>identical</strong>; only the spatial arrangement differs. These are the dangerous ones computationally — a naive 2D pipeline cannot see them at all.
+                </p>
+                <ul className="list-disc pl-4 text-xs text-slate-600 space-y-1">
+                  <li><strong>Enantiomers (R/S):</strong> non-superimposable mirror images. One <em>eutomer</em> fits the pocket; the <em>distomer</em> may be inactive or toxic (thalidomide).</li>
+                  <li><strong>Diastereomers:</strong> stereoisomers that are <em>not</em> mirror images (≥2 stereocentres, differing at some but not all). Ephedrine vs pseudoephedrine — different compounds, different pharmacology.</li>
+                  <li><strong>Geometric (cis/trans, E/Z):</strong> restricted rotation about a C=C or ring. Only <em>(Z)</em>-tamoxifen is the active antiestrogen; <em>(E)</em>-diethylstilbestrol (Module 5) is the active estrogen.</li>
+                  <li><strong>Atropisomers:</strong> axial chirality from hindered rotation about a single bond (biaryls) — now a formal regulatory concern in kinase-inhibitor programmes.</li>
+                  <li><strong>Conformers (rotamers):</strong> interconvert by free rotation, so not separable compounds — but the <em>bioactive conformation</em> is what the receptor sees (Module 5).</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto not-prose border border-slate-200 rounded-lg">
+              <table className="min-w-full divide-y divide-slate-200 text-xs">
+                <thead className="bg-slate-50">
+                  <tr>
+                    <th className="px-3 py-2 text-left font-bold text-slate-900">Isomer type</th>
+                    <th className="px-3 py-2 text-left font-bold text-slate-900">How SMILES encodes it</th>
+                    <th className="px-3 py-2 text-left font-bold text-slate-900">Example</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200 bg-white text-slate-700">
+                  <tr>
+                    <td className="px-3 py-2 font-semibold">Constitutional</td>
+                    <td className="px-3 py-2">Different atom/bond ordering — a different string entirely</td>
+                    <td className="px-3 py-2 font-mono">CCO vs COC</td>
+                  </tr>
+                  <tr>
+                    <td className="px-3 py-2 font-semibold">Enantiomer / diastereomer</td>
+                    <td className="px-3 py-2">Tetrahedral tags <code>@</code> / <code>@@</code></td>
+                    <td className="px-3 py-2 font-mono">C[C@H](N)C(=O)O</td>
+                  </tr>
+                  <tr>
+                    <td className="px-3 py-2 font-semibold">Geometric (E/Z)</td>
+                    <td className="px-3 py-2">Directional bonds <code>/</code> and <code>\</code></td>
+                    <td className="px-3 py-2 font-mono">F/C=C/F (E) vs F/C=C\F (Z)</td>
+                  </tr>
+                  <tr>
+                    <td className="px-3 py-2 font-semibold">Atropisomer</td>
+                    <td className="px-3 py-2">Not captured by default — needs explicit axial stereo or 3D coordinates</td>
+                    <td className="px-3 py-2 font-mono text-slate-500">(3D required)</td>
+                  </tr>
+                  <tr>
+                    <td className="px-3 py-2 font-semibold">Conformer</td>
+                    <td className="px-3 py-2">Never encoded — SMILES is a 2D topology, not a geometry</td>
+                    <td className="px-3 py-2 font-mono text-slate-500">(conformer search)</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-xs font-semibold text-amber-900 space-y-2">
+              <span className="text-xs font-bold flex items-center gap-1.5">
+                <Info className="h-4 w-4 text-amber-600" /> Critical: standard fingerprints are stereo-blind
+              </span>
+              <p className="leading-relaxed font-medium">
+                ECFP4/Morgan fingerprints encode <strong>topology only</strong>. By default, two enantiomers hash to the <strong>identical</strong> bit vector — a Tanimoto of <strong>1.00</strong> — so a QSAR model literally cannot tell the eutomer from the distomer. Passing <code>useChirality=True</code> drops that pair to ≈<strong>0.71</strong> and lets the model separate them. Constitutional isomers, by contrast, are always distinguishable because the graph differs. If your endpoint depends on stereochemistry, a default 2D fingerprint will silently cap your model&apos;s accuracy.
+              </p>
+            </div>
+
+            <CollapsibleCode
+              title="Detecting Every Isomer Type in RDKit"
+              code={`from rdkit import Chem
+from rdkit.Chem import AllChem, DataStructs
+
+# ---------------------------------------------------------------
+# 1. CONSTITUTIONAL ISOMERS: same formula, different graph
+# ---------------------------------------------------------------
+ethanol, dme = Chem.MolFromSmiles('CCO'), Chem.MolFromSmiles('COC')
+# Both are C2H6O, but the canonical SMILES (and any fingerprint) differ.
+
+# ---------------------------------------------------------------
+# 2. TETRAHEDRAL STEREOCENTRES (R/S enantiomers & diastereomers)
+# ---------------------------------------------------------------
+mol = Chem.MolFromSmiles('CN[C@@H](C)[C@H](O)c1ccccc1')  # ephedrine-like
+Chem.AssignStereochemistry(mol, cleanIt=True, force=True)
+print(Chem.FindMolChiralCenters(mol, useLegacyImplementation=False))
+# -> [(2, 'S'), (4, 'R')]  ... flipping ONE centre gives a diastereomer,
+#    flipping BOTH gives the enantiomer.
+
+# ---------------------------------------------------------------
+# 3. DOUBLE-BOND GEOMETRY (E/Z) -- encoded with / and \\
+# ---------------------------------------------------------------
+for smi in ['F/C=C/F', 'F/C=C\\\\F']:
+    m = Chem.MolFromSmiles(smi)
+    Chem.AssignStereochemistry(m, cleanIt=True, force=True)
+    print(smi, [str(b.GetStereo()) for b in m.GetBonds()
+                if b.GetStereo() != Chem.BondStereo.STEREONONE])
+# -> F/C=C/F ['STEREOE']   (trans)
+# -> F/C=C\\F ['STEREOZ']   (cis)
+
+# Find double bonds whose geometry is UNSPECIFIED and must be resolved:
+Chem.FindPotentialStereoBonds(mol)
+
+# ---------------------------------------------------------------
+# 4. WHY IT MATTERS: fingerprints ignore stereo unless you ask
+# ---------------------------------------------------------------
+R = Chem.MolFromSmiles('C[C@H](N)C(=O)O')   # D-alanine
+S = Chem.MolFromSmiles('C[C@@H](N)C(=O)O')  # L-alanine
+
+for use_chirality in (False, True):
+    fp_r = AllChem.GetMorganFingerprintAsBitVect(R, 2, 2048, useChirality=use_chirality)
+    fp_s = AllChem.GetMorganFingerprintAsBitVect(S, 2, 2048, useChirality=use_chirality)
+    print(use_chirality, DataStructs.TanimotoSimilarity(fp_r, fp_s))
+# -> False 1.0    <-- enantiomers are INDISTINGUISHABLE by default!
+# -> True  0.714  <-- now the model can separate eutomer from distomer`}
+            />
+          </div>
+
           {/* Chirality & Stereoisomer Curation */}
           <div className="border-t border-slate-200 pt-6 mt-6 space-y-4">
             <h4 className="font-bold text-sm text-slate-900">Chirality &amp; Stereoisomer Curation</h4>
             <p className="text-sm text-slate-700 leading-relaxed">
-              Molecules with identical atomic connectivity can exhibit different three-dimensional arrangements called <strong>stereoisomers</strong>. Chirality is a key driver of biological activity; often, only one enantiomer fits the receptor pocket (the active &quot;eutomer&quot;), while the other is inactive or toxic (the &quot;distomer&quot;).
+              Zooming in on the branch that causes the most trouble in practice: molecules with identical atomic connectivity can exhibit different three-dimensional arrangements called <strong>stereoisomers</strong>. Chirality is a key driver of biological activity; often, only one enantiomer fits the receptor pocket (the active &quot;eutomer&quot;), while the other is inactive or toxic (the &quot;distomer&quot;).
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="p-4 rounded-xl border border-slate-200 bg-white space-y-1.5">
@@ -523,7 +662,7 @@ for idx, isomer in enumerate(isomers):
                           y={node.y + 4} 
                           textAnchor="middle" 
                           className={`text-xs font-bold font-mono transition-colors ${
-                            isCenter || isHighlighted ? "fill-slate-900" : node.element === "O" ? "fill-red-650" : node.element === "N" ? "fill-blue-650" : "fill-slate-700"
+                            isCenter || isHighlighted ? "fill-slate-900" : node.element === "O" ? "fill-red-600" : node.element === "N" ? "fill-blue-600" : "fill-slate-700"
                           }`}
                         >
                           {node.label}

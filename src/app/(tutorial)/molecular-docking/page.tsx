@@ -234,7 +234,7 @@ export default function MolecularDockingPage() {
                     <CheckCircle size={14} /> Optimal Binding!
                   </span>
                 ) : stericClash > 0 ? (
-                  <span className="text-xs font-bold text-red-650 flex items-center gap-1">
+                  <span className="text-xs font-bold text-red-600 flex items-center gap-1">
                     <AlertTriangle size={14} /> Steric Clash!
                   </span>
                 ) : isFarFromPocket ? (
@@ -247,7 +247,7 @@ export default function MolecularDockingPage() {
               </div>
               
               <p className="text-2xl font-black">
-                <span className={isDocked ? "text-emerald-700" : stericClash > 0 ? "text-red-650" : isFarFromPocket ? "text-slate-400" : "text-amber-600"}>
+                <span className={isDocked ? "text-emerald-700" : stericClash > 0 ? "text-red-600" : isFarFromPocket ? "text-slate-400" : "text-amber-600"}>
                   {displayScore.toFixed(2)}
                 </span>
                 <span className="text-sm text-slate-800 font-semibold ml-1">kcal/mol</span>
@@ -260,7 +260,7 @@ export default function MolecularDockingPage() {
               )}
 
               {stericClash > 0 && (
-                <p className="text-xs text-red-600 font-semibold mt-1 pt-1 border-t border-red-150">
+                <p className="text-xs text-red-600 font-semibold mt-1 pt-1 border-t border-red-100">
                   {clashReason}
                 </p>
               )}
@@ -444,12 +444,12 @@ export default function MolecularDockingPage() {
               <tr>
                 <td className="px-4 py-2 font-mono font-bold text-slate-600">RESP</td>
                 <td className="px-4 py-2 text-emerald-700 font-semibold">Excellent (Gold Standard)</td>
-                <td className="px-4 py-2 text-red-650 font-semibold">Very Slow</td>
+                <td className="px-4 py-2 text-red-600 font-semibold">Very Slow</td>
                 <td className="px-4 py-2">Lead optimization and final pose verification. Too slow for screening.</td>
               </tr>
               <tr>
                 <td className="px-4 py-2 font-mono font-bold text-amber-600">Gasteiger</td>
-                <td className="px-4 py-2 text-red-650 font-semibold">Poor</td>
+                <td className="px-4 py-2 text-red-600 font-semibold">Poor</td>
                 <td className="px-4 py-2 text-emerald-700 font-semibold">Extremely Fast</td>
                 <td className="px-4 py-2">Quick initial pre-filtering or triage of massive compound libraries.</td>
               </tr>
