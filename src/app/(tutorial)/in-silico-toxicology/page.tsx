@@ -491,7 +491,7 @@ print("Toxicity-driving fragment SHAP value: " + str(np.max(first_comp_shap[:, 1
                   onClick={() => setSelectedComp(comp)}
                   className={`px-3 py-1 rounded-lg text-xs font-semibold border transition-all ${
                     selectedComp.name === comp.name
-                      ? "bg-indigo-650 border-indigo-650 text-white"
+                      ? "bg-indigo-600 border-indigo-600 text-white"
                       : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
                   }`}
                 >
@@ -529,19 +529,19 @@ print("Toxicity-driving fragment SHAP value: " + str(np.max(first_comp_shap[:, 1
                 <div className="space-y-1 text-xs">
                   <div className="flex justify-between items-center bg-white px-2 py-1 rounded border border-slate-200">
                     <span className="font-semibold text-slate-700">hERG Cardiotox:</span>
-                    <span className={`font-bold ${selectedComp.cardioProb > 0.5 ? "text-red-650" : "text-emerald-650"}`}>
+                    <span className={`font-bold ${selectedComp.cardioProb > 0.5 ? "text-red-600" : "text-emerald-600"}`}>
                       {(selectedComp.cardioProb * 100).toFixed(0)}%
                     </span>
                   </div>
                   <div className="flex justify-between items-center bg-white px-2 py-1 rounded border border-slate-200">
                     <span className="font-semibold text-slate-700">DILI Hepatotox:</span>
-                    <span className={`font-bold ${selectedComp.hepatoProb > 0.5 ? "text-red-650" : "text-emerald-650"}`}>
+                    <span className={`font-bold ${selectedComp.hepatoProb > 0.5 ? "text-red-600" : "text-emerald-600"}`}>
                       {(selectedComp.hepatoProb * 100).toFixed(0)}%
                     </span>
                   </div>
                   <div className="flex justify-between items-center bg-white px-2 py-1 rounded border border-slate-200">
                     <span className="font-semibold text-slate-700">Ames Mutagenicity:</span>
-                    <span className={`font-bold ${selectedComp.mutagenProb > 0.5 ? "text-red-650" : "text-emerald-650"}`}>
+                    <span className={`font-bold ${selectedComp.mutagenProb > 0.5 ? "text-red-600" : "text-emerald-600"}`}>
                       {(selectedComp.mutagenProb * 100).toFixed(0)}%
                     </span>
                   </div>
@@ -613,7 +613,7 @@ print("Toxicity-driving fragment SHAP value: " + str(np.max(first_comp_shap[:, 1
                   max="95"
                   value={informationGain}
                   onChange={(e) => setInformationGain(Number(e.target.value))}
-                  className="w-full accent-indigo-650"
+                  className="w-full accent-indigo-600"
                 />
                 <span className="text-[10px] text-slate-500 leading-normal block font-medium">
                   Adjusting this slider simulates generating richer biological profiles from cell phenotypic morphometry, which adds orthogonal, non-overlapping information to chemical fingerprints.
