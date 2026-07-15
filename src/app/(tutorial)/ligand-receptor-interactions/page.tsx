@@ -237,7 +237,7 @@ export default function LigandReceptorInteractionsPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1>Module 2: Thermodynamics &amp; Chemical Forces</h1>
+        <h1>Module 3: Fundamentals of Ligand-Receptor Interactions</h1>
         <p className="lead text-slate-800">
           Analyze the energetic drivers behind ligand binding. Explore Gibbs free energy, calculate potential energy curves, and inspect the structural basis of the hydrophobic effect.
         </p>
@@ -857,7 +857,7 @@ export default function LigandReceptorInteractionsPage() {
       {/* Quiz Section */}
       <hr className="border-slate-200 my-8" />
       <Quiz 
-        moduleTitle="Module 2: Thermodynamics & Chemical Forces"
+        moduleTitle="Module 3: Fundamentals of Ligand-Receptor Interactions"
         questions={[
           {
             question: "Why does locking a highly flexible ligand into its binding site cost entropy?",

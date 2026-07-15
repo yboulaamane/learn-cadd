@@ -174,7 +174,7 @@ export default function VirtualScreeningPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1>Module 6: Virtual Screening Strategies</h1>
+        <h1>Module 8: Virtual Screening Strategies</h1>
         <p className="lead text-slate-800">
           Learn how to search massive chemical databases in silico to discover novel hits. Master ligand-based (LBVS) and structure-based (SBVS) pipelines and metric evaluations.
         </p>
@@ -784,7 +784,7 @@ def fast_delong_roc_variance(ground_truth, predictions):
       {/* Quiz Section */}
       <hr className="border-slate-200 my-8" />
       <Quiz 
-        moduleTitle="Module 6: Virtual Screening Strategies"
+        moduleTitle="Module 8: Virtual Screening Strategies"
         questions={[
           {
             question: "Why are Lipinski's Rule of 5 and other physiochemical filters applied at the very start of a virtual screen cascade rather than after docking?",

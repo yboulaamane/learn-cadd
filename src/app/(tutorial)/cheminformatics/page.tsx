@@ -197,7 +197,7 @@ export default function CheminformaticsPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1>Module 3: Cheminformatics &amp; Molecular Representations</h1>
+        <h1>Module 5: Cheminformatics &amp; Molecular Representations</h1>
         <p className="lead text-slate-600">
           Understand how computers represent, process, and analyze chemical molecules. Master connection tables, line notations (SMILES/SMARTS), molecular descriptors, and structural fingerprint similarity.
         </p>
@@ -864,6 +864,40 @@ for idx, isomer in enumerate(isomers):
               </p>
             </div>
           </div>
+
+          <div className="flex gap-4 p-4 rounded-lg border border-border bg-white">
+            <span className="h-6 w-6 text-xs font-bold bg-slate-100 border border-border rounded flex items-center justify-center flex-shrink-0">C</span>
+            <div>
+              <h4 className="font-bold text-sm text-foreground">Atom-Pair &amp; Topological-Torsion Fingerprints</h4>
+              <p className="text-sm text-slate-600 mt-1 leading-relaxed">
+                Older but still useful path-based descriptors. An <strong>atom pair</strong> encodes <em>(atom type — topological distance — atom type)</em> for every pair of atoms in the molecule; a <strong>topological torsion</strong> encodes a 4-atom chain <em>(type–type–type–type)</em>. Each atom type is itself a small tuple: element, number of heavy-atom neighbors, and number of π electrons. Being global (whole-molecule) rather than local (per-atom neighborhood) like ECFP, they capture long-range shape that circular fingerprints can miss.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-4 p-4 rounded-lg border border-border bg-white">
+            <span className="h-6 w-6 text-xs font-bold bg-slate-100 border border-border rounded flex items-center justify-center flex-shrink-0">D</span>
+            <div>
+              <h4 className="font-bold text-sm text-foreground">2D Pharmacophore Fingerprints</h4>
+              <p className="text-sm text-slate-600 mt-1 leading-relaxed">
+                Bridges cheminformatics and Module 5&apos;s pharmacophore modeling directly: each atom is first tagged with a pharmacophoric role (<strong>Donor, Acceptor, Aromatic, Hydrophobe, PosIonizable, NegIonizable</strong>), then every pair of features is encoded as <em>(feature — topological distance bin — feature)</em>, e.g. binning distances into (2–3), (3–4), (4–5) bonds. Two molecules with completely different scaffolds but the same pharmacophore-pair pattern will score highly similar — the fingerprint-level analogue of scaffold hopping.
+              </p>
+            </div>
+          </div>
+
+          <div className="p-4 rounded-lg border border-border bg-slate-50/70">
+            <h4 className="font-bold text-sm text-foreground mb-1">A Third Axis: Feature-Class (FCFP-style) Morgan Fingerprints</h4>
+            <p className="text-sm text-slate-600 leading-relaxed">
+              ECFP hashes each atom by its raw connectivity (element, degree, charge, ring membership). A <strong>feature-class</strong> variant (FCFP) instead hashes atoms by their <em>pharmacophoric class</em> — the same six roles used above — so that, for example, any halogen counts as interchangeable with any other halogen. This makes FCFP-style fingerprints better at finding functionally similar but chemically distinct scaffolds, at the cost of losing exact-structure resolution.
+            </p>
+          </div>
+
+          <div className="p-4 rounded-lg border border-amber-200 bg-amber-50/50">
+            <h4 className="font-bold text-sm text-foreground mb-1">Why Fingerprints Also Power Fast Substructure Search</h4>
+            <p className="text-sm text-slate-700 leading-relaxed">
+              Beyond similarity, fingerprints act as a cheap pre-filter for exact substructure matching in million-compound databases: <strong>if molecule B is a substructure of molecule A, then every bit set in FP(B) must also be set in FP(A)</strong>. A database engine can discard any candidate that fails this bit-containment test in microseconds, calling the slow, NP-complete subgraph-isomorphism algorithm only on the small surviving set — turning an intractable full-database scan into a practical query.
+            </p>
+          </div>
         </div>
       </section>
 
@@ -874,11 +908,22 @@ for idx, isomer in enumerate(isomers):
           In virtual database screening, we compare candidate molecules to a known active reference molecule to identify biological hits. The standard metric to quantify structural similarity is the <strong>Tanimoto Coefficient (Tc)</strong>:
         </p>
         <blockquote>
-          <strong>Tanimoto Coefficient Equation:</strong> 
+          <strong>Tanimoto Coefficient Equation:</strong>
           <div className="my-3 font-mono text-center text-sm bg-slate-50 dark:bg-slate-900 py-2 rounded">
             {"Tc = N_c / (N_a + N_b - N_c)"}
           </div>
           Where <span className="font-semibold">N_c</span> is the number of common active bits (intersection) shared between both, and <span className="font-semibold">N_a</span> and <span className="font-semibold">N_b</span> are the total active bits in molecules A and B respectively. The coefficient ranges from <span className="font-semibold">0.0</span> (no overlap) to <span className="font-semibold">1.0</span> (identical bit vectors).
+        </blockquote>
+
+        <p>
+          Tanimoto is actually one special case of a more general family, the <strong>Tversky Index</strong>, which weights the two molecules asymmetrically:
+        </p>
+        <blockquote>
+          <strong>Tversky Index (general form):</strong>
+          <div className="my-3 font-mono text-center text-sm bg-slate-50 dark:bg-slate-900 py-2 rounded">
+            {"Tversky(A, B, α, β) = N_c / (α·N_a + β·N_b + (1 − α − β)·N_c)"}
+          </div>
+          Setting <span className="font-semibold">α = β = 1</span> recovers the Tanimoto coefficient above. Setting <span className="font-semibold">α = β = 0.5</span> recovers the <strong>Dice coefficient</strong>, <span className="font-mono">2·N_c / (N_a + N_b)</span>, which weights the intersection more heavily and is common in target-fishing pipelines. Because it can be tuned asymmetrically, Tversky is especially useful when comparing a small query fragment against large full molecules, where a symmetric metric like Tanimoto unfairly penalizes the size difference.
         </blockquote>
       </section>
 
@@ -1110,7 +1155,7 @@ print('BRICS fragment leaves: ' + str(brics_fragments))`}
       {/* Quiz Section */}
       <hr className="border-slate-200 my-8" />
       <Quiz 
-        moduleTitle="Module 3: Cheminformatics & Molecular Representations"
+        moduleTitle="Module 5: Cheminformatics & Molecular Representations"
         questions={[
           {
             question: "Why is tautomer canonicalization critical before generating ECFP4 fingerprints for machine learning models?",

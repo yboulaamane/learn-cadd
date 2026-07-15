@@ -14,12 +14,12 @@ export function SiteHeader() {
       <div className="mx-auto flex h-14 max-w-7xl items-center pl-14 pr-6 lg:px-6">
         <Link href="/" className="flex items-center gap-2.5 font-semibold tracking-tight text-foreground">
           <span className="text-sm sm:text-base md:text-lg">
-            <span className="hidden sm:inline">Computational </span>Drug Discovery Course
+            Learn CADD
           </span>
         </Link>
         <nav className="ml-auto flex items-center gap-6 text-sm text-slate-600">
           <a
-            href="https://github.com/yboulaamane/computational-drug-discovery-course"
+            href="https://github.com/yboulaamane/learn-cadd"
             target="_blank"
             rel="noopener noreferrer"
             className="transition-colors hover:text-foreground"
