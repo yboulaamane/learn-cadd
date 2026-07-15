@@ -183,7 +183,7 @@ export default function MolecularDynamicsPage() {
         {/* Explicit vs Implicit Solvation Models */}
         <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 mt-4 space-y-3">
           <h4 className="font-bold text-sm text-slate-900 flex items-center gap-1.5">
-            <Info className="h-4 w-4 text-indigo-650" /> Solvation Models: Explicit vs. Implicit
+            <Info className="h-4 w-4 text-indigo-600" /> Solvation Models: Explicit vs. Implicit
           </h4>
           <p className="text-xs text-slate-700 leading-relaxed">
             Biomolecules function in aqueous environments. MD simulations must account for water-solvent interactions using one of two representations:
@@ -337,7 +337,7 @@ export default function MolecularDynamicsPage() {
               </div>
               <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-lg">
                 <span className="text-[10px] text-slate-500 font-bold block uppercase mb-0.5">Pocket H-Bonds</span>
-                <span className="text-sm font-extrabold text-red-650">{system.hBonds[frame]} active</span>
+                <span className="text-sm font-extrabold text-red-600">{system.hBonds[frame]} active</span>
               </div>
             </div>
 
@@ -544,32 +544,32 @@ export default function MolecularDynamicsPage() {
             <tbody className="divide-y divide-slate-200 bg-white text-slate-800">
               <tr>
                 <td className="px-4 py-2 font-bold">1. Poor Initial Coordinates</td>
-                <td className="px-4 py-2 text-red-650">Steric clashes, missing loops collapse.</td>
+                <td className="px-4 py-2 text-red-600">Steric clashes, missing loops collapse.</td>
                 <td className="px-4 py-2">Model loops, fix clashes, evaluate pH-dependent Histidine protonation (PropKa/H++).</td>
               </tr>
               <tr>
                 <td className="px-4 py-2 font-bold">2. Water Model Mismatches</td>
-                <td className="px-4 py-2 text-red-650">Inaccurate densities, distorted diffusion.</td>
+                <td className="px-4 py-2 text-red-600">Inaccurate densities, distorted diffusion.</td>
                 <td className="px-4 py-2">Always use the exact water model (e.g. TIP3P, OPC) the force field was parameterized on.</td>
               </tr>
               <tr>
                 <td className="px-4 py-2 font-bold">3. Automated Topology Bias</td>
-                <td className="px-4 py-2 text-red-650">Inaccurate ligand partial charges.</td>
+                <td className="px-4 py-2 text-red-600">Inaccurate ligand partial charges.</td>
                 <td className="px-4 py-2">Treat automated charges as drafts. Check charge penalties and validate with QM calculations.</td>
               </tr>
               <tr>
                 <td className="px-4 py-2 font-bold">4. Insufficient Equilibration</td>
-                <td className="px-4 py-2 text-red-650">Instabilities and structural distortion.</td>
+                <td className="px-4 py-2 text-red-600">Instabilities and structural distortion.</td>
                 <td className="px-4 py-2">Equilibrate system density and potential energy during distinct NVT and NPT cycles.</td>
               </tr>
               <tr>
                 <td className="px-4 py-2 font-bold">5. PBC Boundary Splitting</td>
-                <td className="px-4 py-2 text-red-650">Analytical errors (broken RMSD/Rg plots).</td>
+                <td className="px-4 py-2 text-red-600">Analytical errors (broken RMSD/Rg plots).</td>
                 <td className="px-4 py-2">Post-process trajectories to re-center the solute and unwrap periodic boundaries (<code>gmx trjconv</code>).</td>
               </tr>
               <tr>
                 <td className="px-4 py-2 font-bold">6. Single Trajectory Bias</td>
-                <td className="px-4 py-2 text-red-650">Mistaking rare stochastic events for trends.</td>
+                <td className="px-4 py-2 text-red-600">Mistaking rare stochastic events for trends.</td>
                 <td className="px-4 py-2">Conduct replicate simulations (3–5 runs) using different random starting seeds.</td>
               </tr>
             </tbody>

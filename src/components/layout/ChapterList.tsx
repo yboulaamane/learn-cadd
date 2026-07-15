@@ -26,7 +26,7 @@ function ChapterItem({ slug, title, isActive, label, onNavigate }: ChapterItemPr
             : "text-slate-600 hover:text-foreground hover:bg-surface"
         }`}
       >
-        <span className="mt-0.5 shrink-0 w-5 text-right font-mono text-xs text-slate-550">
+        <span className="mt-0.5 shrink-0 w-5 text-right font-mono text-xs text-slate-500">
           {label}
         </span>
         <span className="leading-snug">

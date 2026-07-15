@@ -42,6 +42,16 @@ export default function LigandReceptorInteractionsPage() {
   // Scale: 20 pixels = 1 Ångstrom
   const pxToAngstrom = 20;
 
+  // Contact distance = sum of the *drawn* residue-sphere and ligand-group radii (in Å).
+  // A steric clash fires only when these circles actually overlap — i.e. the ligand
+  // touches the residue atom itself, never when it merely passes over the residue's
+  // text label, which sits outside the sphere.
+  const RESIDUE_R = { asp: 20, his: 20, phe: 22 };
+  const GROUP_R = { amine: 12, hydroxyl: 12, phenyl: 14 };
+  const contactAmine = (RESIDUE_R.asp + GROUP_R.amine) / pxToAngstrom;      // 1.6 Å
+  const contactHydroxyl = (RESIDUE_R.his + GROUP_R.hydroxyl) / pxToAngstrom; // 1.6 Å
+  const contactPhenyl = (RESIDUE_R.phe + GROUP_R.phenyl) / pxToAngstrom;    // 1.8 Å
+
   const dAmine = Math.sqrt(Math.pow(aminePos.x - aspPos.x, 2) + Math.pow(aminePos.y - aspPos.y, 2)) / pxToAngstrom;
   const dHydroxyl = Math.sqrt(Math.pow(hydroxylPos.x - hisPos.x, 2) + Math.pow(hydroxylPos.y - hisPos.y, 2)) / pxToAngstrom;
   const dPhenyl = Math.sqrt(Math.pow(phenylPos.x - phePos.x, 2) + Math.pow(phenylPos.y - phePos.y, 2)) / pxToAngstrom;
@@ -49,7 +59,7 @@ export default function LigandReceptorInteractionsPage() {
   // Energy functions (kcal/mol)
   // Salt bridge (Amine - Asp189)
   const getSaltBridgeEnergy = (d: number) => {
-    if (d < 1.8) return 15; // steric clash
+    if (d < contactAmine) return 15; // steric clash (spheres overlap)
     if (d < 5.0) {
       // Morse-like potential representing electrostatic + short-range repulsion
       const val = -6.0 * Math.exp(-Math.pow(d - 2.8, 2) / 0.8);
@@ -60,7 +70,7 @@ export default function LigandReceptorInteractionsPage() {
 
   // Hydrogen bond (Hydroxyl - His41)
   const getHbondEnergy = (d: number) => {
-    if (d < 1.6) return 12; // steric clash
+    if (d < contactHydroxyl) return 12; // steric clash (spheres overlap)
     if (d < 4.0) {
       const val = -3.5 * Math.exp(-Math.pow(d - 2.9, 2) / 0.3);
       return val;
@@ -70,7 +80,7 @@ export default function LigandReceptorInteractionsPage() {
 
   // pi-pi Stacking (Phenyl - Phe140)
   const getPiStackingEnergy = (d: number) => {
-    if (d < 2.8) return 10; // steric clash
+    if (d < contactPhenyl) return 10; // steric clash (spheres overlap)
     if (d < 5.5) {
       const val = -2.2 * Math.exp(-Math.pow(d - 3.8, 2) / 0.5);
       return val;
@@ -82,10 +92,10 @@ export default function LigandReceptorInteractionsPage() {
   const eHydroxyl = getHbondEnergy(dHydroxyl);
   const ePhenyl = getPiStackingEnergy(dPhenyl);
 
-  // Steric Clashes check
-  const clashAmine = dAmine < 1.8;
-  const clashHydroxyl = dHydroxyl < 1.6;
-  const clashPhenyl = dPhenyl < 2.8;
+  // Steric Clashes check — only when the ligand group circle overlaps the residue sphere
+  const clashAmine = dAmine < contactAmine;
+  const clashHydroxyl = dHydroxyl < contactHydroxyl;
+  const clashPhenyl = dPhenyl < contactPhenyl;
   const hasClash = clashAmine || clashHydroxyl || clashPhenyl;
 
   // Total Enthalpy (dH)
@@ -668,7 +678,7 @@ export default function LigandReceptorInteractionsPage() {
                 {/* 1. Amine tip (-NH3+) */}
                 <g transform={`translate(${aminePos.x}, ${aminePos.y})`}>
                   <circle r="12" fill="#dbeafe" stroke="#2563eb" strokeWidth="1.5" />
-                  <text y="3.5" textAnchor="middle" fill="#1d4ed8" className="text-[7px] font-extrabold font-mono">+NH₃⁺</text>
+                  <text y="3.5" textAnchor="middle" fill="#1d4ed8" className="text-[7px] font-extrabold font-mono">NH₃⁺</text>
                   {clashAmine && <circle r="12" fill="none" stroke="#ef4444" strokeWidth="2" className="animate-ping" />}
                 </g>
 
@@ -794,7 +804,7 @@ export default function LigandReceptorInteractionsPage() {
                 {/* Conformational Entropy cost */}
                 <div className="flex justify-between items-center py-0.5">
                   <span className="font-semibold text-slate-800">4. Conformational Entropy Cost (-TΔS_conf)</span>
-                  <span className="font-mono font-bold text-red-650">+{dSconf.toFixed(2)} kcal/mol</span>
+                  <span className="font-mono font-bold text-red-600">+{dSconf.toFixed(2)} kcal/mol</span>
                 </div>
 
                 {/* Desolvation entropy boost */}

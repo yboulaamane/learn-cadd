@@ -37,7 +37,7 @@ function highlightCode(code: string): string {
     }
     if (number) {
       // Indigo for numeric values
-      return `<span class="text-indigo-650 font-semibold">${number}</span>`;
+      return `<span class="text-indigo-600 font-semibold">${number}</span>`;
     }
     return match;
   });
