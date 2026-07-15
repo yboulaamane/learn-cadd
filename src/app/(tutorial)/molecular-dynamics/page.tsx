@@ -116,7 +116,7 @@ export default function MolecularDynamicsPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1>Module 8: Molecular Dynamics &amp; Trajectory Analysis</h1>
+        <h1>Module 10: Molecular Dynamics &amp; Free Energy Methods</h1>
         <p className="lead text-slate-600">
           Learn how to simulate the physical movements of atoms and molecules over time. Explore classical force fields, equilibration stages, and trajectory analysis metrics.
         </p>
@@ -738,10 +738,87 @@ mpirun -np 8 gmx_mpi mdrun -multi 8 -replex 1000 -s topol_.tpr -deffnm remd`}
         </div>
       </section>
 
+      {/* Section 9: Binding Free Energy */}
+      <section className="space-y-4">
+        <h2>9. Binding Free Energy: MM/GBSA and FEP</h2>
+        <p>
+          Everything so far describes <em>motion</em>. But the number a project actually wants is <strong>ΔG<sub>bind</sub></strong> — how tightly does this ligand bind? Docking scores (Module 6) are fast and crude; MD lets us do considerably better, at a cost.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 not-prose">
+          <div className="p-4 rounded-xl border border-border bg-white space-y-1.5">
+            <h4 className="font-bold text-sm text-slate-900">MM/GBSA &amp; MM/PBSA — the endpoint method</h4>
+            <div className="my-1 font-mono text-center text-xs bg-slate-50 py-1.5 rounded text-slate-800 font-bold border border-slate-200">
+              ΔG<sub>bind</sub> = G<sub>complex</sub> − G<sub>protein</sub> − G<sub>ligand</sub>
+            </div>
+            <p className="text-sm text-slate-800 leading-relaxed">
+              Take snapshots from a trajectory, compute the molecular-mechanics energy of each state, and add an implicit-solvent term (Generalized Born or Poisson-Boltzmann). Only the two <em>endpoints</em> matter — bound and free.
+            </p>
+            <p className="text-xs text-slate-600 leading-relaxed pt-1">
+              <strong>Fast and popular</strong>, but the absolute numbers are notoriously overestimated (you saw −42.5 and −49.8 kcal/mol in the dashboard above — real affinities are nearer −8 to −14). Entropy is usually neglected. Treat MM/GBSA as a <em>ranking</em> tool, never as a predictor of absolute affinity.
+            </p>
+          </div>
+          <div className="p-4 rounded-xl border border-border bg-white space-y-1.5">
+            <h4 className="font-bold text-sm text-slate-900">FEP &amp; TI — the alchemical methods</h4>
+            <div className="my-1 font-mono text-center text-xs bg-slate-50 py-1.5 rounded text-slate-800 font-bold border border-slate-200">
+              ΔΔG = ΔG<sub>B</sub> − ΔG<sub>A</sub>
+            </div>
+            <p className="text-sm text-slate-800 leading-relaxed">
+              Rather than computing binding directly, slowly mutate ligand A into ligand B — <em>through unphysical intermediate states</em> — both in the pocket and in water. Because free energy is a state function, the thermodynamic cycle returns the <strong>relative</strong> binding free energy exactly.
+            </p>
+            <p className="text-xs text-slate-600 leading-relaxed pt-1">
+              <strong>The industry gold standard for lead optimization</strong>, routinely achieving ~1 kcal/mol accuracy — precise enough to prospectively decide which analogue to synthesise next. The cost: heavy compute and careful setup.
+            </p>
+          </div>
+        </div>
+
+        <div className="p-4 border-l-4 border-blue-500 bg-blue-50/50 rounded-r-xl space-y-1.5 text-sm">
+          <strong className="text-slate-900 block">Why &quot;relative&quot; is not a limitation</strong>
+          <p className="text-slate-800 leading-relaxed">
+            FEP is most reliable when A and B are <em>similar</em> — swap a hydrogen for a methyl, a phenyl for a pyridyl. That sounds restrictive until you realize it is exactly the medicinal chemist&apos;s actual question: <em>&quot;I have a lead; which of these twelve analogues should I make?&quot;</em> FEP answers precisely that, which is why it sits at the lead-optimization stage rather than at screening. Recent work couples it with active learning and co-folding models to cut the setup burden.
+          </p>
+        </div>
+
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm text-slate-800 font-medium">
+          <span className="font-bold text-slate-900">The accuracy/cost ladder.</span> Docking (~seconds, ~2–3 kcal/mol error, ranks millions) → MM/GBSA (~minutes, ~1.5–2 kcal/mol, ranks hundreds) → FEP (~hours per pair, ~1 kcal/mol, ranks tens). You descend this ladder as the compound count falls and the cost of a wrong answer rises.
+        </div>
+      </section>
+
+      {/* Section 10: Machine Learning Force Fields */}
+      <section className="space-y-4">
+        <h2>10. Machine-Learned Force Fields (MLFFs)</h2>
+        <p>
+          Module 4 ended with the fundamental bind: classical force fields are fast but assume a fixed functional form with hand-fitted parameters, while quantum mechanics is accurate but scales far too steeply for a solvated protein. <strong>Machine-learned force fields</strong> (MACE, ANI-2x, NequIP) attack that trade-off directly.
+        </p>
+        <p>
+          Instead of <em>assuming</em> bonds are harmonic springs and charges are fixed points, an MLFF trains a graph neural network on large databases of quantum (DFT) energies and forces, learning the potential energy surface from data. The functional form is not imposed — it is discovered.
+        </p>
+
+        <div className="p-4 border-l-4 border-slate-900 bg-blue-50/50 rounded-r-xl space-y-2 text-sm leading-relaxed text-slate-800">
+          <strong className="text-slate-950 block">Quantum accuracy at (nearly) classical speed</strong>
+          An MLFF reads the local chemical environment of each atom and predicts its forces directly, reaching near-DFT accuracy orders of magnitude faster than DFT itself. That makes tractable the systems classical force fields handle badly — polarized covalent inhibitors, metal centres, unusual chemotypes with poor GAFF parameters, and reactive intermediates.
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 not-prose">
+          <div className="p-4 rounded-xl border border-border bg-white space-y-1">
+            <h4 className="font-bold text-sm text-slate-900">What it fixes</h4>
+            <p className="text-sm text-slate-800 leading-relaxed">
+              All three classical failure modes from Module 4 at once: no reactivity, fixed charges, and parameter quality by analogy. An MLFF learns polarization and bond-breaking implicitly, because the QM data it trained on contained them.
+            </p>
+          </div>
+          <div className="p-4 rounded-xl border border-border bg-white space-y-1">
+            <h4 className="font-bold text-sm text-slate-900">What it costs</h4>
+            <p className="text-sm text-slate-800 leading-relaxed">
+              Still 10–100× slower than a classical force field, and — like every ML model in this course — it has an <strong>applicability domain</strong> (Module 9). Ask an MLFF about chemistry absent from its training set and it will answer confidently and wrongly, with no warning.
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Quiz Section */}
       <hr className="border-slate-200 my-8" />
-      <Quiz 
-        moduleTitle="Module 8: Molecular Dynamics & Trajectory Analysis"
+      <Quiz
+        moduleTitle="Module 10: Molecular Dynamics & Free Energy Methods"
         questions={[
           {
             question: "Why must raw MD trajectories undergo post-processing (unwrapping) before computing RMSD or Radius of Gyration (Rg)?",

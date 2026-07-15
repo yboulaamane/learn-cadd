@@ -1,12 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-import { 
-  RotateCcw, 
-  Compass, 
+import {
+  RotateCcw,
+  Compass,
   CheckCircle,
   AlertTriangle,
-  Info
+  Info,
+  Sliders,
+  Layers
 } from "lucide-react";
 import { Quiz } from "@/components/Quiz";
 
@@ -14,6 +16,68 @@ export default function MolecularDockingPage() {
   const [posX, setPosX] = useState(0); // Offset X (centered)
   const [posY, setPosY] = useState(-12); // Offset Y (in bulk solvent)
   const [rotation, setRotation] = useState(0); // Angle in degrees
+
+  // --- PROTAC ternary complex simulator state ---
+  const [protacConc, setProtacConc] = useState(-7); // Log10 concentration (M). -9 = 1nM, -7 = 100nM, -5 = 10uM
+  const [linkerLength, setLinkerLength] = useState(10); // Carbon atoms (4 to 18)
+  const [cooperativity, setCooperativity] = useState(2.0); // Alpha factor (0.1 to 10)
+
+  const getConcText = (logVal: number) => {
+    const val = Math.pow(10, logVal);
+    if (val < 1e-9) return `${(val * 1e12).toFixed(0)} pM`;
+    if (val < 1e-6) return `${(val * 1e9).toFixed(0)} nM`;
+    if (val < 1e-3) return `${(val * 1e6).toFixed(0)} µM`;
+    return `${(val * 1e3).toFixed(0)} mM`;
+  };
+
+  // Ternary complex yield [Target-PROTAC-E3]: bell-shaped on a log-concentration
+  // axis because of the hook effect (binary saturation at high concentration).
+  const calculateTernaryYield = (logConc: number, linker: number, alpha: number) => {
+    const peakLogM = -7.0; // peak degradation typically around 100 nM
+
+    // Linker length: too short -> steric clash; too long -> conformational entropy
+    let linkerFactor = 1.0;
+    if (linker < 8) {
+      linkerFactor = Math.max(0.02, 1 - 0.25 * Math.pow(8 - linker, 2.0));
+    } else if (linker > 11) {
+      linkerFactor = Math.max(0.1, 1 - 0.08 * Math.pow(linker - 11, 1.5));
+    }
+
+    const coopFactor = alpha >= 1.0 ? 1.0 + 0.15 * Math.log(alpha) : Math.max(0.15, alpha);
+    const rawCurve = Math.exp(-Math.pow(logConc - peakLogM, 2) / 1.8);
+    return Math.min(Math.max(rawCurve * linkerFactor * coopFactor * 90, 0), 100);
+  };
+
+  const ternaryYield = calculateTernaryYield(protacConc, linkerLength, cooperativity);
+
+  let stateStatus = "optimal";
+  let statusText = "";
+  if (linkerLength < 8) {
+    stateStatus = "clash";
+    statusText = "Steric Clash: The linker is too short. The E3 ligase and the target protein surfaces repel each other, preventing cooperative binding.";
+  } else if (linkerLength > 13) {
+    stateStatus = "entropy";
+    statusText = "High Conformational Entropy: The linker is too long and flexible. The high degrees of rotational freedom destabilize the ternary interface.";
+  } else if (protacConc > -5.5) {
+    stateStatus = "hook";
+    statusText = "The Hook Effect (Binary Saturation): At high concentrations, PROTAC molecules saturate the target and E3 proteins independently, forming inactive binary complexes and dismantling active ternary assemblies.";
+  } else if (protacConc < -8.2) {
+    stateStatus = "low";
+    statusText = "Under-Saturation: The PROTAC concentration is too low to engage both receptors, leading to insufficient target degradation.";
+  } else {
+    stateStatus = "optimal";
+    statusText = "Optimal Ternary Assembly: The linker distance and concentration are balanced, forming a stable Target-PROTAC-E3 complex that actively degrades target proteins.";
+  }
+
+  const generateTernaryCurve = () => {
+    let path = "M";
+    for (let c = -10.5; c <= -4.0; c += 0.1) {
+      const x = 30 + ((c - -10.5) / 6.5) * 240;
+      const y = 170 - (calculateTernaryYield(c, linkerLength, cooperativity) / 100) * 150;
+      path += `${c === -10.5 ? "" : " L"}${x.toFixed(1)},${y.toFixed(1)}`;
+    }
+    return path;
+  };
 
   // Target coordinates for optimal docking: X = 15, Y = 14, Rotation = 22 deg
   const targetX = 15;
@@ -124,7 +188,7 @@ export default function MolecularDockingPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1>Module 4: Molecular Docking</h1>
+        <h1>Module 6: Molecular Docking</h1>
         <p className="lead text-slate-800">
           Understand how computer algorithms predict ligand binding configurations inside a receptor pocket. Explore conformational searches, scoring functions, and validation strategies.
         </p>
@@ -374,22 +438,6 @@ export default function MolecularDockingPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 not-prose">
           <div className="p-4 rounded-xl border border-border bg-white space-y-2">
-            <h3 className="font-bold text-sm text-slate-900">Homology Modeling</h3>
-            <p className="text-sm text-slate-800 leading-relaxed">
-              When no experimental structure exists, a 3D model can be predicted from a homologous template with known structure. The process involves four key steps:
-            </p>
-            <ol className="list-decimal pl-5 space-y-1 text-sm text-slate-800 leading-relaxed">
-              <li><strong>Sequence alignment</strong> to the template</li>
-              <li><strong>Backbone modeling</strong> from aligned coordinates</li>
-              <li><strong>Loop refinement</strong> for insertions/deletions</li>
-              <li><strong>Side-chain packing</strong> with rotamer libraries</li>
-            </ol>
-            <p className="text-sm text-slate-800 leading-relaxed">
-              <strong>Tools:</strong> SWISS-MODEL, MODELLER, I-TASSER.
-            </p>
-          </div>
-
-          <div className="p-4 rounded-xl border border-border bg-white space-y-2">
             <h3 className="font-bold text-sm text-slate-900">AlphaFold2 / AlphaFold3</h3>
             <p className="text-sm text-slate-800 leading-relaxed">
               Deep learning structure prediction achieving near-experimental accuracy (median GDT &gt; 90). The AlphaFold Protein Structure Database provides ~200M predicted structures covering most known protein sequences.
@@ -402,6 +450,63 @@ export default function MolecularDockingPage() {
             </div>
             <p className="text-sm text-slate-800 leading-relaxed">
               <strong>AlphaFold3</strong> extends prediction to protein-ligand, protein-DNA, and protein-RNA complexes, enabling structure-based drug design even for multi-molecular assemblies.
+            </p>
+          </div>
+
+          <div className="p-4 rounded-xl border border-border bg-white space-y-2">
+            <h3 className="font-bold text-sm text-slate-900">Classical Homology Modeling</h3>
+            <p className="text-sm text-slate-800 leading-relaxed">
+              Predicts a 3D model from one or more homologous templates of known structure. It works because <strong>3D structure is far more evolutionarily conserved than sequence</strong> — two proteins can retain the same fold long after their sequences have diverged.
+            </p>
+            <p className="text-sm text-slate-800 leading-relaxed">
+              <strong>Tools:</strong> SWISS-MODEL, MODELLER, I-TASSER, HHpred.
+            </p>
+          </div>
+        </div>
+
+        {/* Homology Modeling: Feasibility & 8-step workflow */}
+        <div className="mt-4 space-y-4">
+          <div className="p-4 border-l-4 border-blue-500 bg-blue-50/50 rounded-r-xl space-y-1.5 text-sm">
+            <strong className="text-slate-900 block">Feasibility Threshold</strong>
+            <p className="text-slate-800 leading-relaxed">
+              Homology modeling requires a template with meaningful sequence identity to the target. The classic empirical rule (Lesk &amp; Chothia, 1986) sets the bar at <strong>&gt; 25–30% sequence identity</strong> over the aligned region. Above ~50% identity, models are typically reliable enough for docking directly; the <strong>20–35% "twilight zone"</strong> demands careful, hand-corrected alignment and heavier validation; below ~20% ("midnight zone"), fold-recognition/threading methods or AlphaFold are safer choices than classical homology modeling.
+            </p>
+          </div>
+
+          <h4 className="font-bold text-sm text-slate-900">The 8-Step Homology Modeling Workflow</h4>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 not-prose">
+            {[
+              { n: 1, t: "Template recognition & initial alignment", d: "BLAST the target sequence against the PDB; the best-scoring hit above the identity threshold normally becomes the template." },
+              { n: 2, t: "Alignment correction", d: "Manually shift gaps out of secondary-structure elements and conserved/functional (e.g. active-site) residues, using a multiple sequence alignment of related homologs for support." },
+              { n: 3, t: "Backbone generation", d: "Copy the template's backbone coordinates onto the target wherever the alignment has no gap." },
+              { n: 4, t: "Loop modeling", d: "Regions with insertions/deletions have no template backbone to copy. Build them from a database of known loop conformations (binned by length and end-to-end distance) or ab initio." },
+              { n: 5, t: "Side-chain modeling", d: "Place side chains using rotamer libraries — statistically preferred conformations conditioned on the local backbone geometry." },
+              { n: 6, t: "Model optimization", d: "Energy-minimize (and optionally run short MD on) the full model to relax clashes introduced by the copy-and-paste process." },
+              { n: 7, t: "Model validation", d: "Score the model's stereochemistry and packing before trusting it (see below) — this step is not optional." },
+              { n: 8, t: "Iteration", d: "If validation flags problems, revisit alignment, loops, or side chains and repeat. Homology modeling is inherently iterative." },
+            ].map((s) => (
+              <div key={s.n} className="flex gap-3 p-3.5 rounded-lg border border-border bg-white">
+                <span className="h-5 w-5 text-xs font-bold bg-slate-100 border border-border rounded flex items-center justify-center flex-shrink-0 text-slate-900">{s.n}</span>
+                <div>
+                  <h5 className="font-bold text-sm text-slate-900">{s.t}</h5>
+                  <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">{s.d}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="p-4 rounded-xl border border-border bg-white space-y-2">
+            <h4 className="font-bold text-sm text-slate-900">Validating a Homology Model Before Docking</h4>
+            <p className="text-sm text-slate-800 leading-relaxed">
+              A homology model is a prediction, not a measurement — it must be checked before it's trusted as a docking target, the same way an X-ray structure's R-free and Ramachandran outliers are checked above.
+            </p>
+            <ul className="list-disc pl-5 space-y-1.5 text-sm text-slate-800 leading-relaxed">
+              <li><strong>Stereochemistry:</strong> a <strong>Ramachandran plot</strong> of backbone φ/ψ dihedral angles flags residues in disallowed conformations — the same check used on experimental structures, but essential here since nothing constrains the model to be physically reasonable except the modeling procedure itself.</li>
+              <li><strong>Local accuracy:</strong> statistical potentials such as <strong>QMEAN</strong> compare per-residue packing and geometry against a database of high-resolution experimental structures, returning a normalized <strong>Z-score</strong> (near 0 = typical of real structures; strongly negative = likely modeling error) and a per-residue local error estimate.</li>
+              <li><strong>Global quality:</strong> knowledge-based scores like DFire assess whether the overall fold is physically plausible.</li>
+            </ul>
+            <p className="text-sm text-slate-800 leading-relaxed">
+              Only after a model passes these checks should its active site be used for docking — an unvalidated model can have a superficially reasonable overall fold while its binding pocket (often built from a poorly conserved loop) is badly wrong.
             </p>
           </div>
         </div>
@@ -708,9 +813,157 @@ export default function MolecularDockingPage() {
         </div>
       </section>
 
-      {/* Section 7: Validation */}
+      {/* Section 7: Ternary Complex Docking (PROTACs) */}
       <section className="space-y-4">
-        <h2>7. Redocking Validation (RMSD)</h2>
+        <h2>7. Ternary Complex Docking: PROTACs &amp; Molecular Glues</h2>
+        <p>
+          Covalent docking bent the rules by adding a bond. <strong>Targeted Protein Degradation (TPD)</strong> breaks a deeper assumption: that docking means fitting <em>one</em> ligand into <em>one</em> pocket. Here you must dock a <strong>three-body complex</strong>.
+        </p>
+        <p>
+          As Module 2 showed, most disease-driving proteins have no druggable pocket at all. TPD sidesteps the problem entirely: rather than <em>inhibiting</em> the target, it recruits the cell&apos;s own <strong>Ubiquitin-Proteasome System</strong> to destroy it. You no longer need a deep pocket — you only need a grip.
+        </p>
+
+        <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg space-y-3 not-prose">
+          <h4 className="font-bold text-sm text-slate-900">PROTACs vs. Molecular Glues</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-semibold leading-relaxed text-slate-800">
+            <div>
+              <strong className="text-slate-900 block mb-1">PROTACs (Proteolysis Targeting Chimeras)</strong>
+              Bifunctional molecules: one head binds the target, a flexible <strong>linker</strong> spans the gap, and the other head recruits an <strong>E3 ubiquitin ligase</strong> (Cereblon, VHL). The ligase tags the target with ubiquitin, marking it for proteasomal destruction.
+            </div>
+            <div>
+              <strong className="text-slate-900 block mb-1">Molecular Glues</strong>
+              Monovalent and compact. Rather than tethering two proteins like a leash, a glue sits <em>at the interface</em>, remodelling the E3 surface to create a composite pocket that captures the target.
+            </div>
+          </div>
+        </div>
+
+        <div className="p-4 rounded-xl border border-border bg-white space-y-2">
+          <h4 className="font-bold text-sm text-slate-900">Cooperativity (α) — why ternary docking is not just docking twice</h4>
+          <p className="text-sm text-slate-800 leading-relaxed">
+            The two binding events are <strong>not independent</strong>. Cooperativity relates the ternary dissociation constant (binding of the second protein to the binary complex) to the binary one (binding to the isolated protein):
+          </p>
+          <div className="my-2 font-mono text-center text-xs bg-slate-50 py-1.5 rounded text-slate-800 font-bold border border-slate-200">
+            {"α = K_D(binary) / K_D(ternary)"}
+          </div>
+          <p className="text-sm text-slate-800 leading-relaxed">
+            <strong>α &gt; 1</strong> is positive cooperativity: favourable protein-protein contacts induced by the PROTAC make the ternary complex <em>more</em> stable than either binary interaction predicts. <strong>α &lt; 1</strong> is negative cooperativity — the two protein surfaces clash. This is why a PROTAC built from two excellent binders can still fail completely: <em>the complex, not the compound, is the drug.</em>
+          </p>
+        </div>
+
+        <div className="p-4 border-l-4 border-amber-500 bg-amber-50/50 rounded-r-xl space-y-1.5 text-sm">
+          <strong className="text-slate-900 block">Why the whole toolkit strains here</strong>
+          <p className="text-slate-800 leading-relaxed">
+            Ternary docking breaks assumptions from three different modules at once. The <strong>search problem</strong> explodes: you sample two rigid-body placements plus a floppy linker with many rotatable bonds (Module 4). The <strong>scoring problem</strong> becomes protein-protein, not protein-ligand. And PROTACs sit far outside <strong>Lipinski space</strong> — routinely 800–1,100 Da — so the Rule of Five you meet in Module 12 simply does not apply. TPD is the clearest demonstration in this course that the standard methods are approximations with edges.
+          </p>
+        </div>
+      </section>
+
+      {/* Interactive Playground: PROTAC ternary assembly */}
+      <section className="p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-4">
+        <div className="flex items-center gap-2">
+          <Layers size={18} className="text-slate-900" />
+          <h3 className="font-bold text-base text-slate-900">Interactive Playground: PROTAC Ternary Assembly &amp; the Hook Effect</h3>
+        </div>
+        <p className="text-sm text-slate-800 leading-normal">
+          Tune the linker, the cooperativity, and the dose. Then run the experiment that breaks everyone&apos;s intuition: set a good linker, then <strong>keep raising the concentration</strong>. Degradation collapses. More drug makes it work <em>worse</em> — the hook effect.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 bg-white p-5 rounded-lg border border-slate-200">
+          {/* Controls */}
+          <div className="md:col-span-5 space-y-4">
+            <div className="space-y-1">
+              <div className="flex justify-between items-center text-xs font-bold text-slate-800">
+                <span>PROTAC concentration</span>
+                <span className="font-mono text-slate-900">{getConcText(protacConc)}</span>
+              </div>
+              <input
+                type="range" min="-10.5" max="-4" step="0.1" value={protacConc}
+                onChange={(e) => setProtacConc(parseFloat(e.target.value))}
+                className="w-full h-1.5 rounded appearance-none cursor-pointer accent-slate-900 bg-slate-100"
+              />
+            </div>
+            <div className="space-y-1">
+              <div className="flex justify-between items-center text-xs font-bold text-slate-800">
+                <span>Linker length</span>
+                <span className="font-mono text-slate-900">{linkerLength} atoms</span>
+              </div>
+              <input
+                type="range" min="4" max="18" step="1" value={linkerLength}
+                onChange={(e) => setLinkerLength(parseFloat(e.target.value))}
+                className="w-full h-1.5 rounded appearance-none cursor-pointer accent-slate-900 bg-slate-100"
+              />
+            </div>
+            <div className="space-y-1">
+              <div className="flex justify-between items-center text-xs font-bold text-slate-800">
+                <span>Cooperativity α</span>
+                <span className="font-mono text-slate-900">{cooperativity.toFixed(1)}</span>
+              </div>
+              <input
+                type="range" min="0.1" max="10" step="0.1" value={cooperativity}
+                onChange={(e) => setCooperativity(parseFloat(e.target.value))}
+                className="w-full h-1.5 rounded appearance-none cursor-pointer accent-slate-900 bg-slate-100"
+              />
+              <p className="text-[10px] text-slate-500 font-medium">α &gt; 1 positive · α &lt; 1 negative (surfaces clash)</p>
+            </div>
+
+            <div className={`p-3 rounded-lg border ${
+              stateStatus === "optimal" ? "bg-emerald-50 border-emerald-200"
+              : stateStatus === "hook" ? "bg-rose-50 border-rose-200"
+              : "bg-amber-50 border-amber-200"}`}>
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-700">Ternary complex yield</span>
+                {stateStatus === "optimal"
+                  ? <CheckCircle className="h-4 w-4 text-emerald-600" />
+                  : <AlertTriangle className="h-4 w-4 text-amber-600" />}
+              </div>
+              <p className="text-2xl font-bold font-mono text-slate-950">{ternaryYield.toFixed(1)}%</p>
+              <p className="text-[11px] text-slate-700 font-semibold leading-snug mt-1">{statusText}</p>
+            </div>
+          </div>
+
+          {/* Curve */}
+          <div className="md:col-span-7">
+            <svg viewBox="0 0 300 200" className="w-full">
+              <line x1="30" y1="170" x2="285" y2="170" stroke="currentColor" className="text-slate-300" strokeWidth="1" />
+              <line x1="30" y1="15" x2="30" y2="170" stroke="currentColor" className="text-slate-300" strokeWidth="1" />
+              {[25, 50, 75, 100].map((v) => (
+                <g key={v}>
+                  <line x1="30" y1={170 - (v / 100) * 150} x2="285" y2={170 - (v / 100) * 150} stroke="currentColor" className="text-slate-200" strokeWidth="0.5" strokeDasharray="2,2" />
+                  <text x="26" y={170 - (v / 100) * 150 + 3} textAnchor="end" fontSize="7" className="fill-slate-400 font-mono">{v}</text>
+                </g>
+              ))}
+              {[-10, -9, -8, -7, -6, -5, -4].map((c) => (
+                <text key={c} x={30 + ((c - -10.5) / 6.5) * 240} y="182" textAnchor="middle" fontSize="7" className="fill-slate-500 font-mono">1e{c}</text>
+              ))}
+              <text x="157" y="196" textAnchor="middle" fontSize="7" className="fill-slate-600 font-bold">[PROTAC] (M, log scale)</text>
+              <text x="10" y="95" fontSize="7" className="fill-slate-600 font-bold" transform="rotate(-90 10 95)" textAnchor="middle">ternary yield %</text>
+
+              <path d={generateTernaryCurve()} fill="none" stroke="currentColor" className="text-slate-900" strokeWidth="1.8" />
+              <circle
+                cx={30 + ((protacConc - -10.5) / 6.5) * 240}
+                cy={170 - (ternaryYield / 100) * 150}
+                r="5"
+                className={stateStatus === "hook" ? "fill-rose-500 stroke-white" : "fill-blue-600 stroke-white"}
+                strokeWidth="1.5"
+              />
+              <text x="248" y="40" textAnchor="middle" fontSize="7" className="fill-rose-600 font-bold">hook effect →</text>
+            </svg>
+          </div>
+        </div>
+
+        <div className="bg-white border border-slate-200 rounded-xl p-4 text-xs font-semibold text-slate-800 space-y-2">
+          <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+            <Info className="h-4 w-4 text-blue-600" /> Why the curve turns over
+          </span>
+          <p className="leading-relaxed font-medium">
+            At low dose there is too little PROTAC to bridge both proteins. At the optimum, each molecule links a target to an E3. But push the concentration high enough and <strong>every protein gets its own PROTAC molecule</strong> — target-PROTAC binaries and E3-PROTAC binaries — and none are bridged. The productive ternary complex is competed away by the drug itself. This is why a PROTAC dose-response is a <em>bell</em>, not a sigmoid, and why &quot;more drug&quot; is not a valid strategy for a degrader.
+          </p>
+        </div>
+      </section>
+
+      {/* Section 8: Validation */}
+      <section className="space-y-4">
+        <h2>8. Redocking Validation (RMSD)</h2>
         <p>
           Before trust is placed in docking scores, protocols must be validated. The standard validation method is <strong>self-docking</strong> (redocking):
         </p>
@@ -722,7 +975,7 @@ export default function MolecularDockingPage() {
       {/* Quiz Section */}
       <hr className="border-slate-200 my-8" />
       <Quiz 
-        moduleTitle="Module 4: Molecular Docking"
+        moduleTitle="Module 6: Molecular Docking"
         questions={[
           {
             question: "Why is the AM1-BCC charge model preferred over Gasteiger charges for final docking scoring?",
