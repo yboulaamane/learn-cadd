@@ -281,6 +281,30 @@ export default function IntroToDrugDiscoveryPage() {
               </p>
             </div>
           </div>
+
+          <div className="flex gap-3">
+            <div className="flex-shrink-0 mt-0.5 p-1.5 rounded bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200 h-7 w-7 flex items-center justify-center font-bold text-xs border border-slate-200 dark:border-slate-800">
+              4
+            </div>
+            <div>
+              <h3 className="font-bold text-sm !mt-0">Fragment-Based Screening</h3>
+              <p className="text-sm text-slate-600 leading-relaxed mt-1">
+                Screen very small compounds (&lt; 300 Da) that bind weakly (mM–µM) but with high <em>ligand efficiency</em>. Hits are then grown, linked, or merged into leads. Because fragments are small, a library of a few thousand samples chemical space far more efficiently than a million-compound HTS deck.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            <div className="flex-shrink-0 mt-0.5 p-1.5 rounded bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200 h-7 w-7 flex items-center justify-center font-bold text-xs border border-slate-200 dark:border-slate-800">
+              5
+            </div>
+            <div>
+              <h3 className="font-bold text-sm !mt-0">DNA-Encoded Libraries (DELs)</h3>
+              <p className="text-sm text-slate-600 leading-relaxed mt-1">
+                Each compound is built by split-and-pool synthesis and tagged with a DNA barcode recording its synthetic history. Billions of compounds can then be screened <em>in a single tube</em>: the pool is washed over immobilized target, non-binders are rinsed away, and the surviving barcodes are read by DNA sequencing. The scale is unmatched — but the readout is enrichment of a barcode, not a clean affinity, and hits must be re-synthesized without their DNA tag to be confirmed. DEL selection data has become a major training set for the machine learning models in Module 9.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 

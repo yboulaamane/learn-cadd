@@ -13,10 +13,10 @@ export default function HomePage() {
     <main className="mx-auto max-w-4xl px-6 py-16">
       <div className="mb-16 text-center">
          <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-          Learn Computational Drug Discovery Layer by Layer
+          Learn Computer-Aided Drug Design from First Principles
         </h1>
         <p className="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-slate-600">
-          An interactive, visual, first-principles guide to computational drug discovery.
+          An interactive, visual guide to CADD — from the physics of binding to generative molecular design.
         </p>
         <div className="mx-auto mt-6 max-w-md rounded-lg border border-accent/20 bg-accent/5 px-5 py-3 text-sm">
           <p className="mt-1 text-slate-600">

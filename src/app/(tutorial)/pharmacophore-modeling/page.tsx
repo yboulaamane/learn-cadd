@@ -114,7 +114,7 @@ export default function PharmacophoreModelingPage() {
     <div className="space-y-10">
       {/* Header */}
       <div>
-        <h1>Module 5: Pharmacophore Modeling</h1>
+        <h1>Module 7: Pharmacophore Modeling</h1>
         <p className="lead text-slate-600 max-w-3xl">
           Learn how to extract the supramolecular electronic and steric footprint required for ligand binding. Explore ligand-based and structure-based techniques, and master the concept of scaffold hopping through an interactive alignment graph.
         </p>
@@ -797,7 +797,7 @@ export default function PharmacophoreModelingPage() {
       {/* Quiz Section */}
       <hr className="border-slate-200 my-8" />
       <Quiz 
-        moduleTitle="Module 5: Pharmacophore Modeling"
+        moduleTitle="Module 7: Pharmacophore Modeling"
         questions={[
           {
             question: "What is the scientific purpose of applying the DBSCAN clustering algorithm during 3D pocket extraction?",
