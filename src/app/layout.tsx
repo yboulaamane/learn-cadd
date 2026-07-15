@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Computational Drug Discovery Course",
-  description: "An interactive, visual, first-principles guide to computational drug discovery. Learn ligand-receptor binding, molecular docking, pharmacophores, and QSAR modeling.",
+  title: "Learn CADD — Computer-Aided Drug Design",
+  description: "An interactive, visual, first-principles guide to computer-aided drug design. Learn ligand-receptor binding, molecular docking, pharmacophores, and QSAR modeling.",
 };
 
 export default function RootLayout({

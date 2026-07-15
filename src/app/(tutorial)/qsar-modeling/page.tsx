@@ -169,7 +169,7 @@ export default function QsarModelingPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1>Module 7: QSAR Modeling &amp; AI Interpretation</h1>
+        <h1>Module 9: QSAR Modeling &amp; AI Interpretation</h1>
         <p className="lead text-slate-800">
           Explore Quantitative Structure-Activity Relationship (QSAR) machine learning. Learn data curation, descriptor calculations, and tree-based model interpretations.
         </p>
@@ -1127,7 +1127,7 @@ def calculate_similarity_domain(test_smiles: str, training_smiles_list: list) ->
       {/* Quiz Section */}
       <hr className="border-slate-200 my-8" />
       <Quiz 
-        moduleTitle="Module 7: QSAR Modeling & AI Interpretation"
+        moduleTitle="Module 9: QSAR Modeling & AI Interpretation"
         questions={[
           {
             question: "What is the primary scientific goal of running a Y-scrambling validation check?",

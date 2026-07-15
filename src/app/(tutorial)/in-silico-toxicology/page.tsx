@@ -185,7 +185,7 @@ export default function InSilicoToxicologyPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1>Module 10: In Silico ADMET &amp; Safety Assessment</h1>
+        <h1>Module 12: In Silico ADMET &amp; Safety Assessment</h1>
         <p className="lead text-slate-600">
           Predict whether a molecule can become a drug and whether it will be safe. Start with the physicochemical rules of ADME and oral drug-likeness (Lipinski, Veber), then predict toxicity endpoints (cardiotoxicity, hepatotoxicity, mutagenicity) with machine learning, comparing models with DeLong's test and interpreting alerts using SHAP values.
         </p>
@@ -677,7 +677,7 @@ print("Toxicity-driving fragment SHAP value: " + str(np.max(first_comp_shap[:, 1
       {/* Quiz Section */}
       <hr className="border-slate-200 my-8" />
       <Quiz 
-        moduleTitle="Module 10: In Silico Toxicology &amp; Safety Assessment"
+        moduleTitle="Module 12: In Silico ADMET & Safety Assessment"
         questions={[
           {
             question: "Why is a basic tertiary nitrogen frequently flagged with a high positive SHAP value in predictive cardiotoxicity models?",
