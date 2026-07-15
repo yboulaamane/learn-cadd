@@ -921,7 +921,7 @@ export default function QsarModelingPage() {
                   {/* Warning portion (0.20 to 0.33+) */}
                   <div className="absolute top-0 bottom-0 right-0 bg-red-50" style={{ width: '40%' }} />
                   {/* Critical leverage line marker */}
-                  <div className="absolute top-0 bottom-0 border-l border-red-650 z-10" style={{ left: '60%' }} />
+                  <div className="absolute top-0 bottom-0 border-l border-red-600 z-10" style={{ left: '60%' }} />
                   {/* Active Leverage marker pin */}
                   <div 
                     className="absolute top-0 bottom-0 w-2.5 bg-amber-500 border border-amber-600 rounded-sm z-20 transition-all duration-150"
@@ -930,7 +930,7 @@ export default function QsarModelingPage() {
                 </div>
                 <div className="flex justify-between text-[9px] text-slate-800 font-extrabold pt-0.5">
                   <span>0.00 (Center)</span>
-                  <span className="text-red-650 font-bold">Limit h* = 0.20</span>
+                  <span className="text-red-600 font-bold">Limit h* = 0.20</span>
                   <span>0.33+ (High Extrapol)</span>
                 </div>
               </div>
