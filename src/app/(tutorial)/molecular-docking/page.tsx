@@ -13,9 +13,9 @@ import {
 import { Quiz } from "@/components/Quiz";
 
 export default function MolecularDockingPage() {
-  const [posX, setPosX] = useState(0); // Offset X (centered)
-  const [posY, setPosY] = useState(-12); // Offset Y (in bulk solvent)
-  const [rotation, setRotation] = useState(0); // Angle in degrees
+  const [posX, setPosX] = useState(15); // Offset X — start near the docked pose
+  const [posY, setPosY] = useState(13); // Offset Y — just short of optimal so there is a last-mile to optimize
+  const [rotation, setRotation] = useState(22); // Angle in degrees (matches target orientation)
 
   // --- PROTAC ternary complex simulator state ---
   const [protacConc, setProtacConc] = useState(-7); // Log10 concentration (M). -9 = 1nM, -7 = 100nM, -5 = 10uM
@@ -157,31 +157,35 @@ export default function MolecularDockingPage() {
     }
   }
 
-  // Electrostatic/vdW score: attractive only near the binding site (short-range)
-  // At dist=30 (bulk solvent): exp(-30/4) ≈ 0.00055 → score ≈ 0.00 kcal/mol
-  const electrostatic = -11.0 * Math.exp(-dist / 4);
+  // Electrostatic/vdW score: attractive near the binding site, with a well broad
+  // enough (decay length 5) that a well-placed pose scores like a real hit.
+  // At dist=30 (bulk solvent): exp(-30/5) ≈ 0.002 → score ≈ 0.00 kcal/mol
+  const electrostatic = -8.5 * Math.exp(-dist / 5);
 
   // Orientation/Hydrophobic score (requires correct conformation & rotation)
-  const orientationScore = -3.0 * Math.exp(-rotDiff / 20) * Math.exp(-dist / 4);
+  const orientationScore = -2.2 * Math.exp(-rotDiff / 20) * Math.exp(-dist / 5);
 
   // Desolvation penalty: peaks at pocket entry (~dist 10), zero in bulk and pocket core
   const desolvation = dist < 18 ? 1.5 * (dist / 10) * Math.exp(-(dist - 8) / 6) : 0;
 
-  // Net score: ~0 in bulk solvent, slightly unfavorable at pocket entry, strongly negative deep inside
+  // Net score: ~0 in bulk solvent, slightly unfavorable at pocket entry, strongly
+  // negative deep inside (≈ -10.7 kcal/mol at the perfectly docked pose).
   const rawScore = electrostatic + orientationScore + desolvation + stericClash;
-  const finalScore = Math.max(-14, Math.min(15, rawScore));
-  
+  const finalScore = Math.max(-12, Math.min(15, rawScore));
+
   // Docked state: strong binding energy and zero clashes
-  const isDocked = stericClash === 0 && finalScore < -8.5;
+  const isDocked = stericClash === 0 && finalScore < -9.0;
 
   // Display score: clamp tiny near-zero values (bulk solvent) to exactly 0.00
   const displayScore = Math.abs(finalScore) < 0.05 ? 0 : finalScore;
   const isFarFromPocket = Math.abs(finalScore) < 0.5 && stericClash === 0;
 
   const resetDocking = () => {
-    setPosX(0);
-    setPosY(-12);
-    setRotation(0);
+    // Reset to a near-docked pose so the score reads a realistic binding energy
+    // (≈ -8 kcal/mol) rather than an empty 0.00 in bulk solvent.
+    setPosX(15);
+    setPosY(13);
+    setRotation(22);
   };
 
   return (

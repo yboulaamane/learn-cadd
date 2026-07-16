@@ -165,7 +165,10 @@ export default function VirtualScreeningPage() {
   };
 
   const factor = enrichmentLevel / 100;
-  const auc = 0.5 + (enrichmentLevel / 200);
+  // The ROC curve drawn above is tpr = fpr^(1 - factor). The area under that
+  // exact curve is the integral of x^(1-factor) from 0 to 1 = 1 / (2 - factor),
+  // so the reported AUC must be derived from the same model as the curve.
+  const auc = 1 / (2 - factor);
   // EF at 5% = fraction of actives retrieved in top 5% (TPR at FPR = 0.05) divided by 0.05
   const tprAt5 = Math.min(Math.pow(0.05, 1 - factor), 1.0);
   const ef5 = (tprAt5 / 0.05).toFixed(1);
