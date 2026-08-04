@@ -1,13 +1,10 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useCallback, useState, useRef, useEffect } from "react";
 import { 
   Activity, 
   Layers, 
   Flame,
-  Move,
-  Info,
-  RefreshCw,
   Zap
 } from "lucide-react";
 import { Quiz } from "@/components/Quiz";
@@ -144,7 +141,7 @@ export default function LigandReceptorInteractionsPage() {
     setIsDragging(true);
   };
 
-  const handleMouseMove = (e: React.MouseEvent<SVGSVGElement> | MouseEvent) => {
+  const handleMouseMove = useCallback((e: React.MouseEvent<SVGSVGElement> | MouseEvent) => {
     if (!isDragging || !svgRef.current) return;
     const rect = svgRef.current.getBoundingClientRect();
     const clientX = 'clientX' in e ? e.clientX : (e as MouseEvent).clientX;
@@ -161,11 +158,11 @@ export default function LigandReceptorInteractionsPage() {
     newY = Math.min(Math.max(newY, 50), 150);
 
     setLigandPos({ x: newX, y: newY });
-  };
+  }, [isDragging]);
 
-  const handleMouseUp = () => {
+  const handleMouseUp = useCallback(() => {
     setIsDragging(false);
-  };
+  }, []);
 
   // Touch support for mobile devices
   const handleTouchStart = (e: React.TouchEvent<SVGCircleElement | SVGElement>) => {
@@ -207,7 +204,7 @@ export default function LigandReceptorInteractionsPage() {
       window.removeEventListener("mouseup", handleMouseUp);
       window.removeEventListener("mousemove", handleMouseMove);
     };
-  }, [isDragging]);
+  }, [handleMouseMove, handleMouseUp, isDragging]);
 
   const calculateEnergy = (r: number) => {
     const r0 = 2.9;     // equilibrium donor–acceptor distance (Å)
@@ -354,7 +351,7 @@ export default function LigandReceptorInteractionsPage() {
       <section className="p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-4">
         <div className="flex items-center gap-2">
           <Activity size={16} className="text-slate-900" />
-          <h3 className="font-bold text-sm text-slate-900">Interactive Playground: H-Bond Potential Energy Curve</h3>
+          <h3 className="font-bold text-sm text-slate-900">Interactive Playground: Distance-Dependent H-Bond Potential</h3>
         </div>
         <p className="text-sm text-slate-800">
           Adjust the distance slider to bring the Hydrogen Bond donor atom closer to the acceptor. Watch the energy shift along the potential curve.
@@ -366,16 +363,18 @@ export default function LigandReceptorInteractionsPage() {
           <div className="md:col-span-5 space-y-4">
             <div className="space-y-1">
               <div className="flex justify-between items-center text-sm text-slate-800 font-bold">
-                <span>Distance (Å)</span>
-                <span className="font-bold text-slate-900">{distance.toFixed(2)} Å</span>
+                <label htmlFor="hbond-distance">Donor-acceptor distance (Å)</label>
+                <output htmlFor="hbond-distance" className="font-bold text-slate-900">{distance.toFixed(2)} Å</output>
               </div>
               <input
+                id="hbond-distance"
                 type="range"
                 min="1.8"
                 max="5.5"
                 step="0.05"
                 value={distance}
                 onChange={(e) => setDistance(parseFloat(e.target.value))}
+                aria-describedby="hbond-model-boundary"
                 className="w-full h-1.5 bg-slate-100 rounded appearance-none cursor-pointer accent-slate-900"
               />
             </div>
@@ -403,7 +402,12 @@ export default function LigandReceptorInteractionsPage() {
             <div className="w-full max-w-[280px] aspect-square relative bg-slate-50 border border-slate-200 rounded-lg p-4 flex flex-col justify-between">
               
               <div className="relative flex-1">
-                <svg viewBox="0 0 300 200" className="w-full h-full">
+                <svg
+                  viewBox="0 0 300 200"
+                  className="w-full h-full"
+                  role="img"
+                  aria-label={`Illustrative hydrogen-bond distance potential at ${distance.toFixed(2)} angstroms and ${currentEnergy.toFixed(2)} kilocalories per mole`}
+                >
                   <line x1="0" y1="80" x2="300" y2="80" stroke="currentColor" className="text-slate-300" strokeWidth="0.5" strokeDasharray="3,3" />
                   
                   {/* Energy Curve Path */}
@@ -429,11 +433,16 @@ export default function LigandReceptorInteractionsPage() {
               </div>
 
               <div className="text-sm text-center text-slate-800 font-bold mt-1">
-                Lennard-Jones Interaction Potential Chart
+                Illustrative radial interaction potential
               </div>
             </div>
           </div>
         </div>
+        <p id="hbond-model-boundary" className="text-xs leading-relaxed text-slate-600">
+          This 12-6 radial potential is a teaching approximation for short-range repulsion and an
+          attractive well. Real hydrogen-bond strength also depends on donor-acceptor angle,
+          protonation, solvent, and the surrounding electrostatic field.
+        </p>
       </section>
 
       {/* Section 3: Non-covalent Interactions */}
@@ -500,7 +509,7 @@ export default function LigandReceptorInteractionsPage() {
           <h3 className="font-bold text-sm text-slate-900">Interactive Playground: Hydrophobic Effect & Desolvation</h3>
         </div>
         <p className="text-sm text-slate-800">
-          Toggle the "Bind Ligand" button to push a lipophilic compound into a hydrophobic pocket. Notice how ordered "water cages" (slate circles) are released into free solution, increasing entropy.
+          Toggle the &quot;Bind Ligand&quot; button to push a lipophilic compound into a hydrophobic pocket. Notice how ordered &quot;water cages&quot; (slate circles) are released into free solution, increasing entropy.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center bg-white p-5 rounded-lg border border-slate-200">
@@ -574,7 +583,9 @@ export default function LigandReceptorInteractionsPage() {
             </p>
 
             <button
+              type="button"
               onClick={() => setDesolvate(!desolvate)}
+              aria-pressed={desolvate}
               className="px-4 py-2.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm transition-colors w-full text-center shadow-sm"
             >
               {desolvate ? "Unbind Ligand (Reset)" : "Bind Ligand (Release Caged Waters)"}
@@ -732,10 +743,11 @@ export default function LigandReceptorInteractionsPage() {
             <div className="w-full mt-4 grid grid-cols-2 gap-4">
               <div className="space-y-1">
                 <div className="flex justify-between text-xs font-bold text-slate-800">
-                  <span>Ligand Core X Offset</span>
-                  <span>{ligandPos.x.toFixed(0)}</span>
+                  <label htmlFor="ligand-core-x">Ligand Core X Offset</label>
+                  <output htmlFor="ligand-core-x">{ligandPos.x.toFixed(0)}</output>
                 </div>
                 <input 
+                  id="ligand-core-x"
                   type="range"
                   min="70"
                   max="190"
@@ -746,10 +758,11 @@ export default function LigandReceptorInteractionsPage() {
               </div>
               <div className="space-y-1">
                 <div className="flex justify-between text-xs font-bold text-slate-800">
-                  <span>Ligand Core Y Offset</span>
-                  <span>{ligandPos.y.toFixed(0)}</span>
+                  <label htmlFor="ligand-core-y">Ligand Core Y Offset</label>
+                  <output htmlFor="ligand-core-y">{ligandPos.y.toFixed(0)}</output>
                 </div>
                 <input 
+                  id="ligand-core-y"
                   type="range"
                   min="50"
                   max="150"
