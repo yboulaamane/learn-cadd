@@ -100,7 +100,7 @@ export function ExtensionLesson({
                   <h3 className="text-sm font-extrabold text-slate-950">{card.title}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-slate-700">{card.description}</p>
                   {card.items && (
-                    <ul className="mt-3 space-y-1.5 text-xs leading-relaxed text-slate-700">
+                    <ul className="mt-3 space-y-1.5 text-sm leading-relaxed text-slate-700">
                       {card.items.map((item) => (
                         <li key={item} className="flex gap-2">
                           <span aria-hidden="true" className="text-blue-500">

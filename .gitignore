@@ -44,5 +44,6 @@ next-env.d.ts
 /blog/
 /cdd-review/
 /courses-to-add/
+/material to add/
 *.html
 *.pdf
