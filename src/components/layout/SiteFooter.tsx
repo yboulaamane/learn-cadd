@@ -14,7 +14,6 @@ export function SiteFooter() {
           </a>
           .
         </p>
-        <p>Educational content for computational drug discovery.</p>
       </div>
     </footer>
   );
