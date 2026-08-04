@@ -3,6 +3,7 @@ export interface Module {
   title: string;
   description: string;
   duration: string;
+  track?: "core" | "extension";
 }
 
 export const curriculum: Module[] = [
@@ -77,5 +78,40 @@ export const curriculum: Module[] = [
     title: "Module 12: In Silico ADMET & Safety Assessment",
     description: "Profile oral drug-likeness with Lipinski's Rule of Five and Veber's rules, then predict cardiotoxicity (hERG), hepatotoxicity (DILI), and mutagenicity (Ames) using machine learning, interpreting alerts with SHAP explainability.",
     duration: "30 min",
+  },
+  {
+    slug: "structural-bioinformatics",
+    title: "Module 13: Structural Bioinformatics & Molecular Visualization",
+    description: "Select, interpret, prepare, and validate experimental or predicted biomolecular structures using PDB/mmCIF records, PyMOL or Chimera, and homology-modeling workflows.",
+    duration: "40 min",
+    track: "extension",
+  },
+  {
+    slug: "applied-cadd-workflows",
+    title: "Module 14: Applied CADD Workflows & Reproducibility",
+    description: "Build auditable chemical-data, docking, MD, ML, KNIME, Python, and HPC pipelines with explicit provenance, validation, and failure checks.",
+    duration: "45 min",
+    track: "extension",
+  },
+  {
+    slug: "pharmacokinetics-dmpk",
+    title: "Module 15: Pharmacokinetics & DMPK",
+    description: "Connect molecular properties to absorption, distribution, metabolism, excretion, exposure, clearance, dosing, and modality-aware PK design.",
+    duration: "40 min",
+    track: "extension",
+  },
+  {
+    slug: "protein-antibody-modeling",
+    title: "Module 16: Protein, Antibody & Protein-Protein Modeling",
+    description: "Model flexible protein interfaces, antibody paratopes, multispecific architectures, and developability risks using ensemble and evidence-driven methods.",
+    duration: "35 min",
+    track: "extension",
+  },
+  {
+    slug: "bioinformatics-systems-biology",
+    title: "Module 17: Bioinformatics & Systems Biology Foundations",
+    description: "Integrate sequence, structure, omics, interaction networks, pathways, and chemical-biology evidence into target selection and CADD project design.",
+    duration: "40 min",
+    track: "extension",
   },
 ];
