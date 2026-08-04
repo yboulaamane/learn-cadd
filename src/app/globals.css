@@ -27,6 +27,22 @@ body {
   background: var(--color-background);
   color: var(--color-foreground);
   font-family: var(--font-sans);
+  line-height: 1.6;
+  text-rendering: optimizeLegibility;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+::selection {
+  background: #bfdbfe;
+  color: #172554;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
 }
 
 /* Typography overrides for prose */
@@ -34,6 +50,86 @@ body {
   --tw-prose-body: var(--color-foreground);
   --tw-prose-headings: var(--color-foreground);
   max-width: 72ch;
+}
+
+/* Course reading system */
+.course-article {
+  --course-line-length: 72ch;
+  text-wrap: pretty;
+}
+
+.course-article :where(h1, h2, h3, h4) {
+  scroll-margin-top: 6rem;
+  text-wrap: balance;
+}
+
+.course-article h1 {
+  max-width: 25ch;
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  line-height: 1.08;
+}
+
+.course-article .lead {
+  max-width: 68ch;
+  font-size: clamp(1.08rem, 2.2vw, 1.3rem);
+  line-height: 1.72;
+}
+
+.course-article :where(p, ul, ol) {
+  max-width: var(--course-line-length);
+}
+
+.course-article :where(p, li) {
+  line-height: 1.78;
+}
+
+.course-article[data-reading-mode="learn"] .text-sm {
+  font-size: 0.9375rem;
+  line-height: 1.65;
+}
+
+.course-article[data-reading-mode="learn"] .text-xs {
+  font-size: 0.8125rem;
+  line-height: 1.55;
+}
+
+.course-article[data-reading-mode="learn"]
+  :where(p, span, li, td, th, button, label, output)[class~="text-[9px]"],
+.course-article[data-reading-mode="learn"]
+  :where(p, span, li, td, th, button, label, output)[class~="text-[10px]"] {
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.course-article[data-reading-mode="learn"]
+  :where(p, span, li, td, th, button, label, output)[class~="text-[11px]"] {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.course-article[data-reading-mode="review"] {
+  --course-line-length: 80ch;
+}
+
+.course-article[data-reading-mode="review"] :where(p, li) {
+  line-height: 1.65;
+}
+
+.course-article :where(button, select) {
+  min-height: 2.75rem;
+}
+
+.course-article input[type="range"] {
+  min-height: 2.75rem;
+}
+
+.course-article table {
+  font-size: max(0.875rem, 0.9em);
+  line-height: 1.55;
+}
+
+.course-article :where(img, svg, canvas) {
+  max-width: 100%;
 }
 
 .prose h1 {
@@ -102,11 +198,44 @@ pre,
 
 @media (max-width: 1023.98px) {
   .widget-container {
-    margin-left: -1.5rem;
-    margin-right: -1.5rem;
+    margin-left: -1rem;
+    margin-right: -1rem;
     border-left: 0;
     border-right: 0;
     border-radius: 0;
+  }
+}
+
+@media (max-width: 639.98px) {
+  .course-article {
+    --course-line-length: 100%;
+  }
+
+  .course-article h1 {
+    font-size: clamp(1.9rem, 9vw, 2.55rem);
+  }
+
+  .course-article h2 {
+    line-height: 1.2;
+  }
+
+  .course-article :where(.rounded-xl, .rounded-lg)[class*="p-5"] {
+    padding: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
   }
 }
 

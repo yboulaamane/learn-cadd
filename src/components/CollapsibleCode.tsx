@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useId, useState } from "react";
 import { ChevronDown, ChevronUp, Terminal, Play } from "lucide-react";
 
 interface CollapsibleCodeProps {
@@ -47,6 +47,7 @@ function highlightCode(code: string): string {
 
 export function CollapsibleCode({ code, title = "Python Programming Guide" }: CollapsibleCodeProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const panelId = useId();
   const highlighted = highlightCode(code);
 
   return (
@@ -57,7 +58,10 @@ export function CollapsibleCode({ code, title = "Python Programming Guide" }: Co
           <span className="font-bold text-xs text-slate-800">{title}</span>
         </div>
         <button
+          type="button"
           onClick={() => setIsOpen(!isOpen)}
+          aria-expanded={isOpen}
+          aria-controls={panelId}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-300 hover:border-slate-400 bg-white text-xs font-semibold text-slate-700 hover:bg-slate-50 active:bg-slate-100 transition-all cursor-pointer"
         >
           {isOpen ? (
@@ -76,7 +80,7 @@ export function CollapsibleCode({ code, title = "Python Programming Guide" }: Co
       </div>
 
       {isOpen && (
-        <div className="bg-white p-4 border-t border-slate-200 transition-all">
+        <div id={panelId} className="bg-white p-4 border-t border-slate-200 transition-all">
           <pre 
             className="text-xs font-mono text-slate-900 overflow-x-auto leading-relaxed max-h-[450px] scrollbar-thin whitespace-pre"
             dangerouslySetInnerHTML={{ __html: highlighted }}

@@ -11,18 +11,21 @@ export function SiteHeader() {
         hidden ? "-translate-y-full" : "translate-y-0"
       } lg:!translate-y-0`}
     >
-      <div className="mx-auto flex h-14 max-w-7xl items-center pl-14 pr-6 lg:px-6">
-        <Link href="/" className="flex items-center gap-2.5 font-semibold tracking-tight text-foreground">
-          <span className="text-sm sm:text-base md:text-lg">
+      <div className="mx-auto flex h-14 max-w-[90rem] items-center pl-16 pr-4 sm:pr-6 lg:px-6">
+        <Link
+          href="/"
+          className="flex min-h-11 items-center gap-2.5 font-semibold tracking-tight text-foreground focus-visible:rounded-md"
+        >
+          <span className="text-base md:text-lg">
             Learn CADD
           </span>
         </Link>
-        <nav className="ml-auto flex items-center gap-6 text-sm text-slate-600">
+        <nav aria-label="Utility navigation" className="ml-auto flex items-center gap-4 text-sm text-slate-600 sm:gap-6">
           <a
             href="https://github.com/yboulaamane/learn-cadd"
             target="_blank"
             rel="noopener noreferrer"
-            className="transition-colors hover:text-foreground"
+            className="flex min-h-11 items-center transition-colors hover:text-foreground focus-visible:rounded-md"
           >
             GitHub
           </a>

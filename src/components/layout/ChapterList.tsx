@@ -20,16 +20,17 @@ function ChapterItem({ slug, title, isActive, label, onNavigate }: ChapterItemPr
       <Link
         href={href}
         onClick={onNavigate}
-        className={`flex items-start gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
+        aria-current={isActive ? "page" : undefined}
+        className={`flex min-h-11 items-start gap-3 rounded-lg px-3 py-2.5 text-[0.9375rem] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
           isActive
             ? "bg-accent/10 text-accent-dark font-medium"
             : "text-slate-600 hover:text-foreground hover:bg-surface"
         }`}
       >
-        <span className="mt-0.5 shrink-0 w-5 text-right font-mono text-xs text-slate-500">
+        <span className="mt-0.5 w-5 shrink-0 text-right font-mono text-xs text-slate-500">
           {label}
         </span>
-        <span className="leading-snug">
+        <span className="leading-snug text-pretty">
           {title.split(/ — |: /).slice(1).join(": ") || title}
         </span>
       </Link>
