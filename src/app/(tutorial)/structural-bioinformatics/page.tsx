@@ -1,4 +1,5 @@
 import { ExtensionLesson, type LessonSection } from "@/components/ExtensionLesson";
+import { StructureReadinessPlayground } from "@/components/playgrounds/StructureReadinessPlayground";
 import type { Question } from "@/components/Quiz";
 
 const sections: LessonSection[] = [
@@ -242,6 +243,7 @@ export default function StructuralBioinformaticsPage() {
         "Prepare and visually validate a receptor without erasing mechanistic chemistry.",
         "Build and assess a homology model when no suitable structure is available.",
       ]}
+      playground={<StructureReadinessPlayground />}
       sections={sections}
       questions={questions}
     />

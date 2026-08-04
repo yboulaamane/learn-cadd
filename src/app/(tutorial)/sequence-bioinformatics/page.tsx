@@ -1,4 +1,5 @@
 import { ExtensionLesson, type LessonSection } from "@/components/ExtensionLesson";
+import { AlignmentInterpretationPlayground } from "@/components/playgrounds/AlignmentInterpretationPlayground";
 import type { Question } from "@/components/Quiz";
 
 const sections: LessonSection[] = [
@@ -275,6 +276,7 @@ export default function SequenceBioinformaticsPage() {
         "Build and inspect multiple alignments, sequence profiles, and phylogenetic trees.",
         "Use conservation and genomic context to guide templates, selectivity, resistance, and validation.",
       ]}
+      playground={<AlignmentInterpretationPlayground />}
       sections={sections}
       questions={questions}
     />
