@@ -34,8 +34,8 @@ export const curriculum: Module[] = [
   {
     slug: "cheminformatics",
     title: "Module 5: Cheminformatics & Molecular Representations",
-    description: "Master chemical graph representation, SMILES/SMARTS/InChI, the isomerism landscape, molecular descriptors, and fingerprint families with Tanimoto/Tversky similarity.",
-    duration: "30 min",
+    description: "Master chemical graph representation, SMILES/SMARTS/InChI, fingerprints and similarity, matched molecular pairs, activity cliffs, bioisosteres, and chemical-data standardization.",
+    duration: "35 min",
   },
   {
     slug: "molecular-docking",
@@ -52,14 +52,14 @@ export const curriculum: Module[] = [
   {
     slug: "virtual-screening",
     title: "Module 8: Virtual Screening Strategies",
-    description: "Master ligand-based and structure-based virtual screening workflows, database preparation, and evaluation metrics (ROC, Enrichment).",
-    duration: "20 min",
+    description: "Master ligand- and structure-based screening, database preparation, multi-stage cascades, assay-interference triage, and statistical evaluation.",
+    duration: "25 min",
   },
   {
     slug: "qsar-modeling",
     title: "Module 9: QSAR Modeling & AI Interpretation",
-    description: "Learn classical Hansch analysis and Craig plots, QSAR machine learning workflows, descriptor calculations, model validation, and deep learning architectures.",
-    duration: "35 min",
+    description: "Learn Hansch and 3D-QSAR foundations, machine-learning workflows, imbalanced-class evaluation, applicability domains, model interpretation, and deep learning architectures.",
+    duration: "40 min",
   },
   {
     slug: "molecular-dynamics",

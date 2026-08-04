@@ -3,13 +3,6 @@
 import React, { useState } from "react";
 import { 
   GitBranch, 
-  Binary, 
-  HelpCircle,
-  TrendingUp,
-  Cpu,
-  Layers,
-  ArrowRight,
-  RefreshCw,
   Info
 } from "lucide-react";
 import { Quiz } from "@/components/Quiz";
@@ -635,12 +628,6 @@ for idx, isomer in enumerate(isomers):
                     const isCenter = selectedAtom === node.id;
                     const nodeHovered = hoveredAtom === node.id;
 
-                    let nodeFill = "bg-white text-slate-700 border-slate-300";
-                    if (node.element === "O") nodeFill = "bg-red-50 text-red-700 border-red-200";
-                    if (node.element === "N") nodeFill = "bg-blue-50 text-blue-700 border-blue-200";
-                    if (isHighlighted) nodeFill = "bg-accent text-white border-accent shadow-sm";
-                    if (isCenter) nodeFill = "bg-accent-dark text-white border-accent-dark ring-4 ring-accent/30 font-extrabold scale-110";
-
                     return (
                       <g 
                         key={node.id} 
@@ -708,7 +695,7 @@ for idx, isomer in enumerate(isomers):
                 {selectedAtom !== null && (
                   <p className="text-[11px] text-slate-600 leading-normal">
                     {ecfpRadius === 0 ? (
-                      <span><strong>Radius 0:</strong> Considers only the target atom's properties (Element: {molA.nodes.find(n=>n.id===selectedAtom)?.element}, valence, charge).</span>
+                      <span><strong>Radius 0:</strong> Considers only the target atom&apos;s properties (Element: {molA.nodes.find(n=>n.id===selectedAtom)?.element}, valence, charge).</span>
                     ) : ecfpRadius === 1 ? (
                       <span><strong>Radius 1:</strong> Considers the center atom plus its immediate neighbor atoms. Hashed to construct structural bit identifiers.</span>
                     ) : (
@@ -748,7 +735,7 @@ for idx, isomer in enumerate(isomers):
                     {tanimotoScore === 1 ? (
                       <span className="text-emerald-700 font-semibold">Identical compounds (Same structural fingerprints)</span>
                     ) : tanimotoScore > 0.6 ? (
-                      <span className="text-blue-700 font-semibold">High similarity: Very likely to bind same targets (Similar structures)</span>
+                      <span className="text-blue-700 font-semibold">High fingerprint similarity: many encoded features are shared, but target activity still requires experimental evidence.</span>
                     ) : tanimotoScore > 0.3 ? (
                       <span className="text-amber-700 font-semibold">Moderate similarity: Shares functional groups but core scaffolds differ.</span>
                     ) : (
@@ -830,7 +817,7 @@ for idx, isomer in enumerate(isomers):
             </div>
 
             <p className="text-[11px] text-slate-500 leading-normal border-t border-slate-100 pt-2.5">
-              *Tanimoto Coefficient formula: Tc(A, B) = |A ∩ B| / |A ∪ B| = N_ab / (N_a + N_b - N_ab), where N_ab is the number of bits set in both fingerprints, and N_a and N_b are the numbers of bits set in molecules A and B individually. In screening pipelines, Tc ≥ 0.85 (with 2048-bit ECFP4 vectors) is the standard threshold to select bio-similar active candidates.
+              *Tanimoto Coefficient formula: Tc(A, B) = |A ∩ B| / |A ∪ B| = N_ab / (N_a + N_b - N_ab), where N_ab is the number of bits set in both fingerprints, and N_a and N_b are the numbers of bits set in molecules A and B individually. There is no universal similarity cutoff: a value is meaningful only with the fingerprint definition, dataset, molecular sizes, and retrieval objective used to derive it.
             </p>
           </div>
 
@@ -850,7 +837,7 @@ for idx, isomer in enumerate(isomers):
             <div>
               <h4 className="font-bold text-sm text-foreground">Predefined Fragments (MACCS Keys)</h4>
               <p className="text-sm text-slate-600 mt-1 leading-relaxed">
-                MACCS (Molecular ACCess System) uses a dictionary of 166 pre-calculated structural fragments (e.g. "Is there an aromatic oxygen?", "Is there a ring of size 5?"). Each bit index corresponds to a specific question, resulting in a 166-bit binary fingerprint. Highly interpretable but limited to predefined structures.
+                MACCS (Molecular ACCess System) uses a dictionary of 166 pre-calculated structural fragments (e.g. &quot;Is there an aromatic oxygen?&quot; and &quot;Is there a ring of size 5?&quot;). Each bit index corresponds to a specific question, resulting in a 166-bit binary fingerprint. Highly interpretable but limited to predefined structures.
               </p>
             </div>
           </div>
@@ -860,7 +847,7 @@ for idx, isomer in enumerate(isomers):
             <div>
               <h4 className="font-bold text-sm text-foreground">Extended Connectivity Fingerprints (ECFPs)</h4>
               <p className="text-sm text-slate-600 mt-1 leading-relaxed">
-                Topological or circular fingerprints. ECFP doesn't use a dictionary. Instead, it systematically identifies every atom in a molecule and lists its neighbors at increasing radii (e.g. radius 2, matching a diameter of 4 for <strong>ECFP4</strong>). The resulting substructures are hashed into integers, which are mapped onto a fixed-size bit array (typically 1024 or 2048 bits).
+                Topological or circular fingerprints. ECFP doesn&apos;t use a dictionary. Instead, it systematically identifies every atom in a molecule and lists its neighbors at increasing radii (e.g. radius 2, matching a diameter of 4 for <strong>ECFP4</strong>). The resulting substructures are hashed into integers, which are mapped onto a fixed-size bit array (typically 1024 or 2048 bits).
               </p>
             </div>
           </div>
@@ -880,7 +867,7 @@ for idx, isomer in enumerate(isomers):
             <div>
               <h4 className="font-bold text-sm text-foreground">2D Pharmacophore Fingerprints</h4>
               <p className="text-sm text-slate-600 mt-1 leading-relaxed">
-                Bridges cheminformatics and Module 5&apos;s pharmacophore modeling directly: each atom is first tagged with a pharmacophoric role (<strong>Donor, Acceptor, Aromatic, Hydrophobe, PosIonizable, NegIonizable</strong>), then every pair of features is encoded as <em>(feature — topological distance bin — feature)</em>, e.g. binning distances into (2–3), (3–4), (4–5) bonds. Two molecules with completely different scaffolds but the same pharmacophore-pair pattern will score highly similar — the fingerprint-level analogue of scaffold hopping.
+                Bridges cheminformatics and Module 7&apos;s pharmacophore modeling directly: each atom is first tagged with a pharmacophoric role (<strong>Donor, Acceptor, Aromatic, Hydrophobe, PosIonizable, NegIonizable</strong>), then every pair of features is encoded as <em>(feature — topological distance bin — feature)</em>, e.g. binning distances into (2–3), (3–4), (4–5) bonds. Two molecules with completely different scaffolds but the same pharmacophore-pair pattern will score highly similar — the fingerprint-level analogue of scaffold hopping.
               </p>
             </div>
           </div>
@@ -927,9 +914,52 @@ for idx, isomer in enumerate(isomers):
         </blockquote>
       </section>
 
-      {/* Section 5: Curation & Standardisation */}
+      {/* Section 5: Local SAR transformations */}
       <section className="space-y-4">
-        <h2>5. Chemical Data Curation & Standardisation Pipeline</h2>
+        <h2>5. Matched Molecular Pairs, Activity Cliffs &amp; Bioisosteres</h2>
+        <p>
+          Whole-molecule similarity is useful for retrieval, but medicinal chemistry often asks a
+          more local question: what changed when one defined structural transformation was made
+          within an otherwise comparable series?
+        </p>
+
+        <div className="grid gap-4 not-prose md:grid-cols-3">
+          <article className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <h3 className="text-sm font-extrabold text-slate-950">Matched molecular pair (MMP)</h3>
+            <p className="mt-2 text-sm leading-relaxed text-slate-700">
+              An MMP differs by one localized transformation, such as H → F or ester → amide.
+              Repeated examples can reveal context-dependent effects on potency, solubility,
+              clearance, or permeability.
+            </p>
+          </article>
+          <article className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <h3 className="text-sm font-extrabold text-slate-950">Activity cliff</h3>
+            <p className="mt-2 text-sm leading-relaxed text-slate-700">
+              Two highly similar compounds can have a large activity difference. Confirm assay,
+              stereochemistry, protonation, and measurement quality before treating the cliff as a
+              binding-site insight or model failure.
+            </p>
+          </article>
+          <article className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <h3 className="text-sm font-extrabold text-slate-950">Bioisosteric replacement</h3>
+            <p className="mt-2 text-sm leading-relaxed text-slate-700">
+              Replace a group with another that can preserve key geometry or interactions while
+              changing pKa, logD, metabolic stability, or permeability. Bioisosteres are design
+              hypotheses, not guaranteed equivalents.
+            </p>
+          </article>
+        </div>
+
+        <aside className="not-prose rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-relaxed text-amber-950">
+          <strong>Practical rule:</strong> standardize structures and endpoints first, compare pairs
+          within the same assay and chemical context, then look for a transformation that repeats
+          across several series before using it as a design rule.
+        </aside>
+      </section>
+
+      {/* Section 6: Curation & Standardisation */}
+      <section className="space-y-4">
+        <h2>6. Chemical Data Curation &amp; Standardisation Pipeline</h2>
         <p>
           In public bioactivity databases (e.g. ChEMBL, PubChem), molecules are uploaded as raw SMILES representing diverse experimental settings. They often contain counterions (salts), solvent molecules, incorrect formal charges, and mismatching tautomeric forms. If used directly in machine learning, these artifacts degrade prediction accuracy.
         </p>
@@ -1178,6 +1208,17 @@ print('BRICS fragment leaves: ' + str(brics_fragments))`}
             ],
             correctIndex: 2,
             explanation: "Tanimoto coefficient measures fingerprint bit vector overlap. Tc = 1.0 means the bit vectors are identical. While this usually indicates identical molecules, fingerprints are fixed-length arrays generated via hash functions. In rare cases, two different substructures can map to the same bit (hash collision), or two different molecules can generate the same bit vector, though they are structurally distinct."
+          },
+          {
+            question: "What makes a matched molecular pair useful for medicinal-chemistry SAR?",
+            options: [
+              "The compounds differ by many scaffolds at once.",
+              "A localized structural transformation can be related to a property change within a controlled context.",
+              "It proves the same transformation will work for every target.",
+              "It removes the need for experimental measurements."
+            ],
+            correctIndex: 1,
+            explanation: "Matched pairs isolate one local transformation more cleanly than a whole-series comparison. The inferred effect remains assay- and context-dependent and is strongest when it repeats across several examples."
           }
         ]}
       />

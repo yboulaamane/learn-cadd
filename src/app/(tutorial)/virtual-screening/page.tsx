@@ -534,7 +534,7 @@ export default function VirtualScreeningPage() {
                     disabled={isRunning}
                     className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900 cursor-pointer"
                   />
-                  <span>2. PAINS Reactive Filter (Excludes Quinone/Rhodanine)</span>
+                  <span>2. Interference-alert triage (flags quinone/rhodanine)</span>
                 </label>
                 <label className="flex items-center gap-2.5 cursor-pointer">
                   <input 
@@ -605,7 +605,7 @@ export default function VirtualScreeningPage() {
               <div className="grid grid-cols-2 gap-2 text-xs font-bold text-slate-800">
                 <div>Compounds Screened: <span className="font-mono font-black text-slate-950">{screenedCount} / 36</span></div>
                 <div>Passed Lipinski: <span className="font-mono text-slate-950">{passedLipinskiCount}</span></div>
-                <div>Passed PAINS: <span className="font-mono text-slate-950">{passedPainsCount}</span></div>
+                <div>No structural alerts: <span className="font-mono text-slate-950">{passedPainsCount}</span></div>
                 <div>Passed Docking: <span className="font-mono text-slate-950">{passedDockingCount}</span></div>
                 <div className="col-span-2 border-t border-slate-200/60 pt-1.5 flex justify-between text-sm text-slate-950">
                   <span>Hits Identified: <strong className="text-emerald-700 font-black">{hitsCount}</strong></span>
@@ -711,7 +711,7 @@ export default function VirtualScreeningPage() {
                     <div className="grid grid-cols-4 gap-2 text-[10px] text-slate-800 pt-1.5 font-bold">
                       <span>MW: <strong>{currentComp.mw} Da</strong></span>
                       <span>LogP: <strong>{currentComp.logp}</strong></span>
-                      <span>PAINS: <strong className={currentComp.pains ? "text-red-700" : "text-emerald-700"}>{currentComp.pains || "None"}</strong></span>
+                      <span>Alert: <strong className={currentComp.pains ? "text-red-700" : "text-emerald-700"}>{currentComp.pains || "None"}</strong></span>
                       <span>Score: <strong className="font-mono">{currentComp.score.toFixed(1)}</strong></span>
                     </div>
                   </div>
@@ -724,7 +724,7 @@ export default function VirtualScreeningPage() {
                     </div>
                     <div className="flex items-center gap-1">
                       {currentEvaluation?.passPains ? <CheckCircle size={12} className="text-emerald-600" /> : <XCircle size={12} className="text-red-600" />}
-                      <span className="text-slate-800">PAINS</span>
+                      <span className="text-slate-800">Alert</span>
                     </div>
                     <div className="flex items-center gap-1">
                       {currentEvaluation?.passDocking ? <CheckCircle size={12} className="text-emerald-600" /> : <XCircle size={12} className="text-red-600" />}
@@ -744,9 +744,60 @@ export default function VirtualScreeningPage() {
         </div>
       </section>
 
-      {/* Section 5: Statistical Validation */}
+      {/* Section 5: Experimental hit triage */}
       <section className="space-y-4">
-        <h2>5. Statistical Validation: DeLong&apos;s Test and AUC Confidence Intervals</h2>
+        <h2>5. From Virtual Hit to Validated Hit</h2>
+        <p>
+          A virtual-screening rank, a structural alert, and a primary-assay signal are all pieces of
+          evidence, not final classifications. Advance hits through a confirmation cascade designed
+          to distinguish target engagement from assay interference and general cytotoxicity.
+        </p>
+
+        <div className="not-prose overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+          <table className="min-w-full divide-y divide-slate-200 text-sm">
+            <thead className="bg-slate-50">
+              <tr>
+                <th className="px-4 py-3 text-left font-extrabold text-slate-900">Observation</th>
+                <th className="px-4 py-3 text-left font-extrabold text-slate-900">Possible explanation</th>
+                <th className="px-4 py-3 text-left font-extrabold text-slate-900">Useful follow-up</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 text-slate-700">
+              <tr>
+                <td className="px-4 py-3 align-top font-bold text-slate-950">Steep, detergent-sensitive response</td>
+                <td className="px-4 py-3 align-top">Colloidal aggregation or nonspecific protein adsorption</td>
+                <td className="px-4 py-3 align-top">Repeat with detergent, altered protein concentration, and an orthogonal binding method.</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-3 align-top font-bold text-slate-950">Signal follows compound color or fluorescence</td>
+                <td className="px-4 py-3 align-top">Optical readout interference or signal quenching</td>
+                <td className="px-4 py-3 align-top">Use a different detection technology and compound-only controls.</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-3 align-top font-bold text-slate-950">Activity across unrelated proteins</td>
+                <td className="px-4 py-3 align-top">Reactivity, redox cycling, chelation, or broad promiscuity</td>
+                <td className="px-4 py-3 align-top">Run counterscreens, time-dependence tests, and direct target-engagement assays.</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-3 align-top font-bold text-slate-950">Cellular effect near the toxicity concentration</td>
+                <td className="px-4 py-3 align-top">General cytotoxicity rather than pathway-specific pharmacology</td>
+                <td className="px-4 py-3 align-top">Measure viability, target engagement, rescue, and a relevant inactive analogue.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <aside className="not-prose rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-relaxed text-amber-950">
+          <strong>Alerts are hypotheses:</strong> PAINS, reactivity, and aggregation filters help
+          prioritize follow-up, but a substructure match does not prove interference. Conversely, a
+          compound without an alert can still be artifactual. Confirm mechanism with independent
+          assays and appropriate controls.
+        </aside>
+      </section>
+
+      {/* Section 6: Statistical Validation */}
+      <section className="space-y-4">
+        <h2>6. Statistical Validation: DeLong&apos;s Test and AUC Confidence Intervals</h2>
         <p>
           Evaluating virtual screening performance using the Area Under the ROC Curve (AUC) yields a <strong>point estimate</strong>. However, if the external validation set is small (e.g., 50 compounds), the calculated AUC is highly sensitive to random fluctuation. A model might achieve an apparent AUC of 0.82 purely by chance, while its true generalizable performance is closer to 0.70.
         </p>
@@ -850,15 +901,15 @@ def fast_delong_roc_variance(ground_truth, predictions):
             explanation: "Molecular docking requires expensive conformational search algorithms, taking significant CPU time per molecule. By contrast, calculating MW or logP is instantaneous. Screening libraries can contain millions or billions of structures; filtering out non-drug-like compounds beforehand saves enormous computational budgets by avoiding docking molecules that will ultimately fail downstream filters."
           },
           {
-            question: "What does the term PAINS (Pan-Assay Interference Compounds) represent in virtual screening, and why must they be excluded?",
+            question: "How should a PAINS or reactivity alert be used when triaging a screening hit?",
             options: [
-              "Compounds that cause pain when administered during clinical trials.",
-              "Molecules with high conformational flexibility that fail to orient properly in receptor cavities.",
-              "Chemical groups that show false-positive biological activity due to reactivity, metal chelation, or fluorescence, rather than specific target binding.",
-              "Ligands with poor cell membrane permeability."
+              "As definitive proof that the compound is inactive.",
+              "As a hypothesis that prioritizes orthogonal assays, counterscreens, and mechanism-specific controls.",
+              "As a replacement for checking compound purity and identity.",
+              "As evidence that every compound without an alert is a valid hit."
             ],
-            correctIndex: 2,
-            explanation: "PAINS are structural motifs (e.g. catechols, rhodanines) that yield false positives in biological assays. They do this by covalently reacting, chelating metals, aggregating, or interfering with optical assay readouts. Filtering them out in-silico saves researchers from wasting resources validating false-positive hits."
+            correctIndex: 1,
+            explanation: "Structural alerts flag mechanisms that can produce misleading assay signals, but they are neither necessary nor sufficient proof of interference. Confirm each hit using independent readouts, counterscreens, compound controls, and direct target-engagement evidence."
           },
           {
             question: "Why is a simple point-estimate of ROC-AUC alone insufficient when comparing the performance of two different virtual screening models on a small test library?",
