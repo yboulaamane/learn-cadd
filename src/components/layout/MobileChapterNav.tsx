@@ -1,19 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
 import { ChapterList } from "./ChapterList";
 import { useHideOnScroll } from "./useHideOnScroll";
 
 export function MobileChapterNav() {
   const [open, setOpen] = useState(false);
-  const pathname = usePathname();
   const hidden = useHideOnScroll();
-
-  // Close on route change.
-  useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
 
   // Close on ESC.
   useEffect(() => {
@@ -42,8 +35,8 @@ export function MobileChapterNav() {
         onClick={() => setOpen(true)}
         aria-label="Open chapter list"
         aria-expanded={open}
-        className={`fixed left-3 top-2.5 z-[55] flex h-9 w-9 items-center justify-center rounded-md text-slate-600 transition-transform duration-200 hover:bg-surface hover:text-foreground lg:hidden ${
-          hidden && !open ? "-translate-y-[calc(100%+0.625rem)]" : "translate-y-0"
+        className={`fixed left-2 top-1.5 z-[55] flex h-11 w-11 items-center justify-center rounded-lg text-slate-600 transition-transform duration-200 hover:bg-surface hover:text-foreground focus-visible:ring-2 focus-visible:ring-blue-500 lg:hidden ${
+          hidden && !open ? "-translate-y-[calc(100%+0.375rem)]" : "translate-y-0"
         }`}
       >
         <svg
@@ -71,13 +64,22 @@ export function MobileChapterNav() {
             onClick={() => setOpen(false)}
             className="absolute inset-0 bg-black/40"
           />
-          <div className="absolute left-0 top-0 bottom-0 w-72 max-w-[85vw] overflow-y-auto border-r border-border bg-background py-6 pr-4">
-            <div className="mb-2 flex items-center justify-end px-3">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="mobile-course-nav-title"
+            className="absolute bottom-0 left-0 top-0 w-80 max-w-[88vw] overflow-y-auto border-r border-border bg-background py-5 pr-4 shadow-2xl"
+          >
+            <div className="mb-4 flex items-center justify-between pl-3">
+              <div>
+                <p id="mobile-course-nav-title" className="font-extrabold text-slate-950">Course modules</p>
+                <p className="text-xs text-slate-600">Choose any lesson</p>
+              </div>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
                 aria-label="Close chapter list"
-                className="flex h-8 w-8 items-center justify-center rounded-md text-slate-600 hover:bg-surface hover:text-foreground"
+                className="flex h-11 w-11 items-center justify-center rounded-lg text-slate-600 hover:bg-surface hover:text-foreground focus-visible:ring-2 focus-visible:ring-blue-500"
               >
                 <svg
                   width="18"
