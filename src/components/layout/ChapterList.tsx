@@ -44,20 +44,38 @@ interface ChapterListProps {
 export function ChapterList({ onNavigate }: ChapterListProps) {
   const pathname = usePathname();
   const currentSlug = pathname ? pathname.split("/").pop() : "";
+  const coreModules = curriculum.filter((module) => module.track !== "extension");
+  const extensionModules = curriculum.filter((module) => module.track === "extension");
 
   return (
     <div className="flex flex-col">
       <h2 className="mb-4 px-3 text-xs font-semibold uppercase tracking-wider text-slate-600">
-        Chapters
+        Core curriculum
       </h2>
       <ul className="space-y-0.5">
-        {curriculum.map((ch, index) => (
+        {coreModules.map((ch, index) => (
           <ChapterItem
             key={ch.slug}
             slug={ch.slug}
             title={ch.title}
             isActive={currentSlug === ch.slug}
             label={String(index + 1)}
+            onNavigate={onNavigate}
+          />
+        ))}
+      </ul>
+
+      <h2 className="mb-4 mt-7 px-3 text-xs font-semibold uppercase tracking-wider text-slate-600">
+        Applied extensions
+      </h2>
+      <ul className="space-y-0.5">
+        {extensionModules.map((ch) => (
+          <ChapterItem
+            key={ch.slug}
+            slug={ch.slug}
+            title={ch.title}
+            isActive={currentSlug === ch.slug}
+            label={String(curriculum.indexOf(ch) + 1)}
             onNavigate={onNavigate}
           />
         ))}

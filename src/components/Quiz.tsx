@@ -55,7 +55,11 @@ export function Quiz({ moduleTitle, questions }: QuizProps) {
 
   if (showResults) {
     return (
-      <div className="p-6 rounded-xl border border-slate-200 bg-white shadow-sm space-y-6 max-w-2xl mx-auto not-prose">
+      <div
+        className="p-6 rounded-xl border border-slate-200 bg-white shadow-sm space-y-6 max-w-2xl mx-auto not-prose"
+        role="status"
+        aria-live="polite"
+      >
         <div className="text-center space-y-3">
           <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-blue-50 text-blue-600 mb-2">
             <Award className="h-6 w-6" />
@@ -65,7 +69,14 @@ export function Quiz({ moduleTitle, questions }: QuizProps) {
             You scored <span className="font-black text-blue-600 text-lg">{score}</span> out of{" "}
             <span className="font-bold text-slate-900">{questions.length}</span> questions.
           </p>
-          <div className="w-full bg-slate-100 rounded-full h-2.5 max-w-xs mx-auto">
+          <div
+            className="w-full bg-slate-100 rounded-full h-2.5 max-w-xs mx-auto"
+            role="progressbar"
+            aria-label="Quiz score"
+            aria-valuemin={0}
+            aria-valuemax={questions.length}
+            aria-valuenow={score}
+          >
             <div 
               className="bg-blue-600 h-2.5 rounded-full transition-all duration-500" 
               style={{ width: `${(score / questions.length) * 100}%` }}
@@ -75,6 +86,7 @@ export function Quiz({ moduleTitle, questions }: QuizProps) {
 
         <div className="pt-4 border-t border-slate-100 flex justify-center">
           <button
+            type="button"
             onClick={handleRestart}
             className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm rounded-lg transition-colors shadow-sm"
           >
@@ -127,8 +139,10 @@ export function Quiz({ moduleTitle, questions }: QuizProps) {
             return (
               <button
                 key={idx}
+                type="button"
                 disabled={isAnswered}
                 onClick={() => handleOptionClick(idx)}
+                aria-pressed={selectedOption === idx}
                 className={`w-full flex items-center justify-between p-3.5 rounded-lg border text-sm text-left transition-all ${optionStyle}`}
               >
                 <span>{option}</span>
@@ -141,7 +155,11 @@ export function Quiz({ moduleTitle, questions }: QuizProps) {
 
       {/* Explanation Banner */}
       {isAnswered && (
-        <div className="p-4 rounded-lg bg-blue-50/50 border border-blue-200 flex gap-3 text-sm animate-fade-in">
+        <div
+          className="p-4 rounded-lg bg-blue-50/50 border border-blue-200 flex gap-3 text-sm animate-fade-in"
+          role="status"
+          aria-live="polite"
+        >
           <AlertCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
           <div className="space-y-1">
             <h5 className="font-black text-blue-900">Explanation</h5>
@@ -154,6 +172,7 @@ export function Quiz({ moduleTitle, questions }: QuizProps) {
       {isAnswered && (
         <div className="flex justify-end pt-2 border-t border-slate-100">
           <button
+            type="button"
             onClick={handleNext}
             className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm rounded-lg transition-colors shadow-sm"
           >
