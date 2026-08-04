@@ -1,15 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
-import { 
-  Zap, 
-  Info, 
+import {
+  Info,
   Sliders, 
   CheckCircle, 
   AlertTriangle, 
   ShieldAlert, 
-  Award, 
-  BarChart3, 
   Activity, 
   Settings,
   Sparkles
@@ -101,9 +98,135 @@ const DRUGLIKE_PRESETS: Record<string, { mw: number; logP: number; hbd: number; 
   Atorvastatin:   { mw: 559, logP: 5.0, hbd: 4, hba: 7, tpsa: 111.8, rotb: 12 },
 };
 
+interface PairedPrediction {
+  label: 0 | 1;
+  commonNoise: number;
+  modelANoise: number;
+  modelBNoise: number;
+}
+
+const PAIRED_PREDICTION_POOL: PairedPrediction[] = (() => {
+  let state = 12012;
+  const randomCentered = () => {
+    state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
+    return (state / 4294967296) * 2 - 1;
+  };
+
+  return Array.from({ length: 400 }, (_, index) => ({
+    label: index % 4 === 0 ? 1 : 0,
+    commonNoise: randomCentered(),
+    modelANoise: randomCentered(),
+    modelBNoise: randomCentered(),
+  }));
+})();
+
+function placementValue(positiveScore: number, negativeScore: number) {
+  if (positiveScore > negativeScore) return 1;
+  if (positiveScore === negativeScore) return 0.5;
+  return 0;
+}
+
+function sampleCovariance(left: number[], right: number[]) {
+  if (left.length < 2) return 0;
+  const leftMean = left.reduce((sum, value) => sum + value, 0) / left.length;
+  const rightMean = right.reduce((sum, value) => sum + value, 0) / right.length;
+  return (
+    left.reduce(
+      (sum, value, index) => sum + (value - leftMean) * (right[index] - rightMean),
+      0,
+    ) /
+    (left.length - 1)
+  );
+}
+
+function normalCdf(z: number) {
+  const t = 1 / (1 + 0.2316419 * Math.abs(z));
+  const density = 0.3989423 * Math.exp(-(z * z) / 2);
+  const tail =
+    density *
+    t *
+    (0.3193815 +
+      t * (-0.3565638 + t * (1.7814779 + t * (-1.821256 + t * 1.330274))));
+  return z > 0 ? 1 - tail : tail;
+}
+
+function calculateDeLongComparison(sampleSize: number, biologicalSignal: number) {
+  const predictions = PAIRED_PREDICTION_POOL.slice(0, sampleSize).map((row) => ({
+    label: row.label,
+    modelA: 0.7 * row.commonNoise + 0.3 * row.modelANoise + row.label * 0.35,
+    modelB:
+      0.7 * row.commonNoise +
+      0.3 * row.modelBNoise +
+      row.label * (0.35 + biologicalSignal),
+  }));
+  const positives = predictions.filter((row) => row.label === 1);
+  const negatives = predictions.filter((row) => row.label === 0);
+
+  const placements = (key: "modelA" | "modelB") => {
+    const positivePlacements = positives.map(
+      (positive) =>
+        negatives.reduce(
+          (sum, negative) => sum + placementValue(positive[key], negative[key]),
+          0,
+        ) / negatives.length,
+    );
+    const negativePlacements = negatives.map(
+      (negative) =>
+        positives.reduce(
+          (sum, positive) => sum + placementValue(positive[key], negative[key]),
+          0,
+        ) / positives.length,
+    );
+    const auc =
+      positivePlacements.reduce((sum, value) => sum + value, 0) /
+      positivePlacements.length;
+    return { auc, positivePlacements, negativePlacements };
+  };
+
+  const modelA = placements("modelA");
+  const modelB = placements("modelB");
+  const varianceA =
+    sampleCovariance(modelA.positivePlacements, modelA.positivePlacements) /
+      positives.length +
+    sampleCovariance(modelA.negativePlacements, modelA.negativePlacements) /
+      negatives.length;
+  const varianceB =
+    sampleCovariance(modelB.positivePlacements, modelB.positivePlacements) /
+      positives.length +
+    sampleCovariance(modelB.negativePlacements, modelB.negativePlacements) /
+      negatives.length;
+  const covariance =
+    sampleCovariance(modelA.positivePlacements, modelB.positivePlacements) /
+      positives.length +
+    sampleCovariance(modelA.negativePlacements, modelB.negativePlacements) /
+      negatives.length;
+  const standardError = Math.sqrt(Math.max(varianceA + varianceB - 2 * covariance, 1e-12));
+  const difference = modelB.auc - modelA.auc;
+  const zScore = difference / standardError;
+  const pValue = 2 * (1 - normalCdf(Math.abs(zScore)));
+  const confidenceInterval = (auc: number, variance: number) => [
+    Math.max(0, auc - 1.96 * Math.sqrt(variance)),
+    Math.min(1, auc + 1.96 * Math.sqrt(variance)),
+  ];
+
+  return {
+    aucA: modelA.auc,
+    aucB: modelB.auc,
+    ciA: confidenceInterval(modelA.auc, varianceA),
+    ciB: confidenceInterval(modelB.auc, varianceB),
+    difference,
+    zScore,
+    pValue,
+    significant: pValue < 0.05,
+    positiveCount: positives.length,
+    negativeCount: negatives.length,
+  };
+}
+
 export default function InSilicoToxicologyPage() {
   const [selectedComp, setSelectedComp] = useState<CompoundToxData>(COMPOUNDS_DATABASE[0]);
-  const [informationGain, setInformationGain] = useState<number>(65); // Slider representing information added by Cell Painting
+  const [biologicalSignal, setBiologicalSignal] = useState(0.08);
+  const [comparisonSampleSize, setComparisonSampleSize] = useState(160);
 
   // Drug-likeness calculator state
   const [dlPick, setDlPick] = useState<string>("Aspirin");
@@ -144,42 +267,8 @@ export default function InSilicoToxicologyPage() {
       ? "TPSA < 90 Å² — good oral absorption; may also cross the blood-brain barrier."
       : "TPSA 90–140 Å² — adequate oral absorption, unlikely to be CNS-penetrant.";
 
-  // DeLong test calculations based on slider
-  const modelAAuc = 0.72; // Morgan fingerprints baseline
-  const modelBAuc = 0.72 + (informationGain / 400); // Consensus with Cell Painting
-  
-  // Calculate DeLong statistics
-  const getDeLongStats = () => {
-    // Correlated model predictions have covariance
-    const varianceA = 0.0012;
-    const varianceB = 0.0010 - (informationGain * 0.000004);
-    const covariance = 0.0006;
-    
-    const diff = modelBAuc - modelAAuc;
-    const standardError = Math.sqrt(varianceA + varianceB - 2 * covariance);
-    const zScore = diff / standardError;
-    
-    // Normal distribution p-value approximation
-    const pValue = 2 * (1 - pNorm(Math.abs(zScore)));
-    
-    return {
-      aucA: modelAAuc.toFixed(3),
-      aucB: modelBAuc.toFixed(3),
-      z: zScore.toFixed(2),
-      p: pValue < 0.0001 ? "< 0.0001" : pValue.toFixed(4),
-      significant: pValue < 0.05
-    };
-  };
-
-  // Helper function: Normal CDF approximation
-  function pNorm(z: number) {
-    const t = 1 / (1 + 0.2316419 * Math.abs(z));
-    const d = 0.3989423 * Math.exp(-z * z / 2);
-    const p = d * t * (0.3193815 + t * (-0.3565638 + t * (1.7814779 + t * (-1.821256 + t * 1.330274))));
-    return z > 0 ? 1 - p : p;
-  }
-
-  const stats = getDeLongStats();
+  const stats = calculateDeLongComparison(comparisonSampleSize, biologicalSignal);
+  const pValueLabel = stats.pValue < 0.0001 ? "< 0.0001" : stats.pValue.toFixed(4);
 
   return (
     <div className="space-y-8">
@@ -187,7 +276,7 @@ export default function InSilicoToxicologyPage() {
       <div>
         <h1>Module 12: In Silico ADMET &amp; Safety Assessment</h1>
         <p className="lead text-slate-600">
-          Predict whether a molecule can become a drug and whether it will be safe. Start with the physicochemical rules of ADME and oral drug-likeness (Lipinski, Veber), then predict toxicity endpoints (cardiotoxicity, hepatotoxicity, mutagenicity) with machine learning, comparing models with DeLong's test and interpreting alerts using SHAP values.
+          Predict whether a molecule can become a drug and whether it will be safe. Start with the physicochemical rules of ADME and oral drug-likeness (Lipinski, Veber), then predict toxicity endpoints (cardiotoxicity, hepatotoxicity, mutagenicity) with machine learning, comparing models with DeLong&apos;s test and interpreting alerts using SHAP values.
         </p>
       </div>
 
@@ -371,13 +460,13 @@ export default function InSilicoToxicologyPage() {
           Historically, machine learning models in toxicology were viewed as black boxes. Modern regulatory bodies require model predictions to be interpretable. <strong>SHAP (SHapley Additive exPlanations)</strong>, derived from cooperative game theory, provides a solution by assigning each molecular descriptor a value that quantifies its contribution to the final prediction.
         </p>
         <p>
-          In cooperative game theory, Shapley values distribute a total payoff fairly among players based on their marginal contributions. In machine learning, the "payoff" is the model prediction, and the "players" are the individual molecular features. The Shapley value for a feature <span className="font-semibold">i</span> is defined as:
+          In cooperative game theory, Shapley values distribute a total payoff fairly among players based on their marginal contributions. In machine learning, the &quot;payoff&quot; is the model prediction, and the &quot;players&quot; are the individual molecular features. The Shapley value for a feature <span className="font-semibold">i</span> is defined as:
         </p>
         <div className="my-3 font-mono text-center text-xs bg-slate-50 py-2 rounded text-slate-800 font-bold border border-slate-200">
           {"φ_i = Σ [ (|S|! × (|F| - |S| - 1)!) / |F|! ] × [ f(S ∪ {i}) - f(S) ]"}
         </div>
         <p className="text-sm text-slate-800 leading-relaxed font-medium">
-          Where <span className="font-semibold">F</span> is the set of all features, <span className="font-semibold">S</span> is a subset of features excluding feature <span className="font-semibold">i</span>, and <span className="font-semibold">f(S)</span> is the prediction function. This checks every possible permutation of features to isolate the independent effect of a single chemical bit. In chemoinformatics, SHAP analysis maps these values back onto a molecule's 2D structure, highlighting exactly which chemical bits increase the probability of toxicity (toxicophores) and which structural fragments lower the risk.
+          Where <span className="font-semibold">F</span> is the set of all features, <span className="font-semibold">S</span> is a subset of features excluding feature <span className="font-semibold">i</span>, and <span className="font-semibold">f(S)</span> is the prediction function. This checks every possible permutation of features to isolate the independent effect of a single chemical bit. In chemoinformatics, SHAP analysis maps these values back onto a molecule&apos;s 2D structure, highlighting exactly which chemical bits increase the probability of toxicity (toxicophores) and which structural fragments lower the risk.
         </p>
       </section>
 
@@ -474,7 +563,7 @@ print("Toxicity-driving fragment SHAP value: " + str(np.max(first_comp_shap[:, 1
           <h3 className="font-bold text-base text-slate-900">Interactive Playground: Discovery Toxicology Sandbox</h3>
         </div>
         <p className="text-sm text-slate-800">
-          Analyze chemical toxicophores, inspect interactive SHAP feature contributions, and compute DeLong's test statistics to validate superior predictive performance.
+          Analyze chemical toxicophores, inspect interactive SHAP feature contributions, and use DeLong&apos;s test to ask whether paired ROC-AUC estimates are distinguishable.
         </p>
 
         {/* Sandbox Component 1: SHAP Explainer */}
@@ -595,47 +684,78 @@ print("Toxicity-driving fragment SHAP value: " + str(np.max(first_comp_shap[:, 1
         {/* Sandbox Component 2: DeLong model comparison */}
         <div className="bg-white p-5 rounded-lg border border-slate-200 space-y-4">
           <div>
-            <h4 className="font-bold text-sm text-slate-900">2. DeLong Model Comparison Calculator</h4>
-            <p className="text-xs text-slate-500 font-medium">Compare the statistical performance of a pure chemical model against a hybrid biological-chemical model incorporating high-content Cell Painting.</p>
+            <h4 className="font-bold text-sm text-slate-900">2. Paired DeLong ROC Explorer</h4>
+            <p className="text-xs text-slate-600 font-medium leading-relaxed">
+              Compare two models on the same synthetic holdout set. Model A uses a chemical signal;
+              Model B receives an adjustable orthogonal signal representing a possible contribution
+              from Cell Painting. AUCs, covariance, confidence intervals, and the paired DeLong test
+              are calculated from the sample-level scores.
+            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6 pt-2">
-            {/* Controller slider */}
+            {/* Controller sliders */}
             <div className="md:col-span-5 space-y-4">
               <div className="space-y-2">
                 <div className="flex justify-between text-xs font-semibold text-slate-800">
-                  <span>Cell Painting Bio-Information:</span>
-                  <span className="text-indigo-600 font-bold">{informationGain}%</span>
+                  <label htmlFor="delong-biological-signal">Additional Model B separation</label>
+                  <output htmlFor="delong-biological-signal" className="text-indigo-700 font-bold">
+                    +{biologicalSignal.toFixed(2)}
+                  </output>
                 </div>
                 <input
+                  id="delong-biological-signal"
                   type="range"
-                  min="10"
-                  max="95"
-                  value={informationGain}
-                  onChange={(e) => setInformationGain(Number(e.target.value))}
+                  min="0"
+                  max="0.2"
+                  step="0.01"
+                  value={biologicalSignal}
+                  onChange={(e) => setBiologicalSignal(Number(e.target.value))}
+                  aria-describedby="delong-model-boundary"
                   className="w-full accent-indigo-600"
                 />
-                <span className="text-[10px] text-slate-500 leading-normal block font-medium">
-                  Adjusting this slider simulates generating richer biological profiles from cell phenotypic morphometry, which adds orthogonal, non-overlapping information to chemical fingerprints.
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs font-semibold text-slate-800">
+                  <label htmlFor="delong-sample-size">Paired holdout size</label>
+                  <output htmlFor="delong-sample-size" className="text-indigo-700 font-bold">
+                    n = {comparisonSampleSize}
+                  </output>
+                </div>
+                <input
+                  id="delong-sample-size"
+                  type="range"
+                  min="80"
+                  max="400"
+                  step="20"
+                  value={comparisonSampleSize}
+                  onChange={(e) => setComparisonSampleSize(Number(e.target.value))}
+                  aria-describedby="delong-model-boundary"
+                  className="w-full accent-indigo-600"
+                />
+                <span className="text-[10px] text-slate-600 leading-normal block font-medium">
+                  {stats.positiveCount} positives and {stats.negativeCount} negatives, evaluated by
+                  both models on exactly the same records.
                 </span>
               </div>
 
-              <div className="space-y-1 text-xs border border-slate-200 rounded-lg p-3 bg-slate-50/50">
+              <div className="space-y-1 text-xs border border-slate-200 rounded-lg p-3 bg-slate-50/50" aria-live="polite">
                 <div className="flex justify-between py-0.5">
                   <span className="text-slate-600 font-semibold">Model A AUC (2D Morgan):</span>
-                  <span className="font-bold text-slate-900">{stats.aucA}</span>
+                  <span className="font-bold text-slate-900">{stats.aucA.toFixed(3)}</span>
                 </div>
                 <div className="flex justify-between py-0.5 border-t border-slate-100">
                   <span className="text-slate-600 font-semibold">Model B AUC (Morgan+Bio):</span>
-                  <span className="font-bold text-indigo-700">{stats.aucB}</span>
+                  <span className="font-bold text-indigo-700">{stats.aucB.toFixed(3)}</span>
                 </div>
                 <div className="flex justify-between py-0.5 border-t border-slate-100">
-                  <span className="text-slate-600 font-semibold">DeLong Z-Score:</span>
-                  <span className="font-bold text-slate-900">{stats.z}</span>
+                  <span className="text-slate-600 font-semibold">Difference in AUC:</span>
+                  <span className="font-bold text-slate-900">{stats.difference >= 0 ? "+" : ""}{stats.difference.toFixed(3)}</span>
                 </div>
                 <div className="flex justify-between py-0.5 border-t border-slate-100">
-                  <span className="text-slate-600 font-semibold">DeLong p-Value:</span>
-                  <span className="font-bold text-slate-900">{stats.p}</span>
+                  <span className="text-slate-600 font-semibold">Paired DeLong z / p:</span>
+                  <span className="font-bold text-slate-900">{stats.zScore.toFixed(2)} / {pValueLabel}</span>
                 </div>
               </div>
             </div>
@@ -646,31 +766,43 @@ print("Toxicity-driving fragment SHAP value: " + str(np.max(first_comp_shap[:, 1
                 stats.significant
                   ? "bg-emerald-50 border-emerald-200 text-emerald-950"
                   : "bg-amber-50 border-amber-200 text-amber-950"
-              }`}>
+              }`} role="status" aria-live="polite">
                 {stats.significant ? (
-                  <>
-                    <Award className="h-10 w-10 text-emerald-600" />
-                    <div>
-                      <h5 className="font-bold text-sm">Model Superiority Confirmed (Statistically Significant)</h5>
-                      <p className="text-xs text-emerald-800 leading-relaxed font-medium mt-1">
-                        With a p-value of <strong>{stats.p}</strong> (which is &lt; 0.05), we reject the null hypothesis. The integration of high-content phenotypic Cell Painting features alongside chemical descriptors delivers a statistically superior cardiotoxicity prediction compared to chemical fingerprints alone.
-                      </p>
-                    </div>
-                  </>
+                  <div>
+                    <CheckCircle className="mx-auto h-9 w-9 text-emerald-600" aria-hidden="true" />
+                    <h5 className="mt-2 font-bold text-sm">Difference detected in this paired sample</h5>
+                    <p className="text-xs text-emerald-800 leading-relaxed font-medium mt-1">
+                      The two-sided paired DeLong p-value is <strong>{pValueLabel}</strong>. This
+                      supports a difference between these two synthetic score vectors; it does not
+                      establish that Cell Painting will improve an external dataset.
+                    </p>
+                  </div>
                 ) : (
-                  <>
-                    <AlertTriangle className="h-10 w-10 text-amber-600" />
-                    <div>
-                      <h5 className="font-bold text-sm">No Statistically Significant Difference</h5>
-                      <p className="text-xs text-amber-800 leading-relaxed font-medium mt-1">
-                        With a p-value of <strong>{stats.p}</strong> (which is &gt;= 0.05), we fail to reject the null hypothesis. The difference in model AUC is likely due to sample size constraints rather than a genuine biological predictive advantage.
-                      </p>
-                    </div>
-                  </>
+                  <div>
+                    <AlertTriangle className="mx-auto h-9 w-9 text-amber-600" aria-hidden="true" />
+                    <h5 className="mt-2 font-bold text-sm">The holdout does not resolve a difference</h5>
+                    <p className="text-xs text-amber-800 leading-relaxed font-medium mt-1">
+                      The paired DeLong p-value is <strong>{pValueLabel}</strong>. Failing to reject
+                      equal AUCs is not proof of equivalence; inspect the effect size, confidence
+                      intervals, sample composition, and external validation.
+                    </p>
+                  </div>
                 )}
+
+                <div className="grid w-full grid-cols-1 gap-2 border-t border-current/10 pt-3 text-[11px] sm:grid-cols-2">
+                  <span>Model A 95% CI: [{stats.ciA[0].toFixed(3)}, {stats.ciA[1].toFixed(3)}]</span>
+                  <span>Model B 95% CI: [{stats.ciB[0].toFixed(3)}, {stats.ciB[1].toFixed(3)}]</span>
+                </div>
               </div>
             </div>
           </div>
+
+          <p id="delong-model-boundary" className="rounded-lg bg-slate-50 p-3 text-[11px] leading-relaxed text-slate-700">
+            <strong>Simulation boundary:</strong> the records and prediction scores are deterministic
+            teaching data, not an experimental Cell Painting benchmark. The statistics are calculated
+            from those paired scores using DeLong placement values and covariance; real claims require
+            a locked external test set and endpoint-specific validation.
+          </p>
         </div>
       </section>
 

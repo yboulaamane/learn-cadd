@@ -3,13 +3,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import { 
   Zap, 
-  Layers, 
   BarChart2,
   Play,
   RotateCcw,
   CheckCircle,
   XCircle,
-  Activity,
   Info
 } from "lucide-react";
 import { Quiz } from "@/components/Quiz";
@@ -65,8 +63,65 @@ const compoundLibrary: Compound[] = [
   { id: "C36", name: "Chlorinated Lead Core", mw: 375, logp: 3.9, hbd: 1, hba: 3, pains: null, score: -8.6 }
 ];
 
+interface BenchmarkCompound {
+  active: boolean;
+  baseScore: number;
+}
+
+const BENCHMARK_LIBRARY: BenchmarkCompound[] = (() => {
+  let state = 20260804;
+  return Array.from({ length: 100 }, (_, index) => {
+    state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
+    return {
+      active: index % 10 === 0,
+      baseScore: state / 4294967296,
+    };
+  });
+})();
+
+function calculateScreeningBenchmark(scoreSeparation: number) {
+  const activeCount = BENCHMARK_LIBRARY.filter((compound) => compound.active).length;
+  const inactiveCount = BENCHMARK_LIBRARY.length - activeCount;
+  const ranked = BENCHMARK_LIBRARY.map((compound) => ({
+    ...compound,
+    score: compound.baseScore + (compound.active ? scoreSeparation : 0),
+  })).sort((a, b) => b.score - a.score);
+
+  let truePositives = 0;
+  let falsePositives = 0;
+  let previousFpr = 0;
+  let previousTpr = 0;
+  let auc = 0;
+  const rocPoints = [{ fpr: 0, tpr: 0 }];
+
+  ranked.forEach((compound) => {
+    if (compound.active) truePositives += 1;
+    else falsePositives += 1;
+
+    const fpr = falsePositives / inactiveCount;
+    const tpr = truePositives / activeCount;
+    auc += ((fpr - previousFpr) * (tpr + previousTpr)) / 2;
+    previousFpr = fpr;
+    previousTpr = tpr;
+    rocPoints.push({ fpr, tpr });
+  });
+
+  const topFiveHits = ranked.slice(0, 5).filter((compound) => compound.active).length;
+  const prevalence = activeCount / BENCHMARK_LIBRARY.length;
+  const ef5 = (topFiveHits / 5) / prevalence;
+  const rocPath = rocPoints
+    .map(({ fpr, tpr }, index) => {
+      const x = 40 + fpr * 120;
+      const y = 160 - tpr * 120;
+      return `${index === 0 ? "M" : "L"} ${x.toFixed(2)} ${y.toFixed(2)}`;
+    })
+    .join(" ");
+
+  return { auc, ef5, topFiveHits, rocPath };
+}
+
 export default function VirtualScreeningPage() {
-  const [enrichmentLevel, setEnrichmentLevel] = useState(80); // Quality (0 - 100)
+  const [scoreSeparation, setScoreSeparation] = useState(0.4);
 
   // Simulator states
   const [filterLipinski, setFilterLipinski] = useState(true);
@@ -149,29 +204,7 @@ export default function VirtualScreeningPage() {
   const currentComp = currentIndex >= 0 && currentIndex < compoundLibrary.length ? compoundLibrary[currentIndex] : null;
   const currentEvaluation = currentComp ? evaluateCompound(currentComp) : null;
 
-  const generateRocPath = () => {
-    let path = "M 40 160"; 
-    const factor = enrichmentLevel / 100;
-    
-    for (let t = 0; t <= 10; t++) {
-      const fpr = t / 10;
-      const tpr = Math.min(Math.pow(fpr, 1 - factor), 1.0);
-      
-      const x = 40 + fpr * 120; 
-      const y = 160 - tpr * 120; 
-      path += ` L ${x} ${y}`;
-    }
-    return path;
-  };
-
-  const factor = enrichmentLevel / 100;
-  // The ROC curve drawn above is tpr = fpr^(1 - factor). The area under that
-  // exact curve is the integral of x^(1-factor) from 0 to 1 = 1 / (2 - factor),
-  // so the reported AUC must be derived from the same model as the curve.
-  const auc = 1 / (2 - factor);
-  // EF at 5% = fraction of actives retrieved in top 5% (TPR at FPR = 0.05) divided by 0.05
-  const tprAt5 = Math.min(Math.pow(0.05, 1 - factor), 1.0);
-  const ef5 = (tprAt5 / 0.05).toFixed(1);
+  const benchmark = calculateScreeningBenchmark(scoreSeparation);
 
   return (
     <div className="space-y-8">
@@ -222,7 +255,9 @@ export default function VirtualScreeningPage() {
           <h3 className="font-bold text-sm text-slate-900">Interactive Playground: ROC Curve & Enrichment Factor</h3>
         </div>
         <p className="text-sm text-slate-800 leading-normal">
-          Adjust the "Model Screening Accuracy" slider to see how model refinement changes the ROC curve and the Enrichment Factor (EF) at 5% of the database.
+          Increase the separation between active and inactive scores in a fixed benchmark of 100
+          compounds (10 actives). The compounds are reranked and ROC-AUC and EF5 are recomputed
+          directly from those ranks.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center bg-white p-5 rounded-lg border border-slate-200">
@@ -231,37 +266,46 @@ export default function VirtualScreeningPage() {
           <div className="md:col-span-5 space-y-5">
             <div className="space-y-1">
               <div className="flex justify-between items-center text-sm text-slate-800 font-bold">
-                <span>Model Accuracy</span>
-                <span className="font-bold text-slate-900">{enrichmentLevel}%</span>
+                <label htmlFor="screening-score-separation">Active-score separation</label>
+                <output htmlFor="screening-score-separation" className="font-bold text-slate-900">
+                  +{scoreSeparation.toFixed(2)}
+                </output>
               </div>
               <input
+                id="screening-score-separation"
                 type="range"
                 min="0"
-                max="98"
-                value={enrichmentLevel}
-                onChange={(e) => setEnrichmentLevel(parseInt(e.target.value))}
+                max="1"
+                step="0.05"
+                value={scoreSeparation}
+                onChange={(e) => setScoreSeparation(Number(e.target.value))}
+                aria-describedby="screening-benchmark-description"
                 className="w-full h-1.5 bg-slate-100 rounded appearance-none cursor-pointer accent-slate-900"
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3 text-center">
+            <div className="grid grid-cols-3 gap-3 text-center" aria-live="polite">
               <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-0.5">
                 <span className="text-xs text-slate-800 font-bold block uppercase">ROC-AUC</span>
-                <span className="text-lg font-extrabold text-slate-900">{auc.toFixed(2)}</span>
+                <span className="text-lg font-extrabold text-slate-900">{benchmark.auc.toFixed(2)}</span>
               </div>
               <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-0.5">
                 <span className="text-xs text-slate-800 font-bold block uppercase">EF at 5%</span>
-                <span className="text-lg font-extrabold text-slate-900">{ef5}x</span>
+                <span className="text-lg font-extrabold text-slate-900">{benchmark.ef5.toFixed(1)}x</span>
+              </div>
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-0.5">
+                <span className="text-xs text-slate-800 font-bold block uppercase">Top-5 actives</span>
+                <span className="text-lg font-extrabold text-slate-900">{benchmark.topFiveHits}/5</span>
               </div>
             </div>
 
-            <p className="text-sm text-slate-800 leading-normal">
-              {enrichmentLevel < 30 ? (
-                <span>Low Accuracy: The model behaves almost like random screening (diagonal ROC line). Little to no enrichment.</span>
-              ) : enrichmentLevel < 70 ? (
-                <span>Moderate Accuracy: Standard performance of basic virtual screening docking. Useful, but requires high decoy screening budgets.</span>
+            <p id="screening-benchmark-description" className="text-sm text-slate-800 leading-normal">
+              {scoreSeparation < 0.15 ? (
+                <span>The score distributions overlap strongly, so this particular finite benchmark can perform above or below the random expectation.</span>
+              ) : scoreSeparation < 0.45 ? (
+                <span>Some actives move upward, but early recovery remains discrete: one additional active in the top five changes EF5 by 2.0.</span>
               ) : (
-                <span className="font-semibold text-slate-800">High Accuracy: Excellent consensus virtual screening performance. Combines filters to enrich the hit rate significantly!</span>
+                <span className="font-semibold text-slate-800">The active scores are well separated in this synthetic set, producing strong global discrimination and early enrichment.</span>
               )}
             </p>
           </div>
@@ -270,7 +314,12 @@ export default function VirtualScreeningPage() {
           <div className="md:col-span-7 flex justify-center">
             <div className="w-full max-w-[240px] aspect-square relative bg-slate-50 border border-slate-200 rounded-lg p-4 flex flex-col justify-between">
               <div className="relative flex-1">
-                <svg viewBox="0 0 200 200" className="w-full h-full">
+                <svg
+                  viewBox="0 0 200 200"
+                  className="w-full h-full"
+                  role="img"
+                  aria-label={`Empirical ROC curve with AUC ${benchmark.auc.toFixed(2)} and enrichment factor at five percent ${benchmark.ef5.toFixed(1)}`}
+                >
                   <line x1="40" y1="160" x2="160" y2="160" stroke="currentColor" className="text-slate-300" strokeWidth="0.8" />
                   <line x1="40" y1="40" x2="40" y2="160" stroke="currentColor" className="text-slate-300" strokeWidth="0.8" />
 
@@ -278,7 +327,7 @@ export default function VirtualScreeningPage() {
                   <line x1="40" y1="160" x2="160" y2="40" stroke="currentColor" className="text-slate-200" strokeWidth="0.5" strokeDasharray="3,3" />
 
                   {/* Dynamic ROC Path */}
-                  <path d={generateRocPath()} fill="none" stroke="currentColor" className="text-slate-900" strokeWidth="2" />
+                  <path d={benchmark.rocPath} fill="none" stroke="currentColor" className="text-slate-900" strokeWidth="2" />
 
                   {/* Annotations */}
                   <text x="100" y="178" textAnchor="middle" fill="#1e293b" className="text-[7.5px] font-bold fill-slate-800">FPR (1 - Specificity)</text>
@@ -401,7 +450,7 @@ export default function VirtualScreeningPage() {
         </p>
         <div className="p-5 rounded-xl border border-border bg-slate-50 font-medium">
           <ol className="space-y-2 leading-relaxed text-slate-800">
-            <li><strong>Physicochemical Pre-filtering:</strong> Eliminate structures violating Lipinski's or Veber's drug-likeness rules.</li>
+            <li><strong>Physicochemical Pre-filtering:</strong> Eliminate structures violating Lipinski&apos;s or Veber&apos;s drug-likeness rules.</li>
             <li><strong>Ultra-fast Similarity Search:</strong> Apply 2D ECFP4 fingerprint similarity searching to reduce a database of 100M+ structures down to 100k.</li>
             <li><strong>Pharmacophore Query:</strong> Screen spatial configurations of the remaining 100k structures to keep only 5k matching candidates.</li>
             <li><strong>Molecular Docking:</strong> Perform detailed molecular docking simulations on the 5k candidates to rank them.</li>
@@ -411,7 +460,7 @@ export default function VirtualScreeningPage() {
 
         <h3 className="font-bold text-foreground text-base pt-2">Physicochemical Filters: Drug-Likeness Rules Beyond Lipinski</h3>
         <p>
-          While Lipinski's Rule of 5 is the most famous historical filter, computational chemists rely on more comprehensive rules to assess oral bioavailability, membrane absorption, and synthetically targetable properties:
+          While Lipinski&apos;s Rule of 5 is the most famous historical filter, computational chemists rely on more comprehensive rules to assess oral bioavailability, membrane absorption, and synthetically targetable properties:
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 not-prose">
@@ -475,7 +524,7 @@ export default function VirtualScreeningPage() {
                     disabled={isRunning}
                     className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900 cursor-pointer"
                   />
-                  <span>1. Lipinski's Rule of 5 (MW ≤ 500)</span>
+                  <span>1. Lipinski&apos;s Rule of 5 (MW ≤ 500)</span>
                 </label>
                 <label className="flex items-center gap-2.5 cursor-pointer">
                   <input 
@@ -697,30 +746,30 @@ export default function VirtualScreeningPage() {
 
       {/* Section 5: Statistical Validation */}
       <section className="space-y-4">
-        <h2>5. Statistical Validation: DeLong's Test and AUC Confidence Intervals</h2>
+        <h2>5. Statistical Validation: DeLong&apos;s Test and AUC Confidence Intervals</h2>
         <p>
           Evaluating virtual screening performance using the Area Under the ROC Curve (AUC) yields a <strong>point estimate</strong>. However, if the external validation set is small (e.g., 50 compounds), the calculated AUC is highly sensitive to random fluctuation. A model might achieve an apparent AUC of 0.82 purely by chance, while its true generalizable performance is closer to 0.70.
         </p>
         <p>
-          To verify if a model's screening performance is robust, and to prove if one docking classifier is statistically superior to another, computational chemists use <strong>DeLong's Test</strong>. This non-parametric method calculates:
+          To verify if a model&apos;s screening performance is robust, and to test whether one docking classifier differs from another, computational chemists use <strong>DeLong&apos;s Test</strong>. This non-parametric method calculates:
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 not-prose">
           <div className="p-4 rounded-xl border border-border bg-white space-y-1">
             <h4 className="font-bold text-sm text-slate-900">AUC Confidence Intervals (CIs)</h4>
             <p className="text-sm text-slate-800 leading-relaxed font-medium">
-              DeLong's method calculates the mathematical variance of the Mann-Whitney U-statistic underlying the AUC. This allows us to construct a 95% Confidence Interval (e.g., AUC = 0.78 +/- 0.06). If the interval crosses 0.50, the model is not statistically better than random guessing.
+              DeLong&apos;s method calculates the mathematical variance of the Mann-Whitney U-statistic underlying the AUC. This allows us to construct a 95% Confidence Interval (e.g., AUC = 0.78 +/- 0.06). If the interval crosses 0.50, the model is not statistically better than random guessing.
             </p>
           </div>
           <div className="p-4 rounded-xl border border-border bg-white space-y-1">
             <h4 className="font-bold text-sm text-slate-900">Pairwise Statistical Superiority</h4>
             <p className="text-sm text-slate-800 leading-relaxed font-medium">
-              When comparing two models on the same test set, their predictions are correlated. DeLong's method computes the <strong>covariance</strong> of their AUC estimates. This enables a z-test to calculate a p-value: if <em>p</em> &lt; 0.05, we reject the null hypothesis and confirm one model is statistically superior.
+              When comparing two models on the same test set, their predictions are correlated. DeLong&apos;s method computes the <strong>covariance</strong> of their AUC estimates. This enables a z-test to calculate a p-value; the p-value should be interpreted alongside the AUC difference, confidence intervals, and validation design.
             </p>
           </div>
         </div>
 
         <p>
-          Below is a fast, matrix-based Python implementation of DeLong's variance and test (adapted from Pat Walters and Srijit Seal's tutorials) to calculate the AUC variance:
+          Below is a fast, matrix-based Python implementation of DeLong&apos;s variance and test (adapted from Pat Walters and Srijit Seal&apos;s tutorials) to calculate the AUC variance:
         </p>
 
         {/* User-Friendly Explanations Callout */}
@@ -731,7 +780,7 @@ export default function VirtualScreeningPage() {
           <ul className="list-disc pl-5 space-y-1">
             <li><strong>Mann-Whitney Kernel expectations:</strong> Compares active predictions pairwise against decoy predictions. For each active, it counts how many decoys have a lower predicted score.</li>
             <li><strong>AUC Calculation:</strong> The mean of the kernel expectation is the Area Under the Curve (AUC) of the Receiver Operating Characteristic (ROC).</li>
-            <li><strong>Variance Computation:</strong> DeLong's method computes the variance of these expectations, taking into account correlations, to establish a z-test.</li>
+            <li><strong>Variance Computation:</strong> DeLong&apos;s method computes the variance of these expectations, taking into account correlations, to establish a z-test.</li>
           </ul>
         </div>
 
