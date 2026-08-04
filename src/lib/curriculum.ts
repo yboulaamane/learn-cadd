@@ -22,8 +22,8 @@ export const curriculum: Module[] = [
   {
     slug: "ligand-receptor-interactions",
     title: "Module 3: Fundamentals of Ligand-Receptor Interactions",
-    description: "Explore the thermodynamic basis of binding, molecular recognition models, and the critical non-covalent interactions that drive affinity.",
-    duration: "30 min",
+    description: "Explore the thermodynamic basis of binding, molecular recognition models, non-covalent interactions, and affinity-efficiency metrics used in medicinal chemistry.",
+    duration: "35 min",
   },
   {
     slug: "molecular-mechanics",
@@ -82,8 +82,8 @@ export const curriculum: Module[] = [
   {
     slug: "structural-bioinformatics",
     title: "Module 13: Structural Bioinformatics & Molecular Visualization",
-    description: "Select, interpret, prepare, and validate experimental or predicted biomolecular structures using PDB/mmCIF records, PyMOL or Chimera, and homology-modeling workflows.",
-    duration: "40 min",
+    description: "Connect sequence to structural hierarchy, then select, interpret, prepare, and validate experimental or predicted biomolecular structures using PDB/mmCIF records, molecular viewers, and homology modeling.",
+    duration: "45 min",
     track: "extension",
   },
   {
@@ -110,8 +110,15 @@ export const curriculum: Module[] = [
   {
     slug: "bioinformatics-systems-biology",
     title: "Module 17: Bioinformatics & Systems Biology Foundations",
-    description: "Integrate sequence, structure, omics, interaction networks, pathways, and chemical-biology evidence into target selection and CADD project design.",
-    duration: "40 min",
+    description: "Integrate omics, interaction networks, pathways, perturbation data, and chemical-biology evidence into target selection and CADD project design.",
+    duration: "45 min",
+    track: "extension",
+  },
+  {
+    slug: "sequence-bioinformatics",
+    title: "Module 18: Sequence Bioinformatics & Evolution",
+    description: "Interpret biological databases, pairwise and multiple alignments, BLAST searches, sequence profiles, phylogenetic trees, and genomic context for CADD decisions.",
+    duration: "55 min",
     track: "extension",
   },
 ];

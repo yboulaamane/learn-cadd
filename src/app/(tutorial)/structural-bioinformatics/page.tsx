@@ -31,6 +31,36 @@ const sections: LessonSection[] = [
     ],
   },
   {
+    title: "Protein structure from sequence to assembly",
+    paragraphs: [
+      "Before inspecting a binding pocket, connect what the coordinate model shows to the levels of protein organization. Each level answers a different CADD question, from residue chemistry to domain motion and complex formation.",
+    ],
+    cards: [
+      {
+        title: "Primary structure",
+        description:
+          "The amino-acid sequence and its covalent connectivity define residue identity, numbering, variants, termini, disulfides, and the construct that was studied.",
+      },
+      {
+        title: "Secondary structure",
+        description:
+          "Backbone phi and psi angles favor recurring helices, sheets, and turns. Ramachandran analysis flags unusual geometry, but functional strained residues require context rather than automatic deletion.",
+      },
+      {
+        title: "Tertiary structure and domains",
+        description:
+          "The three-dimensional fold brings distant sequence positions together. Domains can fold or move semi-independently, changing allosteric sites and pocket accessibility.",
+      },
+      {
+        title: "Quaternary structure",
+        description:
+          "Biological assemblies place chains, cofactors, nucleic acids, or partners together. Interfaces can create the binding site or stabilize the modeled state.",
+      },
+    ],
+    note:
+      "A low whole-protein RMSD can hide a meaningful domain rotation or local pocket rearrangement. Compare global architecture and the task-relevant region separately.",
+  },
+  {
     title: "Reading PDB and mmCIF records",
     paragraphs: [
       "Coordinate formats connect atom names and residue identities to Cartesian coordinates. Legacy PDB files are column-based; mmCIF is the modern, extensible archive format. Both must be interpreted together with the entry metadata.",
@@ -163,6 +193,13 @@ png binding_site.png, dpi=300`,
 
 const questions: Question[] = [
   {
+    question: "Why should domain orientation be inspected separately from whole-protein RMSD?",
+    options: ["Domains contain no residues", "A small global RMSD can hide a functionally important domain or pocket movement", "RMSD measures only sequence identity", "Domain motion occurs only in NMR structures"],
+    correctIndex: 1,
+    explanation:
+      "Global superposition averages across the structure. A hinge movement can preserve each domain internally while changing an interface or binding site.",
+  },
+  {
     question: "Which PDB component should never be removed automatically during receptor preparation?",
     options: ["Every crystallographic water", "Every HETATM record", "A catalytic metal or required cofactor", "All alternate locations"],
     correctIndex: 2,
@@ -199,6 +236,7 @@ export default function StructuralBioinformaticsPage() {
       title="Structural Bioinformatics & Molecular Visualization"
       summary="Move from a database entry to a chemically defensible receptor model, then use PyMOL or Chimera to inspect, compare, communicate, and validate structural hypotheses."
       outcomes={[
+        "Relate protein sequence, secondary structure, domains, and assemblies to a CADD question.",
         "Select an experimental or predicted structure for a specific CADD task.",
         "Interpret PDB/mmCIF records and classify ligands, waters, ions, and cofactors.",
         "Prepare and visually validate a receptor without erasing mechanistic chemistry.",

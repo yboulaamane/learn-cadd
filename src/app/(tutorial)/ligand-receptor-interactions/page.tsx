@@ -445,9 +445,73 @@ export default function LigandReceptorInteractionsPage() {
         </p>
       </section>
 
-      {/* Section 3: Non-covalent Interactions */}
+      {/* Section 3: Medicinal-chemistry efficiency metrics */}
       <section className="space-y-4">
-        <h2>3. Types of Non-Covalent Interactions</h2>
+        <h2>3. From Affinity to Design Efficiency</h2>
+        <p>
+          Potency is essential, but it does not show what a molecule had to become to achieve that
+          potency. Medicinal chemists use efficiency metrics and thermodynamic measurements to
+          compare compounds while tracking size, lipophilicity, and binding mechanism.
+        </p>
+
+        <div className="overflow-x-auto not-prose rounded-xl border border-slate-200 bg-white shadow-sm">
+          <table className="min-w-full divide-y divide-slate-200 text-sm">
+            <thead className="bg-slate-50">
+              <tr>
+                <th className="px-4 py-3 text-left font-bold text-slate-900">Measure</th>
+                <th className="px-4 py-3 text-left font-bold text-slate-900">What it adds</th>
+                <th className="px-4 py-3 text-left font-bold text-slate-900">Important limit</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 text-slate-800">
+              <tr>
+                <td className="px-4 py-3 align-top font-bold text-slate-950">Ligand efficiency (LE)</td>
+                <td className="px-4 py-3 align-top">Relates binding free energy to non-hydrogen atom count, helping compare differently sized hits.</td>
+                <td className="px-4 py-3 align-top">Size normalization has known biases; compare related series and use the same affinity endpoint.</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-3 align-top font-bold text-slate-950">Lipophilic ligand efficiency (LLE or LipE)</td>
+                <td className="px-4 py-3 align-top"><span className="font-mono">pActivity - logD</span> asks whether potency rises faster than lipophilicity.</td>
+                <td className="px-4 py-3 align-top">State the assay endpoint, pH, and lipophilicity measure. The octanol-water reference is useful, not a universal measure of specificity.</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-3 align-top font-bold text-slate-950">Isothermal titration calorimetry (ITC)</td>
+                <td className="px-4 py-3 align-top">A titration can estimate affinity, stoichiometry, and binding enthalpy; entropy is inferred from the free-energy relationship.</td>
+                <td className="px-4 py-3 align-top">Buffer ionization, proton transfer, concentration accuracy, and coupled conformational changes can affect the observed heat.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div className="not-prose grid gap-4 md:grid-cols-2">
+          <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <h3 className="text-sm font-extrabold text-slate-950">Enthalpy-entropy compensation</h3>
+            <p className="mt-2 text-sm leading-relaxed text-slate-700">
+              Two ligands can have similar affinity with different enthalpic and entropic profiles.
+              Solvent reorganization, protonation, and conformational change couple the terms, so an
+              apparently favorable enthalpy does not automatically identify a better lead.
+            </p>
+          </article>
+          <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+            <h3 className="text-sm font-extrabold text-slate-950">Water is part of the mechanism</h3>
+            <p className="mt-2 text-sm leading-relaxed text-slate-700">
+              Displacing an unfavorable water can help binding, while disrupting a stable bridging
+              network can hurt it. Inspect water networks and receptor state instead of treating every
+              buried water release as an automatic gain.
+            </p>
+          </article>
+        </div>
+
+        <aside className="not-prose rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-relaxed text-amber-950">
+          <strong>Use a panel, not a single winning metric:</strong> track potency, LE or LLE,
+          solubility, permeability, clearance, selectivity, and assay quality together. Optimizing one
+          composite score can hide trade-offs or amplify measurement noise.
+        </aside>
+      </section>
+
+      {/* Section 4: Non-covalent Interactions */}
+      <section className="space-y-4">
+        <h2>4. Types of Non-Covalent Interactions</h2>
         
         <div className="space-y-3 not-prose">
           <div className="flex gap-3 p-3.5 rounded-lg border border-border bg-white">
@@ -509,7 +573,7 @@ export default function LigandReceptorInteractionsPage() {
           <h3 className="font-bold text-sm text-slate-900">Interactive Playground: Hydrophobic Effect & Desolvation</h3>
         </div>
         <p className="text-sm text-slate-800">
-          Toggle the &quot;Bind Ligand&quot; button to push a lipophilic compound into a hydrophobic pocket. Notice how ordered &quot;water cages&quot; (slate circles) are released into free solution, increasing entropy.
+          Toggle the &quot;Bind Ligand&quot; button to push a lipophilic compound into a hydrophobic pocket. The slate circles illustrate interfacial waters that can be released into bulk solution when nonpolar surfaces are buried.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center bg-white p-5 rounded-lg border border-slate-200">
@@ -881,18 +945,40 @@ export default function LigandReceptorInteractionsPage() {
               "Because the ligand is forced to form electrostatic salt bridges."
             ],
             correctIndex: 1,
-            explanation: "Free ligand molecules in solution have high conformational entropy due to rotation about single bonds. When the ligand binds to the receptor, these rotational bonds are locked into a single active conformation. Freeizing these degrees of freedom costs conformational entropy, which acts as a thermodynamic barrier (+TΔS penalty) to binding."
+            explanation: "Free ligand molecules in solution have high conformational entropy due to rotation about single bonds. When the ligand binds to the receptor, these rotational bonds are locked into a single active conformation. Freezing these degrees of freedom costs conformational entropy, which acts as a thermodynamic barrier (+TΔS penalty) to binding."
           },
           {
             question: "How does the hydrophobic effect drive ligand binding thermodynamically?",
             options: [
-              "By releasing structured, caged water molecules from lipophilic surfaces into bulk solution, gaining favorable solvent entropy.",
+              "By changing solvent organization when nonpolar surfaces are buried, which can release constrained interfacial water into bulk solution.",
               "By forming strong hydrogen bonds between the ligand's non-polar groups and target water molecules.",
               "By increasing the enthalpy of the system through hydrophobic dipole interactions.",
               "By rigidifying target side chains to lower conformational entropy barriers."
             ],
             correctIndex: 0,
-            explanation: "Hydrophobic surfaces (on the ligand and target pocket) cannot form hydrogen bonds with water, forcing surrounding water molecules to organize into a rigid, low-entropy 'cage' structure. When these hydrophobic surfaces associate during binding, the caged water molecules are expelled into bulk solution, where they are free and disordered. This increase in solvent entropy (-TΔS becomes highly negative and favorable) is the primary driver of the hydrophobic effect."
+            explanation: "Burying nonpolar surfaces changes the solvent-exposed area and the organization of nearby water. Releasing constrained interfacial waters can provide a favorable entropic contribution, but the magnitude depends on the local water network and pocket environment."
+          },
+          {
+            question: "What does lipophilic ligand efficiency help reveal within a related series?",
+            options: [
+              "Whether potency is improving faster than lipophilicity",
+              "Whether a protein contains alpha helices",
+              "The exact binding pose",
+              "The number of crystallographic waters"
+            ],
+            correctIndex: 0,
+            explanation: "LLE or LipE relates pActivity to logD or logP. It helps detect potency gains that mainly come from adding lipophilicity, but the assay endpoint and lipophilicity convention must be consistent."
+          },
+          {
+            question: "Why should an apparently favorable binding enthalpy not be optimized in isolation?",
+            options: [
+              "Enthalpy cannot be measured",
+              "Affinity also reflects entropy, solvent, protonation, and conformational changes",
+              "Only molecular weight affects affinity",
+              "A favorable enthalpy always means lower selectivity"
+            ],
+            correctIndex: 1,
+            explanation: "Binding terms are coupled. Enthalpy-entropy compensation and experimental conditions can produce similar affinity from different profiles, so the full evidence panel matters."
           }
         ]}
       />
