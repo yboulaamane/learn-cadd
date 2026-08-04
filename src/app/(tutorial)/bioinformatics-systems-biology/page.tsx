@@ -1,4 +1,5 @@
 import { ExtensionLesson, type LessonSection } from "@/components/ExtensionLesson";
+import { TargetEvidencePlayground } from "@/components/playgrounds/TargetEvidencePlayground";
 import type { Question } from "@/components/Quiz";
 
 const sections: LessonSection[] = [
@@ -221,6 +222,7 @@ export default function BioinformaticsSystemsBiologyPage() {
         "Distinguish physical, functional, regulatory, and correlative interaction evidence.",
         "Turn network and pathway hypotheses into falsifiable CADD milestones.",
       ]}
+      playground={<TargetEvidencePlayground />}
       sections={sections}
       questions={questions}
     />
