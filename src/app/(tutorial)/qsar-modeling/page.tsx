@@ -1,14 +1,13 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { 
   Cpu,
   Info,
   Sliders,
   Compass,
   CheckCircle,
-  AlertTriangle,
-  RefreshCw
+  AlertTriangle
 } from "lucide-react";
 import { Quiz } from "@/components/Quiz";
 import { CollapsibleCode } from "@/components/CollapsibleCode";
@@ -82,7 +81,7 @@ export default function QsarModelingPage() {
   const insideDomain = h <= hStar;
 
   // Mouse / Touch handlers for dragging the Test Compound
-  const updatePosition = (clientX: number, clientY: number) => {
+  const updatePosition = useCallback((clientX: number, clientY: number) => {
     if (!svgRef.current) return;
     const rect = svgRef.current.getBoundingClientRect();
     const mouseX = ((clientX - rect.left) / rect.width) * 300;
@@ -98,23 +97,23 @@ export default function QsarModelingPage() {
 
     setPc1(newPc1);
     setPc2(newPc2);
-  };
+  }, []);
 
   const handleMouseDown = (e: React.MouseEvent<SVGElement>) => {
     setIsDragging(true);
     updatePosition(e.clientX, e.clientY);
   };
 
-  const handleMouseMove = (e: React.MouseEvent<SVGSVGElement> | MouseEvent) => {
+  const handleMouseMove = useCallback((e: React.MouseEvent<SVGSVGElement> | MouseEvent) => {
     if (!isDragging) return;
     const clientX = 'clientX' in e ? e.clientX : (e as MouseEvent).clientX;
     const clientY = 'clientY' in e ? e.clientY : (e as MouseEvent).clientY;
     updatePosition(clientX, clientY);
-  };
+  }, [isDragging, updatePosition]);
 
-  const handleMouseUp = () => {
+  const handleMouseUp = useCallback(() => {
     setIsDragging(false);
-  };
+  }, []);
 
   const handleTouchStart = (e: React.TouchEvent<SVGElement>) => {
     if (e.touches.length === 0) return;
@@ -136,7 +135,7 @@ export default function QsarModelingPage() {
       window.removeEventListener("mouseup", handleMouseUp);
       window.removeEventListener("mousemove", handleMouseMove);
     };
-  }, [isDragging]);
+  }, [handleMouseMove, handleMouseUp, isDragging]);
 
   // Widget 3 state (Classical Hansch analysis / Craig plot)
   // Reference substituents with tabulated Hansch-Fujita π (hydrophobicity)
@@ -324,9 +323,50 @@ export default function QsarModelingPage() {
         </div>
       </section>
 
-      {/* Section 3: QSAR Workflow */}
+      {/* Section 3: 3D-QSAR */}
       <section className="space-y-4">
-        <h2>3. The QSAR Modeling Workflow</h2>
+        <h2>3. When 3D-QSAR Is Appropriate</h2>
+        <p>
+          Three-dimensional QSAR compares aligned ligand conformations through spatial interaction
+          fields. It can support lead optimization when compounds share a binding mode, but the
+          alignment and conformation assumptions become part of the model.
+        </p>
+
+        <div className="grid gap-4 not-prose md:grid-cols-3">
+          <article className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <h3 className="text-sm font-extrabold text-slate-950">CoMFA</h3>
+            <p className="mt-2 text-sm leading-relaxed text-slate-700">
+              Comparative Molecular Field Analysis samples steric and electrostatic interaction
+              energies around aligned molecules, then relates the field values to activity.
+            </p>
+          </article>
+          <article className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <h3 className="text-sm font-extrabold text-slate-950">CoMSIA</h3>
+            <p className="mt-2 text-sm leading-relaxed text-slate-700">
+              Comparative Molecular Similarity Indices Analysis uses smoother similarity fields and
+              can include hydrophobic, hydrogen-bond donor, and acceptor contributions.
+            </p>
+          </article>
+          <article className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <h3 className="text-sm font-extrabold text-slate-950">Alignment sensitivity</h3>
+            <p className="mt-2 text-sm leading-relaxed text-slate-700">
+              Common-substructure, pharmacophore, crystal-pose, and docking-based alignments can
+              produce different fields. Flexible ligands and uncertain poses make interpretation
+              especially fragile.
+            </p>
+          </article>
+        </div>
+
+        <aside className="not-prose rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-relaxed text-amber-950">
+          <strong>Validation checkpoint:</strong> lock the alignment procedure before external
+          evaluation, test alternative plausible alignments, keep related analogues in the same data
+          split, and do not interpret a contour map beyond the model&apos;s applicability domain.
+        </aside>
+      </section>
+
+      {/* Section 4: QSAR Workflow */}
+      <section className="space-y-4">
+        <h2>4. The QSAR Modeling Workflow</h2>
         
         <div className="space-y-3 not-prose">
           <div className="flex gap-3 p-3.5 rounded-lg border border-border bg-white">
@@ -406,7 +446,7 @@ export default function QsarModelingPage() {
           <h3 className="font-bold text-base text-slate-900">Interactive Playground: Decision Tree Descriptor Classification</h3>
         </div>
         <p className="text-sm text-slate-800 leading-normal">
-          Adjust the sliders to change the chemical descriptors of your test molecule. Watch how the molecule traverses the decision tree splits based on threshold rules to reach an "Active" or "Inactive" classification.
+          Adjust the sliders to change the chemical descriptors of your test molecule. Watch how the molecule traverses the decision tree splits based on threshold rules to reach an &quot;Active&quot; or &quot;Inactive&quot; classification.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center bg-white p-5 rounded-lg border border-slate-200">
@@ -525,9 +565,9 @@ export default function QsarModelingPage() {
         </div>
       </section>
 
-      {/* Section 3: Model Curation / Validation Framework */}
+      {/* Section 5: Model Curation / Validation Framework */}
       <section className="space-y-4">
-        <h2>4. Three-Tier Model Validation Framework</h2>
+        <h2>5. Three-Tier Model Validation Framework</h2>
         <p>
           Building a QSAR model is only half the job. Overfitted models routinely pass basic correlation checks but fail to predict active structures outside the training set. Establishing diagnostic parameters prevents this and validates predictive robustness.
         </p>
@@ -575,7 +615,7 @@ export default function QsarModelingPage() {
           <div className="p-4 rounded-xl border border-border bg-white space-y-1">
             <h4 className="font-bold text-sm text-slate-900">Applicability Domain (AD)</h4>
             <p className="text-sm text-slate-800 leading-relaxed font-medium">
-              Defines the bounding multidimensional chemical descriptor space covered by the training compounds. If a virtual candidate molecule has descriptors falling outside this AD envelope, the model's predictions are extrapolation-prone and cannot be trusted.
+              Defines the bounding multidimensional chemical descriptor space covered by the training compounds. If a virtual candidate molecule has descriptors falling outside this AD envelope, the model&apos;s predictions are extrapolation-prone and cannot be trusted.
             </p>
           </div>
         </div>
@@ -590,7 +630,7 @@ export default function QsarModelingPage() {
           </p>
           <ul className="list-disc pl-5 text-xs text-slate-800 space-y-2 font-medium leading-relaxed">
             <li>
-              <strong>Bemis-Murcko Scaffold Splitting:</strong> Extracts the core carbon-ring skeletons from all molecules. Molecules sharing the same scaffold are grouped together and sent entirely to either train or test sets. This measures the model's capacity for <strong>scaffold hopping</strong> (extrapolating to new chemical cores).
+              <strong>Bemis-Murcko Scaffold Splitting:</strong> Extracts the core carbon-ring skeletons from all molecules. Molecules sharing the same scaffold are grouped together and sent entirely to either train or test sets. This measures the model&apos;s capacity for <strong>scaffold hopping</strong> (extrapolating to new chemical cores).
             </li>
             <li>
               <strong>Butina Clustering &amp; Splitting (Deterministic):</strong> A centroid-based clustering algorithm specifically designed for chemical databases. It clusters molecules based on a Tanimoto similarity threshold. The algorithm counts neighbors for each molecule, sorts them in descending order of neighbor count, and assigns centroids starting from the most connected. Because it has no random initialization centroids, Butina clustering is fully <strong>deterministic</strong>; given the same similarity threshold and sorting, it yields identical clusters every time, making it ideal for reproducible diversity-based dataset splitting.
@@ -679,15 +719,45 @@ export default function QsarModelingPage() {
                 <tr>
                   <td className="px-4 py-2 font-bold">MCC</td>
                   <td className="px-4 py-2">Matthews Correlation Coefficient, range -1 to +1</td>
-                  <td className="px-4 py-2 font-semibold">MCC &gt; 0.4</td>
+                  <td className="px-4 py-2 font-semibold">Approaches +1.0</td>
                 </tr>
                 <tr>
                   <td className="px-4 py-2 font-bold">Cohen&apos;s Kappa</td>
                   <td className="px-4 py-2">Agreement corrected for chance</td>
-                  <td className="px-4 py-2 font-semibold">Kappa &gt; 0.6</td>
+                  <td className="px-4 py-2 font-semibold">Approaches 1.0</td>
+                </tr>
+                <tr>
+                  <td className="px-4 py-2 font-bold">Balanced Accuracy</td>
+                  <td className="px-4 py-2">Mean recall across the positive and negative classes</td>
+                  <td className="px-4 py-2 font-semibold">Approaches 1.0</td>
+                </tr>
+                <tr>
+                  <td className="px-4 py-2 font-bold">PR-AUC</td>
+                  <td className="px-4 py-2">Precision-recall trade-off across classification thresholds</td>
+                  <td className="px-4 py-2 font-semibold">Compare with class prevalence</td>
+                </tr>
+                <tr>
+                  <td className="px-4 py-2 font-bold">Brier Score</td>
+                  <td className="px-4 py-2">Mean squared error of predicted probabilities</td>
+                  <td className="px-4 py-2 font-semibold">Approaches 0</td>
                 </tr>
               </tbody>
             </table>
+          </div>
+
+          <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-relaxed text-amber-950">
+            <h4 className="font-extrabold">Imbalanced bioactivity data</h4>
+            <p className="mt-2">
+              When actives are rare, accuracy and even ROC-AUC can look reassuring while precision
+              remains poor. Report the confusion matrix, per-class recall, precision, MCC,
+              balanced accuracy, and PR-AUC. Inspect probability calibration with a reliability plot
+              or Brier score when predictions will be used as probabilities.
+            </p>
+            <p className="mt-2">
+              Class weighting, undersampling, or synthetic oversampling must occur inside each
+              training fold only. Resampling before the split leaks information into validation and
+              produces optimistic performance.
+            </p>
           </div>
         </div>
 
@@ -960,9 +1030,9 @@ export default function QsarModelingPage() {
         </div>
       </section>
 
-      {/* Section 4: Evolution of Graph Neural Networks */}
+      {/* Section 6: Evolution of Graph Neural Networks */}
       <section className="space-y-4">
-        <h2>5. The Deep Learning Paradigm: Graph Neural Networks (GNNs)</h2>
+        <h2>6. The Deep Learning Paradigm: Graph Neural Networks (GNNs)</h2>
         <p>
           While classical QSAR maps molecules to fixed binary fingerprints, modern drug discovery has migrated to Graph Neural Networks (GNNs). A small molecule is naturally represented as a graph where atoms are nodes and chemical bonds are edges.
         </p>
@@ -1017,9 +1087,9 @@ export default function QsarModelingPage() {
         </div>
       </section>
 
-      {/* Section 5: ADMET, SHAP, & Hybrid Modeling */}
+      {/* Section 7: ADMET, SHAP, & Hybrid Modeling */}
       <section className="space-y-4">
-        <h2>6. In Silico ADMET, Explainable AI, & Hybrid Phenotypic Modeling</h2>
+        <h2>7. In Silico ADMET, Explainable AI, &amp; Hybrid Phenotypic Modeling</h2>
         <p>
           While classical QSAR models general binding affinity, modern drug discovery requires optimization for Absorption, Distribution, Metabolism, Excretion, and Toxicity (ADMET) endpoints to prevent clinical trial failures.
         </p>
@@ -1048,14 +1118,14 @@ export default function QsarModelingPage() {
         <div className="space-y-2 pt-2">
           <h4 className="font-bold text-sm text-slate-900">Explainable AI (XAI) using SHAP</h4>
           <p>
-            Machine learning ensembles (like Random Forests or Gradient Boosting) are complex black boxes. To explain model predictions, chemists use <strong>SHAP (SHapley Additive exPlanations)</strong> values. SHAP decomposes a prediction into additive contributions from individual features. For a given molecule, it highlights which chemical fragments or functional groups (e.g. an aliphatic amine or halogen atom) positive-shift (increase toxicity) or negative-shift (improve clearance) the model's output.
+            Machine learning ensembles (like Random Forests or Gradient Boosting) are complex black boxes. To explain model predictions, chemists use <strong>SHAP (SHapley Additive exPlanations)</strong> values. SHAP decomposes a prediction into additive contributions from individual features. For a given molecule, it highlights which chemical fragments or functional groups (e.g. an aliphatic amine or halogen atom) positive-shift (increase toxicity) or negative-shift (improve clearance) the model&apos;s output.
           </p>
         </div>
 
         <div className="space-y-2 pt-2">
           <h4 className="font-bold text-sm text-slate-900">Coding Similarity-Based Applicability Domains</h4>
           <p>
-            In addition to leverage-based applicability domains, models also use <strong>similarity-based applicability domains</strong>. This involves calculating the maximum Tanimoto similarity of a test compound against all compounds in the training set (`max_similarity_to_train`). If the similarity drops below a threshold (e.g., Tc &lt; 0.70), the model's error (RMSE) degrades significantly.
+            In addition to leverage-based applicability domains, models also use <strong>similarity-based applicability domains</strong>. This involves calculating the maximum Tanimoto similarity of a test compound against all compounds in the training set (`max_similarity_to_train`). A project-specific cutoff can be selected from validation data where prediction errors begin to increase; it is not a universal Tanimoto threshold.
           </p>
           <p>
             Below is a Python RDKit code block showing how to calculate similarity metrics to define an applicability domain envelope:
@@ -1069,7 +1139,7 @@ export default function QsarModelingPage() {
           <ul className="list-disc pl-5 space-y-1">
             <li><strong>AllChem.GetMorganFingerprintAsBitVect:</strong> Encodes the molecular topology into a 2048-bit structural fingerprint vector.</li>
             <li><strong>DataStructs.BulkTanimotoSimilarity:</strong> Computes the Tanimoto overlap coefficient (shared bits divided by total active bits) between the test molecule and all training set vectors in one highly optimized step.</li>
-            <li><strong>max_similarity_to_train:</strong> Finds the single nearest neighbor in the training library. If the similarity is below 0.70, the compound is outside the model's safe interpolation domain.</li>
+            <li><strong>max_similarity_to_train:</strong> Finds the single nearest neighbor in the training library. Compare it with a validation-derived cutoff to flag compounds outside the model&apos;s supported interpolation domain.</li>
           </ul>
         </div>
 
@@ -1161,6 +1231,28 @@ def calculate_similarity_domain(test_smiles: str, training_smiles_list: list) ->
             ],
             correctIndex: 2,
             explanation: "Docking yields multiple pose hypotheses. Rather than picking one pose by arbitrary score, ABMIL represents each pose as a graph instance and passes them into the GNN. The attention mechanism dynamically weights each pose, learning which conformation matches the active footprint and aggregating them into a single compound-level prediction."
+          },
+          {
+            question: "Why can accuracy be misleading for a QSAR classifier with very few active compounds?",
+            options: [
+              "Accuracy cannot be calculated for binary labels.",
+              "A model can predict nearly everything as inactive and still achieve high accuracy.",
+              "Rare actives automatically create scaffold leakage.",
+              "Accuracy measures probability calibration only."
+            ],
+            correctIndex: 1,
+            explanation: "With severe class imbalance, the majority inactive class dominates accuracy. Precision, recall, PR-AUC, MCC, balanced accuracy, and calibration provide a more informative view of whether the rare active class is being recovered."
+          },
+          {
+            question: "What is the central additional assumption in a 3D-QSAR model such as CoMFA?",
+            options: [
+              "All compounds have identical molecular weights.",
+              "The chosen ligand conformations and spatial alignment represent a comparable binding mode.",
+              "No external validation set is needed.",
+              "Only one molecular field can be calculated."
+            ],
+            correctIndex: 1,
+            explanation: "3D-QSAR field values depend on where each aligned atom and functional group is placed. An uncertain conformation or binding-mode alignment can change both the model and its contour interpretation."
           }
         ]}
       />
