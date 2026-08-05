@@ -181,8 +181,8 @@ export default function IntroToDrugDiscoveryPage() {
                       isSelected
                         ? "bg-slate-900 border-slate-900 text-white dark:bg-slate-100 dark:border-slate-100 dark:text-slate-900 scale-102 font-bold"
                         : isPassed
-                        ? "bg-slate-200/50 border-slate-300 dark:bg-slate-900/60 dark:border-slate-800 text-slate-500"
-                        : "bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-300 dark:text-slate-700"
+                        ? "bg-slate-200/50 border-slate-300 dark:bg-slate-900/60 dark:border-slate-800 text-slate-500 dark:text-white"
+                        : "bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-300 dark:text-white"
                     }`}
                   >
                     {started && activeStage >= idx ? stage.compounds : `Stage ${idx + 1}`}
