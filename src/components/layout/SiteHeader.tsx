@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { useHideOnScroll } from "./useHideOnScroll";
 
 export function SiteHeader() {
@@ -20,7 +21,7 @@ export function SiteHeader() {
             Learn CADD
           </span>
         </Link>
-        <nav aria-label="Utility navigation" className="ml-auto flex items-center gap-4 text-sm text-slate-600 sm:gap-6">
+        <nav aria-label="Utility navigation" className="ml-auto flex items-center gap-1 text-sm text-slate-600 dark:text-slate-300 sm:gap-3">
           <a
             href="https://github.com/yboulaamane/learn-cadd"
             target="_blank"
@@ -29,6 +30,7 @@ export function SiteHeader() {
           >
             GitHub
           </a>
+          <ThemeToggle />
         </nav>
       </div>
     </header>

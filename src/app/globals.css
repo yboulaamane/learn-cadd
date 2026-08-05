@@ -2,8 +2,8 @@
 
 @plugin "@tailwindcss/typography";
 
-/* Disable dark mode variant globally in Tailwind v4 */
-@custom-variant dark (&:not(*));
+/* Use the class managed by next-themes for Tailwind v4 dark variants. */
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme inline {
   --color-background: #ffffff;
@@ -23,6 +23,22 @@
   --font-serif: "Georgia", "Times New Roman", serif;
 }
 
+html.dark {
+  color-scheme: dark;
+  --color-background: #020617;
+  --color-foreground: #e2e8f0;
+  --color-muted: #94a3b8;
+  --color-border: #334155;
+  --color-accent: #60a5fa;
+  --color-accent-dark: #93c5fd;
+  --color-surface: #0f172a;
+  --color-widget-bg: #0f172a;
+  --color-widget-border: #334155;
+  --color-success: #34d399;
+  --color-warning: #fbbf24;
+  --color-error: #fb7185;
+}
+
 body {
   background: var(--color-background);
   color: var(--color-foreground);
@@ -40,6 +56,11 @@ html {
   color: #172554;
 }
 
+.dark ::selection {
+  background: #1d4ed8;
+  color: #eff6ff;
+}
+
 :focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 3px;
@@ -50,6 +71,25 @@ html {
   --tw-prose-body: var(--color-foreground);
   --tw-prose-headings: var(--color-foreground);
   max-width: 72ch;
+}
+
+.dark .prose {
+  --tw-prose-body: #cbd5e1;
+  --tw-prose-headings: #f8fafc;
+  --tw-prose-lead: #cbd5e1;
+  --tw-prose-links: #93c5fd;
+  --tw-prose-bold: #f8fafc;
+  --tw-prose-counters: #94a3b8;
+  --tw-prose-bullets: #64748b;
+  --tw-prose-hr: #334155;
+  --tw-prose-quotes: #e2e8f0;
+  --tw-prose-quote-borders: #475569;
+  --tw-prose-captions: #94a3b8;
+  --tw-prose-code: #e2e8f0;
+  --tw-prose-pre-code: #cbd5e1;
+  --tw-prose-pre-bg: #020617;
+  --tw-prose-th-borders: #475569;
+  --tw-prose-td-borders: #334155;
 }
 
 /* Course reading system */
@@ -177,10 +217,219 @@ pre,
   --tw-prose-pre-code: #111827 !important;
 }
 
+.dark pre,
+.dark .prose pre,
+.dark .prose-lg pre {
+  background: #020617 !important;
+  background-color: #020617 !important;
+  color: #e2e8f0 !important;
+  border-color: #334155 !important;
+  --tw-prose-pre-bg: #020617 !important;
+  --tw-prose-pre-code: #e2e8f0 !important;
+}
+
 .prose pre code {
   background: none;
   padding: 0;
   border: none;
+}
+
+/*
+ * Legacy lesson panels use Tailwind's literal slate and status colors. These
+ * centralized mappings keep all modules readable without duplicating dark:
+ * variants across hundreds of scientific cards, tables, and playground rows.
+ */
+.dark body :where(
+  .bg-white,
+  [class~="bg-white/70"],
+  [class~="bg-white/80"],
+  [class~="bg-white/90"]
+) {
+  background-color: #0f172a !important;
+}
+
+.dark body :where(
+  .bg-slate-50,
+  [class~="bg-slate-50/50"],
+  [class~="bg-slate-50/70"],
+  [class~="bg-slate-50/80"],
+  .bg-surface,
+  [class~="bg-surface/30"]
+) {
+  background-color: #111827 !important;
+}
+
+.dark body .bg-slate-100 {
+  background-color: #1e293b !important;
+}
+
+.dark body :where(.bg-slate-200, [class~="bg-slate-200/50"]) {
+  background-color: #334155 !important;
+}
+
+.dark body :where(
+  .bg-blue-50,
+  [class~="bg-blue-50/20"],
+  [class~="bg-blue-50/30"],
+  [class~="bg-blue-50/50"],
+  [class~="bg-blue-50/60"]
+) {
+  background-color: #172554 !important;
+}
+
+.dark body :where(.bg-blue-100) {
+  background-color: #1e3a8a !important;
+}
+
+.dark body :where(
+  .bg-emerald-50,
+  [class~="bg-emerald-50/20"],
+  [class~="bg-emerald-50/50"]
+) {
+  background-color: #022c22 !important;
+}
+
+.dark body .bg-emerald-100 {
+  background-color: #064e3b !important;
+}
+
+.dark body :where(
+  .bg-amber-50,
+  [class~="bg-amber-50/20"],
+  [class~="bg-amber-50/50"]
+) {
+  background-color: #451a03 !important;
+}
+
+.dark body :where(.bg-red-50, .bg-rose-50, [class~="bg-rose-50/50"]) {
+  background-color: #4c0519 !important;
+}
+
+.dark body :where(.bg-indigo-50, .bg-violet-50, .bg-purple-50) {
+  background-color: #2e1065 !important;
+}
+
+.dark body :where(.bg-cyan-50, .bg-teal-50) {
+  background-color: #083344 !important;
+}
+
+.dark body .bg-orange-50 {
+  background-color: #431407 !important;
+}
+
+.dark body :where(.text-slate-950, .text-slate-900, .text-slate-800) {
+  color: #f1f5f9 !important;
+}
+
+.dark body :where(.text-slate-700, .text-slate-600) {
+  color: #cbd5e1 !important;
+}
+
+.dark body :where(.text-slate-500, .text-slate-400) {
+  color: #94a3b8 !important;
+}
+
+.dark body :where(.text-blue-950, .text-blue-900, .text-blue-800, .text-blue-700) {
+  color: #bfdbfe !important;
+}
+
+.dark body :where(.text-blue-600, .text-blue-500) {
+  color: #60a5fa !important;
+}
+
+.dark body :where(.text-emerald-950, .text-emerald-900, .text-emerald-800, .text-emerald-700) {
+  color: #a7f3d0 !important;
+}
+
+.dark body :where(.text-emerald-600, .text-emerald-500) {
+  color: #34d399 !important;
+}
+
+.dark body :where(.text-amber-950, .text-amber-900, .text-amber-800, .text-amber-700, .text-amber-600) {
+  color: #fde68a !important;
+}
+
+.dark body :where(.text-red-950, .text-red-700, .text-red-600, .text-rose-900, .text-rose-800, .text-rose-700, .text-rose-600) {
+  color: #fda4af !important;
+}
+
+.dark body :where(.text-indigo-950, .text-indigo-700, .text-indigo-600, .text-purple-700, .text-violet-700, .text-violet-600) {
+  color: #c4b5fd !important;
+}
+
+.dark body :where(.text-cyan-700, .text-teal-700) {
+  color: #67e8f9 !important;
+}
+
+.dark body .text-orange-700 {
+  color: #fdba74 !important;
+}
+
+.dark body :where(
+  .border-slate-100,
+  .border-slate-200,
+  [class~="border-slate-200/50"],
+  [class~="border-slate-200/60"],
+  .border-slate-300,
+  .border-slate-800,
+  .border-slate-900
+) {
+  border-color: #334155 !important;
+}
+
+.dark body :where(.border-blue-200, .border-blue-300, .border-blue-400) {
+  border-color: #1e40af !important;
+}
+
+.dark body :where(.border-emerald-200, .border-emerald-300, .border-emerald-400) {
+  border-color: #047857 !important;
+}
+
+.dark body :where(.border-amber-200, .border-amber-500) {
+  border-color: #b45309 !important;
+}
+
+.dark body :where(.border-red-100, .border-red-200, .border-rose-200, .border-rose-300) {
+  border-color: #be123c !important;
+}
+
+.dark body :where(.divide-slate-100, .divide-slate-200) > :not(:last-child) {
+  border-color: #334155 !important;
+}
+
+.dark body :where(.ring-slate-200, .ring-slate-500, .ring-slate-900) {
+  --tw-ring-color: #475569 !important;
+}
+
+.dark body :where(.ring-blue-200, .ring-blue-500, .ring-blue-600) {
+  --tw-ring-color: #3b82f6 !important;
+}
+
+.dark body .ring-amber-200 {
+  --tw-ring-color: #b45309 !important;
+}
+
+.dark body :where(.fill-slate-900, .fill-slate-800, .fill-slate-700) {
+  fill: #e2e8f0 !important;
+}
+
+.dark body :where(.fill-slate-600, .fill-slate-500, .fill-slate-400) {
+  fill: #94a3b8 !important;
+}
+
+.dark body .stroke-slate-200 {
+  stroke: #475569 !important;
+}
+
+.dark body .accent-slate-900 {
+  accent-color: #60a5fa !important;
+}
+
+.dark body :where(select, textarea, input[type="text"], input[type="number"], input[type="search"]) {
+  color-scheme: dark;
+  background-color: #0f172a;
+  color: #e2e8f0;
+  border-color: #475569;
 }
 
 /* Widget container styling */
