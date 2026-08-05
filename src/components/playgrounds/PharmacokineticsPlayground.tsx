@@ -136,7 +136,7 @@ export function PharmacokineticsPlayground() {
   };
 
   return (
-    <section className="not-prose mb-10 space-y-5 rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-white p-5 shadow-sm sm:p-6">
+    <section className="not-prose mb-10 space-y-5 rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-white p-5 shadow-sm dark:from-slate-900 dark:to-slate-950 sm:p-6">
       <div className="flex items-start gap-3">
         <span className="rounded-lg bg-blue-600 p-2 text-white" aria-hidden="true">
           <Activity size={18} />
