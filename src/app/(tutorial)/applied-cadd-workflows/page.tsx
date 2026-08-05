@@ -1,5 +1,6 @@
 import { ExtensionLesson, type LessonSection } from "@/components/ExtensionLesson";
 import type { Question } from "@/components/Quiz";
+import { WorkflowAuditPlayground } from "@/components/playgrounds/WorkflowAuditPlayground";
 
 const sections: LessonSection[] = [
   {
@@ -105,6 +106,9 @@ curated.drop(columns="mol").to_csv(OUTPUT, index=False)`,
   },
   {
     title: "Command-line automation for docking and MD",
+    paragraphs: [
+      "A production pipeline needs an entry point that runs stages in a defined order, captures the environment, reconciles record counts, and exits on failure. The example below is intentionally small: each scientific stage remains a testable script, while the shell wrapper owns orchestration and provenance.",
+    ],
     table: {
       headers: ["Stage", "Automation pattern", "Essential guardrail"],
       rows: [
@@ -115,6 +119,54 @@ curated.drop(columns="mol").to_csv(OUTPUT, index=False)`,
         ["Trajectory analysis", "Use named index groups and scripted RMSD/RMSF/Rg/SASA/contact analyses", "Correct periodic boundaries and state the fitted atom selection."],
       ],
     },
+    code: {
+      title: "Manifest-driven docking pipeline entry point",
+      value: `#!/usr/bin/env bash
+set -euo pipefail
+
+run_id="$(date -u +%Y%m%dT%H%M%SZ)"
+run_dir="runs/$run_id"
+mkdir -p "$run_dir/logs" "$run_dir/results"
+exec > >(tee "$run_dir/logs/pipeline.log") 2>&1
+
+# Capture immutable inputs and the software environment before computation.
+sha256sum data/raw/compounds.smi receptor/prepared.cif > "$run_dir/input_checksums.sha256"
+python --version > "$run_dir/environment.txt"
+python -m pip freeze >> "$run_dir/environment.txt"
+vina --version >> "$run_dir/environment.txt"
+cp config/docking.yaml "$run_dir/docking.yaml"
+
+# Each stage writes a machine-readable rejection table instead of hiding failures.
+python scripts/prepare_library.py \
+  --input data/raw/compounds.smi \
+  --output "$run_dir/prepared.sdf" \
+  --rejected "$run_dir/rejected_preparation.tsv" \
+  --seed 20260805
+
+python scripts/run_docking.py \
+  --library "$run_dir/prepared.sdf" \
+  --receptor receptor/prepared.cif \
+  --config "$run_dir/docking.yaml" \
+  --output "$run_dir/poses"
+
+python scripts/aggregate_scores.py \
+  --poses "$run_dir/poses" \
+  --output "$run_dir/results/scores.tsv" \
+  --failed "$run_dir/rejected_docking.tsv"
+
+# Reconcile identifiers and fail before publishing an incomplete ranking.
+python scripts/audit_run.py \
+  --source data/raw/compounds.smi \
+  --scores "$run_dir/results/scores.tsv" \
+  --rejections "$run_dir"/rejected_*.tsv \
+  --manifest "$run_dir/run_manifest.json"
+
+test -s "$run_dir/results/scores.tsv"
+test -s "$run_dir/run_manifest.json"
+echo "Validated run: $run_id"`,
+    },
+    note:
+      "Run the pipeline twice from a clean workspace and compare checksums, record counts, rejection tables, and summary metrics. Exact byte identity may not be realistic for every parallel scientific program, but unexplained scientific drift is never acceptable.",
   },
   {
     title: "Running at scale with SLURM and GPUs",
@@ -217,6 +269,7 @@ export default function AppliedCaddWorkflowsPage() {
         "Automate docking and MD without hiding failed records or incompatible results.",
         "Package and monitor predictive models without confusing an interface with validation.",
       ]}
+      playground={<WorkflowAuditPlayground />}
       sections={sections}
       questions={questions}
     />

@@ -1,5 +1,6 @@
 import { ExtensionLesson, type LessonSection } from "@/components/ExtensionLesson";
 import type { Question } from "@/components/Quiz";
+import { InterfaceEvidencePlayground } from "@/components/playgrounds/InterfaceEvidencePlayground";
 
 const sections: LessonSection[] = [
   {
@@ -175,6 +176,7 @@ export default function ProteinAntibodyModelingPage() {
         "Use experimental restraints to constrain and validate protein-protein docking.",
         "Evaluate interface quality alongside stability, aggregation, and other developability risks.",
       ]}
+      playground={<InterfaceEvidencePlayground />}
       sections={sections}
       questions={questions}
     />

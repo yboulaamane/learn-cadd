@@ -1,19 +1,66 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { 
-  Zap, 
   Layers, 
   FlaskConical, 
-  Activity, 
-  TrendingDown, 
   Award,
-  Play,
-  RotateCcw,
   ArrowRight,
   Compass,
   Flame
 } from "lucide-react";
+import { Quiz, type Question } from "@/components/Quiz";
+
+const questions: Question[] = [
+  {
+    question: "What distinguishes a validated hit from an initial screening signal?",
+    options: [
+      "It has the most favorable docking score",
+      "Its identity and activity are confirmed with repeat and orthogonal evidence",
+      "It has already passed Phase III trials",
+      "It contains no heteroatoms",
+    ],
+    correctIndex: 1,
+    explanation:
+      "A hit becomes credible only after its chemical identity, purity, and activity survive confirmation and relevant interference controls.",
+  },
+  {
+    question: "What is the main role of CADD early in the discovery funnel?",
+    options: [
+      "Guarantee that one compound will become an approved drug",
+      "Replace every biological experiment",
+      "Prioritize hypotheses and compounds before expensive experiments",
+      "Eliminate the need for target validation",
+    ],
+    correctIndex: 2,
+    explanation:
+      "CADD helps rank and test hypotheses efficiently, but its predictions still require experimental validation.",
+  },
+  {
+    question: "Why can fragment screening cover chemical space efficiently?",
+    options: [
+      "Fragments are always potent drugs",
+      "Small fragments represent many compact chemical motifs with relatively small libraries",
+      "Fragments need no follow-up chemistry",
+      "Every fragment binds selectively",
+    ],
+    correctIndex: 1,
+    explanation:
+      "Their small size lets a modest library sample many fundamental interaction patterns, after which weak hits must be grown, linked, or merged.",
+  },
+  {
+    question: "What does an undruggable target usually mean in this context?",
+    options: [
+      "The target has no biological function",
+      "The target lacks an obvious conventional small-molecule pocket",
+      "The target cannot be measured experimentally",
+      "No therapeutic modality can ever affect it",
+    ],
+    correctIndex: 1,
+    explanation:
+      "The label usually describes limited conventional pocket tractability, not permanent impossibility. Alternative sites and modalities may still create a strategy.",
+  },
+];
 
 export default function IntroToDrugDiscoveryPage() {
   const [activeStage, setActiveStage] = useState(0);
@@ -108,7 +155,7 @@ export default function IntroToDrugDiscoveryPage() {
           <h3 className="font-bold text-sm">Interactive Playground: R&D Funnel Simulation</h3>
         </div>
         <p className="text-sm text-slate-600">
-          Click "Advance Pipeline" to simulate compound screening through the five major stages of the drug discovery pipeline. Notice the scale of attrition at each barrier.
+          Click &quot;Advance Pipeline&quot; to simulate compound screening through the five major stages of the drug discovery pipeline. Notice the scale of attrition at each barrier.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center bg-white dark:bg-slate-950 p-5 rounded-lg border border-slate-100 dark:border-slate-900">
@@ -310,12 +357,12 @@ export default function IntroToDrugDiscoveryPage() {
 
       {/* Section 4: Targeting the Undruggable Proteome */}
       <section className="space-y-4">
-        <h2>4. Targeting the "Undruggable" Proteome</h2>
+        <h2>4. Targeting the &quot;Undruggable&quot; Proteome</h2>
         <p>
           For decades, drug discovery focused on target-based design against deep, well-defined active pockets (e.g. enzyme ATP-binding clefts). However, over <strong>80% of disease-driving proteins</strong> lack such cavities, including transcription factors, intrinsically disordered proteins (IDPs), and flat protein-protein interaction (PPI) interfaces.
         </p>
         <p>
-          Once considered "undruggable," breakthroughs in biotechnology and CADD are opening these targets to therapeutic intervention via novel modalities:
+          Once considered &quot;undruggable,&quot; breakthroughs in biotechnology and CADD are opening these targets to therapeutic intervention via novel modalities:
         </p>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 not-prose">
@@ -338,6 +385,11 @@ export default function IntroToDrugDiscoveryPage() {
             </p>
           </div>
         </div>
+      </section>
+
+      <section className="space-y-5">
+        <h2>Knowledge check</h2>
+        <Quiz moduleTitle="Introduction to Drug Discovery" questions={questions} />
       </section>
     </div>
   );

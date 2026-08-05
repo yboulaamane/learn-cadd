@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import {
   Info,
   Sliders, 
@@ -452,6 +453,18 @@ export default function InSilicoToxicologyPage() {
           </div>
         </div>
       </section>
+
+      <aside className="not-prose rounded-xl border border-blue-200 bg-blue-50/60 p-4 text-sm leading-relaxed text-slate-800">
+        <strong className="text-slate-950">Where this module stops:</strong> Lipinski and Veber are
+        early property alerts, not pharmacokinetic predictions. Continue to{" "}
+        <Link
+          href="/pharmacokinetics-dmpk"
+          className="font-extrabold text-blue-700 underline decoration-blue-300 underline-offset-4 hover:text-blue-900"
+        >
+          Module 15: Pharmacokinetics &amp; DMPK
+        </Link>{" "}
+        for concentration-time behavior, unbound exposure, clearance, distribution, dosing, and PK/PD linkage.
+      </aside>
 
       {/* Section 3: Explainable AI and SHAP */}
       <section className="space-y-4 border-t border-border pt-8">

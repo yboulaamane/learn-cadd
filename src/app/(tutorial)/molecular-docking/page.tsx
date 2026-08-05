@@ -1,13 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import {
-  RotateCcw,
   Compass,
   CheckCircle,
   AlertTriangle,
   Info,
-  Sliders,
   Layers
 } from "lucide-react";
 import { Quiz } from "@/components/Quiz";
@@ -413,7 +412,7 @@ export default function MolecularDockingPage() {
               <strong>Experimental Method & Resolution:</strong> X-ray crystal structures are the default choice for docking as they represent frozen energy snapshots with defined coordinate densities. NMR provides structural ensembles that require complex ensemble docking. Resolution should ideally be below <strong>2.5 Å</strong>.
             </li>
             <li>
-              <strong>Refinement Metrics:</strong> Inspect the structure's R-free (relative to R-work) and Ramachandran outlier percentages.
+              <strong>Refinement Metrics:</strong> Inspect the structure&apos;s R-free (relative to R-work) and Ramachandran outlier percentages.
             </li>
             <li>
               <strong>Engineered Mutations:</strong> Crystallographers frequently introduce mutations to prompt crystallization. Ensure the active site loop residues are wild-type.
@@ -437,82 +436,48 @@ export default function MolecularDockingPage() {
         {/* When Experimental Structures Are Unavailable */}
         <h3>When Experimental Structures Are Unavailable</h3>
         <p>
-          Not every drug target has been resolved experimentally. When no crystal or cryo-EM structure exists, computational approaches can generate 3D coordinates suitable for docking.
+          Docking may begin from a predicted or comparative receptor model, but generating and validating
+          that model is a structural-bioinformatics task. This module therefore focuses on the narrower
+          question: does the resulting pocket support the proposed docking experiment?
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 not-prose">
-          <div className="p-4 rounded-xl border border-border bg-white space-y-2">
-            <h3 className="font-bold text-sm text-slate-900">AlphaFold2 / AlphaFold3</h3>
-            <p className="text-sm text-slate-800 leading-relaxed">
-              Deep learning structure prediction achieving near-experimental accuracy (median GDT &gt; 90). The AlphaFold Protein Structure Database provides ~200M predicted structures covering most known protein sequences.
+        <div className="grid grid-cols-1 gap-4 not-prose md:grid-cols-2">
+          <Link
+            href="/structural-bioinformatics"
+            className="rounded-xl border border-blue-200 bg-blue-50/60 p-4 transition hover:border-blue-400 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+          >
+            <span className="text-xs font-extrabold uppercase tracking-wider text-blue-700">Primary home</span>
+            <h4 className="mt-1 font-extrabold text-slate-950">Module 13: build and validate the receptor model</h4>
+            <p className="mt-2 text-sm leading-relaxed text-slate-700">
+              Covers structure selection, comparative modeling, local quality, receptor chemistry,
+              PDB/mmCIF interpretation, and preparation provenance.
             </p>
-            <div className="p-3 bg-amber-50/60 border border-amber-200 rounded-lg text-sm text-slate-800 leading-relaxed space-y-1.5">
-              <strong className="text-slate-900 block">Critical Caveat:</strong>
-              <p>
-                pLDDT confidence scores must always be checked before using predicted structures for docking. Regions with pLDDT &lt; 70 are unreliable and should not be used as docking targets without further refinement.
-              </p>
-            </div>
-            <p className="text-sm text-slate-800 leading-relaxed">
-              <strong>AlphaFold3</strong> extends prediction to protein-ligand, protein-DNA, and protein-RNA complexes, enabling structure-based drug design even for multi-molecular assemblies.
+          </Link>
+          <Link
+            href="/sequence-bioinformatics"
+            className="rounded-xl border border-slate-200 bg-white p-4 transition hover:border-blue-400 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+          >
+            <span className="text-xs font-extrabold uppercase tracking-wider text-slate-600">Sequence support</span>
+            <h4 className="mt-1 font-extrabold text-slate-950">Module 18: find and assess templates</h4>
+            <p className="mt-2 text-sm leading-relaxed text-slate-700">
+              Covers BLAST, alignment coverage, conserved residues, gaps, profiles, and evolutionary
+              context used to justify a comparative-model template.
             </p>
-          </div>
-
-          <div className="p-4 rounded-xl border border-border bg-white space-y-2">
-            <h3 className="font-bold text-sm text-slate-900">Classical Homology Modeling</h3>
-            <p className="text-sm text-slate-800 leading-relaxed">
-              Predicts a 3D model from one or more homologous templates of known structure. It works because <strong>3D structure is far more evolutionarily conserved than sequence</strong> — two proteins can retain the same fold long after their sequences have diverged.
-            </p>
-            <p className="text-sm text-slate-800 leading-relaxed">
-              <strong>Tools:</strong> SWISS-MODEL, MODELLER, I-TASSER, HHpred.
-            </p>
-          </div>
+          </Link>
         </div>
 
-        {/* Homology Modeling: Feasibility & 8-step workflow */}
-        <div className="mt-4 space-y-4">
-          <div className="p-4 border-l-4 border-blue-500 bg-blue-50/50 rounded-r-xl space-y-1.5 text-sm">
-            <strong className="text-slate-900 block">Feasibility Threshold</strong>
-            <p className="text-slate-800 leading-relaxed">
-              Homology modeling requires a template with meaningful sequence identity to the target. The classic empirical rule (Lesk &amp; Chothia, 1986) sets the bar at <strong>&gt; 25–30% sequence identity</strong> over the aligned region. Above ~50% identity, models are typically reliable enough for docking directly; the <strong>20–35% "twilight zone"</strong> demands careful, hand-corrected alignment and heavier validation; below ~20% ("midnight zone"), fold-recognition/threading methods or AlphaFold are safer choices than classical homology modeling.
-            </p>
-          </div>
-
-          <h4 className="font-bold text-sm text-slate-900">The 8-Step Homology Modeling Workflow</h4>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 not-prose">
-            {[
-              { n: 1, t: "Template recognition & initial alignment", d: "BLAST the target sequence against the PDB; the best-scoring hit above the identity threshold normally becomes the template." },
-              { n: 2, t: "Alignment correction", d: "Manually shift gaps out of secondary-structure elements and conserved/functional (e.g. active-site) residues, using a multiple sequence alignment of related homologs for support." },
-              { n: 3, t: "Backbone generation", d: "Copy the template's backbone coordinates onto the target wherever the alignment has no gap." },
-              { n: 4, t: "Loop modeling", d: "Regions with insertions/deletions have no template backbone to copy. Build them from a database of known loop conformations (binned by length and end-to-end distance) or ab initio." },
-              { n: 5, t: "Side-chain modeling", d: "Place side chains using rotamer libraries — statistically preferred conformations conditioned on the local backbone geometry." },
-              { n: 6, t: "Model optimization", d: "Energy-minimize (and optionally run short MD on) the full model to relax clashes introduced by the copy-and-paste process." },
-              { n: 7, t: "Model validation", d: "Score the model's stereochemistry and packing before trusting it (see below) — this step is not optional." },
-              { n: 8, t: "Iteration", d: "If validation flags problems, revisit alignment, loops, or side chains and repeat. Homology modeling is inherently iterative." },
-            ].map((s) => (
-              <div key={s.n} className="flex gap-3 p-3.5 rounded-lg border border-border bg-white">
-                <span className="h-5 w-5 text-xs font-bold bg-slate-100 border border-border rounded flex items-center justify-center flex-shrink-0 text-slate-900">{s.n}</span>
-                <div>
-                  <h5 className="font-bold text-sm text-slate-900">{s.t}</h5>
-                  <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">{s.d}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="p-4 rounded-xl border border-border bg-white space-y-2">
-            <h4 className="font-bold text-sm text-slate-900">Validating a Homology Model Before Docking</h4>
-            <p className="text-sm text-slate-800 leading-relaxed">
-              A homology model is a prediction, not a measurement — it must be checked before it's trusted as a docking target, the same way an X-ray structure's R-free and Ramachandran outliers are checked above.
-            </p>
-            <ul className="list-disc pl-5 space-y-1.5 text-sm text-slate-800 leading-relaxed">
-              <li><strong>Stereochemistry:</strong> a <strong>Ramachandran plot</strong> of backbone φ/ψ dihedral angles flags residues in disallowed conformations — the same check used on experimental structures, but essential here since nothing constrains the model to be physically reasonable except the modeling procedure itself.</li>
-              <li><strong>Local accuracy:</strong> statistical potentials such as <strong>QMEAN</strong> compare per-residue packing and geometry against a database of high-resolution experimental structures, returning a normalized <strong>Z-score</strong> (near 0 = typical of real structures; strongly negative = likely modeling error) and a per-residue local error estimate.</li>
-              <li><strong>Global quality:</strong> knowledge-based scores like DFire assess whether the overall fold is physically plausible.</li>
-            </ul>
-            <p className="text-sm text-slate-800 leading-relaxed">
-              Only after a model passes these checks should its active site be used for docking — an unvalidated model can have a superficially reasonable overall fold while its binding pocket (often built from a poorly conserved loop) is badly wrong.
-            </p>
-          </div>
+        <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 not-prose">
+          <h4 className="text-sm font-extrabold text-amber-950">Docking-specific acceptance gate</h4>
+          <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-amber-950">
+            <li>Inspect confidence and completeness locally at the pocket, not only across the global fold.</li>
+            <li>Challenge protonation, side-chain rotamers, cofactors, metals, waters, and alternative pocket states.</li>
+            <li>Use an ensemble when plausible receptor conformations materially change the site.</li>
+            <li>Where reference ligands exist, test pose recovery and screening enrichment before prospective use.</li>
+          </ul>
+          <p className="mt-3 text-sm font-semibold leading-relaxed text-amber-950">
+            A well-formed model is not automatically a useful docking receptor. Task-specific retrospective
+            performance is the final acceptance test.
+          </p>
         </div>
       </section>
 
@@ -778,7 +743,7 @@ export default function MolecularDockingPage() {
       <section className="space-y-4">
         <h2>6. Covalent Docking: Modeling Chemical Warheads</h2>
         <p>
-          Traditional small-molecule drugs bind via reversible, non-covalent interactions. However, a major class of modern therapeutics consists of <strong>covalent inhibitors</strong> (e.g. Sotorasib targeting KRAS G12C, or Ibrutinib targeting Bruton's Tyrosine Kinase). These molecules contain a mildly electrophilic "warhead" that forms a permanent chemical bond with a nucleophilic amino acid residue in the binding pocket.
+          Traditional small-molecule drugs bind via reversible, non-covalent interactions. However, a major class of modern therapeutics consists of <strong>covalent inhibitors</strong> (e.g. Sotorasib targeting KRAS G12C, or Ibrutinib targeting Bruton&apos;s Tyrosine Kinase). These molecules contain a mildly electrophilic &quot;warhead&quot; that forms a permanent chemical bond with a nucleophilic amino acid residue in the binding pocket.
         </p>
         <p>
           Because standard docking scoring functions are parameterized only for non-covalent forces (electrostatics, van der Waals), simulating covalent binding requires specialized <strong>covalent docking protocols</strong>:
