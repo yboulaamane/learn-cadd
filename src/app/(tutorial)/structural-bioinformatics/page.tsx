@@ -24,8 +24,9 @@ const sections: LessonSection[] = [
         description:
           "AlphaFold-class models can fill structural gaps, but confidence is spatially variable and a predicted apo conformation may not reproduce a ligand-ready pocket.",
         items: [
-          "Inspect residue-level confidence and inter-domain uncertainty.",
-          "Treat low-confidence loops and side chains near the pocket cautiously.",
+          "Use per-residue predicted Local Distance Difference Test (pLDDT): values below 70 usually indicate low local confidence, so do not treat nearby pocket coordinates as docking-ready without additional evidence or remodeling.",
+          "Inspect Predicted Aligned Error (PAE) for uncertainty in the relative placement of domains or chains; high PAE can warn against interface or allosteric-site interpretation even when local pLDDT is high.",
+          "Remember that high pLDDT supports local fold confidence but does not guarantee correct pocket rotamers, protonation, ligand-induced conformations, or docking performance.",
           "Prefer an experimental holo template when accurate ligand geometry is essential.",
         ],
       },
