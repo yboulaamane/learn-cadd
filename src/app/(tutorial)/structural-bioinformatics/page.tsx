@@ -163,9 +163,10 @@ png binding_site.png, dpi=300`,
     },
   },
   {
-    title: "Homology modeling when no suitable structure exists",
+    title: "Comparative model construction and validation",
     paragraphs: [
       "Comparative modeling transfers structural information from one or more templates to a homologous target. The hardest decisions are template choice and alignment around insertions, deletions, active-site residues, and domain boundaries.",
+      "Scope boundary: Module 18 teaches sequence search and template-alignment evidence; this section owns coordinate construction and structural validation; Module 6 applies the finished receptor to docking-specific retrospective tests.",
     ],
     steps: [
       {
@@ -241,7 +242,7 @@ export default function StructuralBioinformaticsPage() {
         "Select an experimental or predicted structure for a specific CADD task.",
         "Interpret PDB/mmCIF records and classify ligands, waters, ions, and cofactors.",
         "Prepare and visually validate a receptor without erasing mechanistic chemistry.",
-        "Build and assess a homology model when no suitable structure is available.",
+        "Build and assess a comparative model when no suitable experimental structure is available.",
       ]}
       playground={<StructureReadinessPlayground />}
       sections={sections}
