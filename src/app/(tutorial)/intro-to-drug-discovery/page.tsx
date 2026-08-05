@@ -98,7 +98,7 @@ export default function IntroToDrugDiscoveryPage() {
     },
     {
       title: "5. Clinical Trials (Phases I - III)",
-      compounds: "1 (Approved Drug)",
+      compounds: "1",
       desc: "Testing in humans to assess safety (Phase I), efficacy and dosing (Phase II), and comparative effectiveness vs standard of care (Phase III).",
       caddRole: "Monitoring clinical biomarkers and analyzing pharmacogenomic differences in patient responses.",
       reduction: 1,
@@ -189,12 +189,18 @@ export default function IntroToDrugDiscoveryPage() {
                   </div>
                 );
               })}
+              {started && activeStage === stages.length - 1 && (
+                <div className="mt-2 flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700 ring-1 ring-inset ring-emerald-200">
+                  <Award size={13} aria-hidden="true" />
+                  Approved drug
+                </div>
+              )}
             </div>
 
             <div className="text-center space-y-0.5">
               <span className="text-xs text-slate-600 font-bold uppercase tracking-wider">Remaining Pool</span>
               <p className="text-2xl font-extrabold text-slate-900 dark:text-white">
-                {compounds.toLocaleString()} <span className="text-sm font-medium text-slate-600">compounds</span>
+                {compounds.toLocaleString()} <span className="text-sm font-medium text-slate-600">{compounds === 1 ? "compound" : "compounds"}</span>
               </p>
             </div>
           </div>
