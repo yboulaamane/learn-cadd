@@ -5,7 +5,7 @@
 /* Use the class managed by next-themes for Tailwind v4 dark variants. */
 @custom-variant dark (&:where(.dark, .dark *));
 
-@theme inline {
+@theme {
   --color-background: #ffffff;
   --color-foreground: #1a1a2e;
   --color-muted: #6b7280;
@@ -26,7 +26,7 @@
 html.dark {
   color-scheme: dark;
   --color-background: #000000;
-  --color-foreground: #f5f5f5;
+  --color-foreground: #ffffff;
   --color-muted: #a3a3a3;
   --color-border: #262626;
   --color-accent: #60a5fa;
@@ -75,7 +75,7 @@ html {
 
 .dark .prose {
   --tw-prose-body: #cbd5e1;
-  --tw-prose-headings: #f8fafc;
+  --tw-prose-headings: #ffffff;
   --tw-prose-lead: #cbd5e1;
   --tw-prose-links: #93c5fd;
   --tw-prose-bold: #f8fafc;
