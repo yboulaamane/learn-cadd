@@ -8,7 +8,7 @@ export function SiteHeader() {
   const hidden = useHideOnScroll();
   return (
     <header
-      className={`sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 transition-transform duration-200 ${
+      className={`sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 dark:bg-black dark:supports-[backdrop-filter]:bg-black transition-transform duration-200 ${
         hidden ? "-translate-y-full" : "translate-y-0"
       } lg:!translate-y-0`}
     >
