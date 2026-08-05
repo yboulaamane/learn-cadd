@@ -25,15 +25,15 @@
 
 html.dark {
   color-scheme: dark;
-  --color-background: #020617;
-  --color-foreground: #e2e8f0;
-  --color-muted: #94a3b8;
-  --color-border: #334155;
+  --color-background: #000000;
+  --color-foreground: #f5f5f5;
+  --color-muted: #a3a3a3;
+  --color-border: #262626;
   --color-accent: #60a5fa;
   --color-accent-dark: #93c5fd;
-  --color-surface: #0f172a;
-  --color-widget-bg: #0f172a;
-  --color-widget-border: #334155;
+  --color-surface: #0a0a0a;
+  --color-widget-bg: #0a0a0a;
+  --color-widget-border: #262626;
   --color-success: #34d399;
   --color-warning: #fbbf24;
   --color-error: #fb7185;
@@ -220,11 +220,11 @@ pre,
 .dark pre,
 .dark .prose pre,
 .dark .prose-lg pre {
-  background: #020617 !important;
-  background-color: #020617 !important;
+  background: #000000 !important;
+  background-color: #000000 !important;
   color: #e2e8f0 !important;
-  border-color: #334155 !important;
-  --tw-prose-pre-bg: #020617 !important;
+  border-color: #262626 !important;
+  --tw-prose-pre-bg: #000000 !important;
   --tw-prose-pre-code: #e2e8f0 !important;
 }
 
@@ -245,7 +245,7 @@ pre,
   [class~="bg-white/80"],
   [class~="bg-white/90"]
 ) {
-  background-color: #0f172a !important;
+  background-color: #0a0a0a !important;
 }
 
 .dark body :where(
@@ -256,15 +256,15 @@ pre,
   .bg-surface,
   [class~="bg-surface/30"]
 ) {
-  background-color: #111827 !important;
+  background-color: #0c0c0c !important;
 }
 
 .dark body .bg-slate-100 {
-  background-color: #1e293b !important;
+  background-color: #171717 !important;
 }
 
 .dark body :where(.bg-slate-200, [class~="bg-slate-200/50"]) {
-  background-color: #334155 !important;
+  background-color: #262626 !important;
 }
 
 .dark body :where(
@@ -374,7 +374,7 @@ pre,
   .border-slate-800,
   .border-slate-900
 ) {
-  border-color: #334155 !important;
+  border-color: #262626 !important;
 }
 
 .dark body :where(.border-blue-200, .border-blue-300, .border-blue-400) {
@@ -394,11 +394,11 @@ pre,
 }
 
 .dark body :where(.divide-slate-100, .divide-slate-200) > :not(:last-child) {
-  border-color: #334155 !important;
+  border-color: #262626 !important;
 }
 
 .dark body :where(.ring-slate-200, .ring-slate-500, .ring-slate-900) {
-  --tw-ring-color: #475569 !important;
+  --tw-ring-color: #404040 !important;
 }
 
 .dark body :where(.ring-blue-200, .ring-blue-500, .ring-blue-600) {
@@ -418,7 +418,7 @@ pre,
 }
 
 .dark body .stroke-slate-200 {
-  stroke: #475569 !important;
+  stroke: #404040 !important;
 }
 
 .dark body .accent-slate-900 {
@@ -427,9 +427,9 @@ pre,
 
 .dark body :where(select, textarea, input[type="text"], input[type="number"], input[type="search"]) {
   color-scheme: dark;
-  background-color: #0f172a;
+  background-color: #0a0a0a;
   color: #e2e8f0;
-  border-color: #475569;
+  border-color: #404040;
 }
 
 /* Widget container styling */

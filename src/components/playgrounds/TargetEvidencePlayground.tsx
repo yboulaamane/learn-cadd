@@ -137,7 +137,7 @@ export function TargetEvidencePlayground() {
   }, [inputs]);
 
   return (
-    <section className="not-prose mb-10 space-y-5 rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-white p-5 shadow-sm dark:from-slate-900 dark:to-slate-950 sm:p-6">
+    <section className="not-prose mb-10 space-y-5 rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-white p-5 shadow-sm dark:from-neutral-950 dark:to-black sm:p-6">
       <div>
         <p className="text-xs font-extrabold uppercase tracking-wider text-blue-700">Interactive evidence exercise</p>
         <h2 className="mt-1 text-lg font-extrabold text-slate-950">Would you advance this target?</h2>
