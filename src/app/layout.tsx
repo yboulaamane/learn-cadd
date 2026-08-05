@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { Analytics } from "@vercel/analytics/next";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import "./globals.css";
@@ -40,8 +40,8 @@ export default function RootLayout({
         <SiteHeader />
         {children}
         <SiteFooter />
-        <Analytics />
       </body>
+      <GoogleAnalytics gaId="G-PNDB5NQR51" />
     </html>
   );
 }
