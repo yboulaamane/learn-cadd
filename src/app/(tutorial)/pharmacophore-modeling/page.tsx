@@ -477,24 +477,24 @@ export default function PharmacophoreModelingPage() {
                 {/* Distance Dimension Lines in background */}
                 {selectedFeatures.includes("aromatic") && selectedFeatures.includes("acceptor") && (
                   <g className="opacity-60">
-                    <line x1="125" y1="115" x2="75" y2="145" stroke="#475569" strokeWidth="1" strokeDasharray="3,3" />
-                    <text x="100" y="125" fill="#334155" className="text-xs font-mono font-bold" textAnchor="middle">
+                    <line x1="125" y1="115" x2="75" y2="145" className="stroke-slate-600 dark:stroke-slate-400" strokeWidth="1" strokeDasharray="3,3" />
+                    <text x="100" y="125" className="fill-slate-700 text-xs font-mono font-bold dark:fill-slate-200" textAnchor="middle">
                       {getDistance(queryCoords.aromatic, queryCoords.acceptor)} Å
                     </text>
                   </g>
                 )}
                 {selectedFeatures.includes("aromatic") && selectedFeatures.includes("donor") && (
                   <g className="opacity-60">
-                    <line x1="125" y1="115" x2="320" y2="115" stroke="#475569" strokeWidth="1" strokeDasharray="3,3" />
-                    <text x="222" y="105" fill="#334155" className="text-xs font-mono font-bold" textAnchor="middle">
+                    <line x1="125" y1="115" x2="320" y2="115" className="stroke-slate-600 dark:stroke-slate-400" strokeWidth="1" strokeDasharray="3,3" />
+                    <text x="222" y="105" className="fill-slate-700 text-xs font-mono font-bold dark:fill-slate-200" textAnchor="middle">
                       {getDistance(queryCoords.aromatic, queryCoords.donor)} Å
                     </text>
                   </g>
                 )}
                 {selectedFeatures.includes("acceptor") && selectedFeatures.includes("donor") && (
                   <g className="opacity-60">
-                    <line x1="75" y1="145" x2="320" y2="115" stroke="#475569" strokeWidth="1" strokeDasharray="3,3" />
-                    <text x="197" y="142" fill="#334155" className="text-xs font-mono font-bold" textAnchor="middle">
+                    <line x1="75" y1="145" x2="320" y2="115" className="stroke-slate-600 dark:stroke-slate-400" strokeWidth="1" strokeDasharray="3,3" />
+                    <text x="197" y="142" className="fill-slate-700 text-xs font-mono font-bold dark:fill-slate-200" textAnchor="middle">
                       {getDistance(queryCoords.acceptor, queryCoords.donor)} Å
                     </text>
                   </g>

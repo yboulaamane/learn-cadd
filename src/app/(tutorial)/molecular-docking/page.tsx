@@ -258,19 +258,19 @@ export default function MolecularDockingPage() {
               <svg viewBox="0 0 100 100" className="w-full h-full">
                 <defs>
                   <linearGradient id="proteinGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stopColor="#f8fafc" />
-                    <stop offset="100%" stopColor="#e2e8f0" />
+                    <stop offset="0%" stopColor="var(--color-widget-bg)" />
+                    <stop offset="100%" stopColor="var(--color-surface)" />
                   </linearGradient>
                   <linearGradient id="receptorGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stopColor="#e2e8f0" />
-                    <stop offset="100%" stopColor="#cbd5e1" />
+                    <stop offset="0%" stopColor="var(--color-surface)" />
+                    <stop offset="100%" stopColor="var(--color-widget-border)" />
                   </linearGradient>
                 </defs>
                 {/* Background grid */}
                 <rect x="0" y="0" width="100" height="100" fill="url(#proteinGrad)" />
                 
                 {/* Receptor Protein pocket cleft */}
-                <path d="M20,20 L35,20 C40,75 60,75 70,20 L85,20 L85,85 L20,85 Z" fill="url(#receptorGrad)" stroke="#94a3b8" strokeWidth="1" />
+                <path d="M20,20 L35,20 C40,75 60,75 70,20 L85,20 L85,85 L20,85 Z" fill="url(#receptorGrad)" stroke="var(--color-muted)" strokeWidth="1" />
                 
                 {/* Target electrostatic center (-) */}
                 <circle cx="50" cy="49" r="4.5" className="fill-red-500 stroke-white stroke-[0.75]" />

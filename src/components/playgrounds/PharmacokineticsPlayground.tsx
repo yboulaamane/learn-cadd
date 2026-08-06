@@ -233,15 +233,15 @@ export function PharmacokineticsPlayground() {
               role="img"
               aria-label={`Concentration-time curve. Peak concentration ${model.cMax.toFixed(2)} milligrams per liter at ${model.tMax.toFixed(1)} hours.`}
             >
-              <line x1="42" y1="174" x2="328" y2="174" stroke="#cbd5e1" />
-              <line x1="42" y1="40" x2="42" y2="174" stroke="#cbd5e1" />
-              <line x1="42" y1="107" x2="328" y2="107" stroke="#e2e8f0" strokeDasharray="4 4" />
-              <path d={model.path} fill="none" stroke="#2563eb" strokeWidth="3" strokeLinecap="round" />
+              <line x1="42" y1="174" x2="328" y2="174" className="stroke-slate-300 dark:stroke-slate-600" />
+              <line x1="42" y1="40" x2="42" y2="174" className="stroke-slate-300 dark:stroke-slate-600" />
+              <line x1="42" y1="107" x2="328" y2="107" className="stroke-slate-200 dark:stroke-slate-800" strokeDasharray="4 4" />
+              <path d={model.path} fill="none" className="stroke-blue-600 dark:stroke-blue-400" strokeWidth="3" strokeLinecap="round" />
               <circle
                 cx={42 + (model.tMax / model.chartHours) * 286}
                 cy={174 - (model.cMax / model.yMax) * 134}
                 r="4"
-                fill="#1d4ed8"
+                className="fill-blue-700 dark:fill-blue-300"
               />
               <text x="185" y="198" textAnchor="middle" className="fill-slate-600 text-[10px] font-bold">
                 Time (hours)

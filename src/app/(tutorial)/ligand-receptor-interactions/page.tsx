@@ -687,7 +687,7 @@ export default function LigandReceptorInteractionsPage() {
                 <g transform={`translate(${aspPos.x}, ${aspPos.y})`}>
                   <circle r="20" fill="#fee2e2" stroke="#ef4444" strokeWidth="1.5" />
                   <circle r="4" fill="#ef4444" />
-                  <text y="-25" textAnchor="middle" fill="#991b1b" className="text-[7.5px] font-bold">Asp189 (COO⁻)</text>
+                  <text y="-25" textAnchor="middle" className="fill-red-800 text-[7.5px] font-bold dark:fill-red-300">Asp189 (COO⁻)</text>
                   <text y="3" textAnchor="middle" fill="#ef4444" className="text-[9px] font-extrabold font-mono">-</text>
                 </g>
 
@@ -695,14 +695,14 @@ export default function LigandReceptorInteractionsPage() {
                 <g transform={`translate(${hisPos.x}, ${hisPos.y})`}>
                   <circle r="20" fill="#e0f2fe" stroke="#0284c7" strokeWidth="1.5" />
                   <circle r="4" fill="#0284c7" />
-                  <text y="28" textAnchor="middle" fill="#0369a1" className="text-[7.5px] font-bold">His41 (Imidazole-NH)</text>
+                  <text y="28" textAnchor="middle" className="fill-sky-700 text-[7.5px] font-bold dark:fill-sky-300">His41 (Imidazole-NH)</text>
                 </g>
 
                 {/* 3. Phe140 Stacking Pocket */}
                 <g transform={`translate(${phePos.x}, ${phePos.y})`}>
                   <circle r="22" fill="#f1f5f9" stroke="#64748b" strokeWidth="1.5" strokeDasharray="3,2" />
                   <polygon points="230,67 241,71 241,80 230,84 219,80 219,71" fill="#e2e8f0" stroke="#475569" strokeWidth="1" transform={`translate(-${phePos.x}, -${phePos.y})`} />
-                  <text y="-27" textAnchor="middle" fill="#334155" className="text-[7.5px] font-bold">Phe140 (Benzene Pi)</text>
+                  <text y="-27" textAnchor="middle" className="fill-slate-700 text-[7.5px] font-bold dark:fill-slate-200">Phe140 (Benzene Pi)</text>
                 </g>
 
                 {/* Interaction Lines */}
@@ -746,9 +746,9 @@ export default function LigandReceptorInteractionsPage() {
 
                 {/* Ligand Drawing */}
                 {/* Center connector lines */}
-                <line x1={ligandPos.x} y1={ligandPos.y} x2={aminePos.x} y2={aminePos.y} stroke="#1e293b" strokeWidth="2.5" />
-                <line x1={ligandPos.x} y1={ligandPos.y} x2={hydroxylPos.x} y2={hydroxylPos.y} stroke="#1e293b" strokeWidth="2.5" />
-                <line x1={ligandPos.x} y1={ligandPos.y} x2={phenylPos.x} y2={phenylPos.y} stroke="#1e293b" strokeWidth="2.5" />
+                <line x1={ligandPos.x} y1={ligandPos.y} x2={aminePos.x} y2={aminePos.y} className="stroke-slate-800 dark:stroke-slate-100" strokeWidth="2.5" />
+                <line x1={ligandPos.x} y1={ligandPos.y} x2={hydroxylPos.x} y2={hydroxylPos.y} className="stroke-slate-800 dark:stroke-slate-100" strokeWidth="2.5" />
+                <line x1={ligandPos.x} y1={ligandPos.y} x2={phenylPos.x} y2={phenylPos.y} className="stroke-slate-800 dark:stroke-slate-100" strokeWidth="2.5" />
 
                 {/* 1. Amine tip (-NH3+) */}
                 <g transform={`translate(${aminePos.x}, ${aminePos.y})`}>
@@ -778,10 +778,8 @@ export default function LigandReceptorInteractionsPage() {
                   cx={ligandPos.x} 
                   cy={ligandPos.y} 
                   r="12" 
-                  fill="#0f172a" 
-                  stroke="#334155" 
+                  className="cursor-grab fill-slate-900 stroke-slate-700 active:cursor-grabbing hover:fill-slate-800 dark:fill-slate-100 dark:stroke-white dark:hover:fill-slate-300"
                   strokeWidth="2" 
-                  className="cursor-grab active:cursor-grabbing hover:fill-slate-800"
                   onMouseDown={handleMouseDown}
                   onTouchStart={handleTouchStart}
                 />
@@ -789,11 +787,10 @@ export default function LigandReceptorInteractionsPage() {
                   cx={ligandPos.x} 
                   cy={ligandPos.y} 
                   r="5" 
-                  fill="#ffffff" 
                   opacity="0.7"
-                  className="pointer-events-none"
+                  className="pointer-events-none fill-white dark:fill-slate-900"
                 />
-                <text x={ligandPos.x} y={ligandPos.y - 16} textAnchor="middle" fill="#0f172a" className="text-[7px] font-extrabold bg-white p-0.5 rounded pointer-events-none">DRAG CORE</text>
+                <text x={ligandPos.x} y={ligandPos.y - 16} textAnchor="middle" className="pointer-events-none fill-slate-900 text-[7px] font-extrabold dark:fill-white">DRAG CORE</text>
               </svg>
               
               <div className="absolute bottom-2 left-2 right-2 flex justify-between bg-white/90 px-3 py-1.5 rounded border border-slate-200/50 text-[10px] text-slate-800 font-bold select-none backdrop-blur-sm">
