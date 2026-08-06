@@ -368,10 +368,10 @@ export default function MolecularDynamicsPage() {
               <div className="w-full h-44 bg-slate-50 border border-slate-200 rounded-lg p-2.5 relative flex flex-col justify-between">
                 <svg viewBox="0 0 240 100" className="w-full h-full">
                   {/* Grid lines */}
-                  <line x1="25" y1="10" x2="230" y2="10" stroke="#f1f5f9" strokeWidth="0.8" />
-                  <line x1="25" y1="50" x2="230" y2="50" stroke="#f1f5f9" strokeWidth="0.8" />
-                  <line x1="25" y1="80" x2="230" y2="80" stroke="#cbd5e1" strokeWidth="0.8" />
-                  <line x1="25" y1="10" x2="25" y2="80" stroke="#cbd5e1" strokeWidth="0.8" />
+                  <line x1="25" y1="10" x2="230" y2="10" className="stroke-slate-100 dark:stroke-slate-800" strokeWidth="0.8" />
+                  <line x1="25" y1="50" x2="230" y2="50" className="stroke-slate-100 dark:stroke-slate-800" strokeWidth="0.8" />
+                  <line x1="25" y1="80" x2="230" y2="80" className="stroke-slate-300 dark:stroke-slate-600" strokeWidth="0.8" />
+                  <line x1="25" y1="10" x2="25" y2="80" className="stroke-slate-300 dark:stroke-slate-600" strokeWidth="0.8" />
 
                   {/* Y Axis labels */}
                   {activeTab === "rmsd" && (

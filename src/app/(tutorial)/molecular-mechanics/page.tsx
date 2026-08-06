@@ -190,24 +190,24 @@ export default function MolecularMechanicsPage() {
                 const b = polar(s.a, NC.r + 34);
                 return (
                   <g key={`r${i}`}>
-                    <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke="#94a3b8" strokeWidth={s.major ? 3.5 : 2.5} strokeLinecap="round" />
+                    <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} className="stroke-slate-400 dark:stroke-slate-500" strokeWidth={s.major ? 3.5 : 2.5} strokeLinecap="round" />
                     <text x={polar(s.a, NC.r + 46).x} y={polar(s.a, NC.r + 46).y + 3} textAnchor="middle" fontSize="10" className="fill-slate-500 font-bold">{s.label}</text>
                   </g>
                 );
               })}
               {/* the rear carbon circle */}
-              <circle cx={NC.cx} cy={NC.cy} r={NC.r} fill="white" stroke="#64748b" strokeWidth="2.5" />
+              <circle cx={NC.cx} cy={NC.cy} r={NC.r} className="fill-white stroke-slate-500 dark:fill-slate-950 dark:stroke-slate-400" strokeWidth="2.5" />
               {/* front atom bonds (drawn from centre to edge) */}
               {frontSubs.map((s, i) => {
                 const b = polar(s.a, NC.r);
                 return (
                   <g key={`f${i}`}>
-                    <line x1={NC.cx} y1={NC.cy} x2={b.x} y2={b.y} stroke="#0f172a" strokeWidth={s.major ? 4 : 3} strokeLinecap="round" />
+                    <line x1={NC.cx} y1={NC.cy} x2={b.x} y2={b.y} className="stroke-slate-900 dark:stroke-slate-100" strokeWidth={s.major ? 4 : 3} strokeLinecap="round" />
                     <text x={polar(s.a, NC.r + 14).x} y={polar(s.a, NC.r + 14).y + 3} textAnchor="middle" fontSize="10" className="fill-slate-900 font-bold">{s.label}</text>
                   </g>
                 );
               })}
-              <circle cx={NC.cx} cy={NC.cy} r="3.5" fill="#0f172a" />
+              <circle cx={NC.cx} cy={NC.cy} r="3.5" className="fill-slate-900 dark:fill-slate-100" />
             </svg>
             <div className="text-[10px] text-slate-600 font-bold text-center mt-1 leading-snug">
               Newman projection down C2–C3<br />
@@ -284,7 +284,7 @@ export default function MolecularMechanicsPage() {
                     <span className="text-slate-900">{pAnti.toFixed(0)}%</span>
                   </div>
                   <div className="h-1.5 bg-slate-200 rounded overflow-hidden">
-                    <div className="h-full bg-slate-900" style={{ width: `${pAnti}%` }} />
+                    <div className="h-full bg-slate-900 dark:bg-slate-100" style={{ width: `${pAnti}%` }} />
                   </div>
                   <div className="flex justify-between text-[11px] font-mono">
                     <span className="font-bold text-slate-800">gauche (×2)</span>

@@ -554,19 +554,19 @@ export default function VirtualScreeningPage() {
                 <div className="flex gap-2">
                   <button 
                     onClick={() => setSpeed(600)} 
-                    className={`flex-1 text-xs py-1 rounded font-bold border transition-colors ${speed === 600 ? "bg-slate-900 text-white border-slate-900" : "bg-white text-slate-800 border-slate-200 hover:bg-slate-50"}`}
+                    className={`flex-1 text-xs py-1 rounded font-bold border transition-colors ${speed === 600 ? "bg-slate-900 text-white border-slate-900 dark:bg-blue-600 dark:border-blue-500" : "bg-white text-slate-800 border-slate-200 hover:bg-slate-50"}`}
                   >
                     Slow
                   </button>
                   <button 
                     onClick={() => setSpeed(200)} 
-                    className={`flex-1 text-xs py-1 rounded font-bold border transition-colors ${speed === 200 ? "bg-slate-900 text-white border-slate-900" : "bg-white text-slate-800 border-slate-200 hover:bg-slate-50"}`}
+                    className={`flex-1 text-xs py-1 rounded font-bold border transition-colors ${speed === 200 ? "bg-slate-900 text-white border-slate-900 dark:bg-blue-600 dark:border-blue-500" : "bg-white text-slate-800 border-slate-200 hover:bg-slate-50"}`}
                   >
                     Medium
                   </button>
                   <button 
                     onClick={() => setSpeed(50)} 
-                    className={`flex-1 text-xs py-1 rounded font-bold border transition-colors ${speed === 50 ? "bg-slate-900 text-white border-slate-900" : "bg-white text-slate-800 border-slate-200 hover:bg-slate-50"}`}
+                    className={`flex-1 text-xs py-1 rounded font-bold border transition-colors ${speed === 50 ? "bg-slate-900 text-white border-slate-900 dark:bg-blue-600 dark:border-blue-500" : "bg-white text-slate-800 border-slate-200 hover:bg-slate-50"}`}
                   >
                     Fast
                   </button>
@@ -628,8 +628,8 @@ export default function VirtualScreeningPage() {
                   const y = 30 + (scoreVal - (-4)) * (-25); // -4 is top, -10 is bottom, scale 25px per unit
                   return (
                     <g key={scoreVal}>
-                      <line x1="30" y1={y} x2="280" y2={y} stroke="#e2e8f0" strokeWidth="0.5" />
-                      <text x="25" y={y + 3} textAnchor="end" fill="#475569" className="text-[6.5px] font-bold">{scoreVal}</text>
+                      <line x1="30" y1={y} x2="280" y2={y} className="stroke-slate-200 dark:stroke-slate-800" strokeWidth="0.5" />
+                      <text x="25" y={y + 3} textAnchor="end" className="fill-slate-600 text-[6.5px] font-bold dark:fill-slate-300">{scoreVal}</text>
                     </g>
                   );
                 })}
@@ -638,33 +638,33 @@ export default function VirtualScreeningPage() {
                   const x = 30 + (mwVal - 100) * 0.5; // 100 is left, 600 is right, scale 0.5px per unit
                   return (
                     <g key={mwVal}>
-                      <line x1={x} y1="10" x2={x} y2="180" stroke="#e2e8f0" strokeWidth="0.5" />
-                      <text x={x} y="188" textAnchor="middle" fill="#475569" className="text-[6.5px] font-bold">{mwVal}</text>
+                      <line x1={x} y1="10" x2={x} y2="180" className="stroke-slate-200 dark:stroke-slate-800" strokeWidth="0.5" />
+                      <text x={x} y="188" textAnchor="middle" className="fill-slate-600 text-[6.5px] font-bold dark:fill-slate-300">{mwVal}</text>
                     </g>
                   );
                 })}
 
                 {/* X and Y axes */}
-                <line x1="30" y1="180" x2="280" y2="180" stroke="#475569" strokeWidth="1" />
-                <line x1="30" y1="10" x2="30" y2="180" stroke="#475569" strokeWidth="1" />
+                <line x1="30" y1="180" x2="280" y2="180" className="stroke-slate-600 dark:stroke-slate-400" strokeWidth="1" />
+                <line x1="30" y1="10" x2="30" y2="180" className="stroke-slate-600 dark:stroke-slate-400" strokeWidth="1" />
 
                 {/* Axis Labels */}
-                <text x="155" y="197" textAnchor="middle" fill="#1e293b" className="text-[8px] font-bold">Molecular Weight (MW, Da)</text>
-                <text x="10" y="95" textAnchor="middle" fill="#1e293b" className="text-[8px] font-bold" transform="rotate(-90 10 95)">Docking Score (kcal/mol)</text>
+                <text x="155" y="197" textAnchor="middle" className="fill-slate-800 text-[8px] font-bold dark:fill-slate-100">Molecular Weight (MW, Da)</text>
+                <text x="10" y="95" textAnchor="middle" className="fill-slate-800 text-[8px] font-bold dark:fill-slate-100" transform="rotate(-90 10 95)">Docking Score (kcal/mol)</text>
 
                 {/* Threshold Boundary Lines (if filters active) */}
                 {/* 1. Lipinski MW threshold (500 Da) */}
                 {filterLipinski && (
                   <g>
                     <line x1={30 + (500 - 100) * 0.5} y1="10" x2={30 + (500 - 100) * 0.5} y2="180" stroke="#ef4444" strokeWidth="1" strokeDasharray="3,3" />
-                    <text x={30 + (500 - 100) * 0.5 - 4} y="16" textAnchor="end" fill="#991b1b" className="text-[6px] font-bold">MW Limit (500)</text>
+                    <text x={30 + (500 - 100) * 0.5 - 4} y="16" textAnchor="end" className="fill-red-800 text-[6px] font-bold dark:fill-red-300">MW Limit (500)</text>
                   </g>
                 )}
                 {/* 2. Docking Score threshold (-7.5 kcal/mol) */}
                 {filterDocking && (
                   <g>
                     <line x1="30" y1={30 + (-7.5 - (-4)) * (-25)} x2="280" y2={30 + (-7.5 - (-4)) * (-25)} stroke="#3b82f6" strokeWidth="1" strokeDasharray="3,3" />
-                    <text x="276" y={30 + (-7.5 - (-4)) * (-25) - 3} textAnchor="end" fill="#1d4ed8" className="text-[6px] font-bold">Score Limit (-7.5)</text>
+                    <text x="276" y={30 + (-7.5 - (-4)) * (-25) - 3} textAnchor="end" className="fill-blue-700 text-[6px] font-bold dark:fill-blue-300">Score Limit (-7.5)</text>
                   </g>
                 )}
 
@@ -687,7 +687,7 @@ export default function VirtualScreeningPage() {
                         className={isCurrent ? "animate-pulse" : ""}
                       />
                       {isCurrent && (
-                        <text x={x} y={y - 7} textAnchor="middle" fill="#0f172a" className="text-[5.5px] font-black bg-white px-0.5 rounded border border-slate-300">
+                        <text x={x} y={y - 7} textAnchor="middle" className="fill-slate-900 text-[5.5px] font-black dark:fill-white">
                           {c.id}
                         </text>
                       )}

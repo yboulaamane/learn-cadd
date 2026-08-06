@@ -247,7 +247,7 @@ export default function QsarModelingPage() {
                     onClick={() => setHanschPick(s.label)}
                     className={`px-2.5 py-1 rounded-md text-xs font-mono font-bold border transition-colors ${
                       hanschPick === s.label
-                        ? "bg-slate-900 text-white border-slate-900"
+                        ? "bg-slate-900 text-white border-slate-900 dark:bg-blue-600 dark:border-blue-500"
                         : "bg-white text-slate-800 border-slate-300 hover:border-slate-500"
                     }`}
                   >
@@ -840,20 +840,20 @@ export default function QsarModelingPage() {
                 onTouchMove={handleTouchMove}
               >
                 {/* Center Axes (0, 0) */}
-                <line x1="30" y1={centerY} x2="270" y2={centerY} stroke="#94a3b8" strokeWidth="0.8" strokeDasharray="2,2" />
-                <line x1={centerX} y1="20" x2={centerX} y2="180" stroke="#94a3b8" strokeWidth="0.8" strokeDasharray="2,2" />
+                <line x1="30" y1={centerY} x2="270" y2={centerY} className="stroke-slate-400 dark:stroke-slate-600" strokeWidth="0.8" strokeDasharray="2,2" />
+                <line x1={centerX} y1="20" x2={centerX} y2="180" className="stroke-slate-400 dark:stroke-slate-600" strokeWidth="0.8" strokeDasharray="2,2" />
 
                 {/* Graph Axes Boundaries */}
-                <line x1="30" y1="180" x2="270" y2="180" stroke="#475569" strokeWidth="1" />
-                <line x1="30" y1="20" x2="30" y2="180" stroke="#475569" strokeWidth="1" />
+                <line x1="30" y1="180" x2="270" y2="180" className="stroke-slate-600 dark:stroke-slate-300" strokeWidth="1" />
+                <line x1="30" y1="20" x2="30" y2="180" className="stroke-slate-600 dark:stroke-slate-300" strokeWidth="1" />
 
                 {/* Grid ticks for PC1 */}
                 {[-3, -2, -1, 1, 2, 3].map((val) => {
                   const x = centerX + val * scaleX;
                   return (
                     <g key={val}>
-                      <line x1={x} y1="177" x2={x} y2="180" stroke="#475569" strokeWidth="1" />
-                      <text x={x} y="188" textAnchor="middle" fill="#475569" className="text-[6px] font-bold">{val}</text>
+                      <line x1={x} y1="177" x2={x} y2="180" className="stroke-slate-600 dark:stroke-slate-300" strokeWidth="1" />
+                      <text x={x} y="188" textAnchor="middle" className="fill-slate-600 text-[6px] font-bold dark:fill-slate-300">{val}</text>
                     </g>
                   );
                 })}
@@ -862,15 +862,15 @@ export default function QsarModelingPage() {
                   const y = centerY - val * scaleY;
                   return (
                     <g key={val}>
-                      <line x1="30" y1={y} x2="33" y2={y} stroke="#475569" strokeWidth="1" />
-                      <text x="25" y={y + 2} textAnchor="end" fill="#475569" className="text-[6px] font-bold">{val}</text>
+                      <line x1="30" y1={y} x2="33" y2={y} className="stroke-slate-600 dark:stroke-slate-300" strokeWidth="1" />
+                      <text x="25" y={y + 2} textAnchor="end" className="fill-slate-600 text-[6px] font-bold dark:fill-slate-300">{val}</text>
                     </g>
                   );
                 })}
 
                 {/* Labels */}
-                <text x="270" y="108" textAnchor="end" fill="#475569" className="text-[7px] font-black">PC1 (Lipophilicity & MW)</text>
-                <text x="156" y="27" textAnchor="start" fill="#475569" className="text-[7px] font-black">PC2 (Polarity & H-Bonds)</text>
+                <text x="270" y="108" textAnchor="end" className="fill-slate-600 text-[7px] font-black dark:fill-slate-200">PC1 (Lipophilicity & MW)</text>
+                <text x="156" y="27" textAnchor="start" className="fill-slate-600 text-[7px] font-black dark:fill-slate-200">PC2 (Polarity & H-Bonds)</text>
 
                 {/* Shaded Applicability Domain Ellipse (95% CI Boundary) */}
                 {/* PC units: a = 2.0 (rx = 60px), b = 1.2 (ry = 30px) */}
@@ -887,7 +887,7 @@ export default function QsarModelingPage() {
                 />
                 
                 {/* Ellipse Limit Label */}
-                <text x={centerX + 1.2 * scaleX} y={centerY - 0.9 * scaleY} fill="#047857" className="text-[6.5px] font-extrabold">95% Applicability Envelope</text>
+                <text x={centerX + 1.2 * scaleX} y={centerY - 0.9 * scaleY} className="fill-emerald-700 text-[6.5px] font-extrabold dark:fill-emerald-300">95% Applicability Envelope</text>
 
                 {/* Plot Static Training Compounds */}
                 {trainingPoints.map((pt, idx) => (
@@ -904,8 +904,8 @@ export default function QsarModelingPage() {
                 ))}
 
                 {/* Projection Lines for Test Compound */}
-                <line x1={testX} y1={testY} x2={testX} y2={centerY} stroke="#64748b" strokeWidth="0.7" strokeDasharray="2,1" />
-                <line x1={testX} y1={testY} x2={centerX} y2={testY} stroke="#64748b" strokeWidth="0.7" strokeDasharray="2,1" />
+                <line x1={testX} y1={testY} x2={testX} y2={centerY} className="stroke-slate-500 dark:stroke-slate-400" strokeWidth="0.7" strokeDasharray="2,1" />
+                <line x1={testX} y1={testY} x2={centerX} y2={testY} className="stroke-slate-500 dark:stroke-slate-400" strokeWidth="0.7" strokeDasharray="2,1" />
 
                 {/* Interactive Test Compound Star */}
                 <g transform={`translate(${testX}, ${testY})`}>

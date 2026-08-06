@@ -278,7 +278,7 @@ export default function TargetIdentificationPage() {
                     onClick={() => applyPreset(name)}
                     className={`px-2.5 py-1 rounded-md text-xs font-bold border transition-colors ${
                       pick === name
-                        ? "bg-slate-900 text-white border-slate-900"
+                        ? "bg-slate-900 text-white border-slate-900 dark:bg-blue-600 dark:border-blue-500"
                         : "bg-white text-slate-800 border-slate-300 hover:border-slate-500"
                     }`}
                   >
