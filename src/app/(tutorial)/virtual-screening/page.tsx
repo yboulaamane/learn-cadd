@@ -450,17 +450,20 @@ export default function VirtualScreeningPage() {
         </p>
         <div className="p-5 rounded-xl border border-border bg-slate-50 font-medium">
           <ol className="space-y-2 leading-relaxed text-slate-800">
-            <li><strong>Physicochemical Pre-filtering:</strong> Eliminate structures violating Lipinski&apos;s or Veber&apos;s drug-likeness rules.</li>
-            <li><strong>Ultra-fast Similarity Search:</strong> Apply 2D ECFP4 fingerprint similarity searching to reduce a database of 100M+ structures down to 100k.</li>
-            <li><strong>Pharmacophore Query:</strong> Screen spatial configurations of the remaining 100k structures to keep only 5k matching candidates.</li>
-            <li><strong>Molecular Docking:</strong> Perform detailed molecular docking simulations on the 5k candidates to rank them.</li>
-            <li><strong>Consensus and MD:</strong> Re-score top dockings with Molecular Dynamics (MD) or free energy calculators (MM-GBSA) to select 20 compounds for chemical synthesis and biological testing.</li>
+            <li><strong>Physicochemical Pre-filtering:</strong> Eliminate structures violating Lipinski&apos;s or Veber&apos;s drug-likeness rules (Module 12).</li>
+            <li><strong>Ultra-fast Similarity Search:</strong> Apply 2D ECFP4 fingerprint similarity searching (Module 5) to reduce a database of 100M+ structures down to 100k.</li>
+            <li><strong>Pharmacophore Query:</strong> Screen spatial configurations of the remaining 100k structures (Module 7) to keep only 5k matching candidates.</li>
+            <li><strong>Molecular Docking:</strong> Perform detailed molecular docking simulations (Module 6) on the 5k candidates to rank them.</li>
+            <li><strong>Consensus and MD:</strong> Re-score top dockings with Molecular Dynamics (MD) or free energy calculators (MM-GBSA, Module 10) to select 20 compounds for chemical synthesis and biological testing.</li>
           </ol>
         </div>
+        <p className="text-sm">
+          Read the cascade as a map of the course: each stage is a technique you have already met, arranged cheapest-first. The ordering is the whole trick — every filter must be fast enough for the pool entering it and accurate enough to justify what it discards, because a compound thrown out at stage 2 can never be recovered at stage 5. Because the stages are chained, the provenance of each one matters: Module 14 covers how to record filter versions, thresholds, and random seeds so a cascade like this can be re-run and audited months later.
+        </p>
 
         <h3 className="font-bold text-foreground text-base pt-2">Physicochemical Filters: Drug-Likeness Rules Beyond Lipinski</h3>
         <p>
-          While Lipinski&apos;s Rule of 5 is the most famous historical filter, computational chemists rely on more comprehensive rules to assess oral bioavailability, membrane absorption, and synthetically targetable properties:
+          While Lipinski&apos;s Rule of Five is the most famous historical filter, computational chemists rely on more comprehensive rules to assess oral bioavailability, membrane absorption, and synthetically targetable properties:
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 not-prose">
@@ -524,7 +527,7 @@ export default function VirtualScreeningPage() {
                     disabled={isRunning}
                     className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900 cursor-pointer"
                   />
-                  <span>1. Lipinski&apos;s Rule of 5 (MW ≤ 500)</span>
+                  <span>1. Lipinski&apos;s Rule of Five (MW ≤ 500)</span>
                 </label>
                 <label className="flex items-center gap-2.5 cursor-pointer">
                   <input 
@@ -621,7 +624,7 @@ export default function VirtualScreeningPage() {
             {/* SVG Scatter Chart */}
             <div className="w-full relative bg-slate-100 border border-slate-200 rounded-lg p-4 select-none">
               
-              <svg viewBox="0 0 300 200" className="w-full h-auto">
+              <svg role="img" aria-label="Screening scatter plot of docking score against molecular weight, with each compound marked as passing or rejected by the active filters." viewBox="0 0 300 200" className="w-full h-auto">
                 {/* Grid Lines */}
                 {/* Horizontal grid lines for Docking Score (-4 to -10) */}
                 {[ -5, -6, -7, -8, -9, -10 ].map((scoreVal) => {
@@ -890,7 +893,7 @@ def fast_delong_roc_variance(ground_truth, predictions):
         moduleTitle="Module 8: Virtual Screening Strategies"
         questions={[
           {
-            question: "Why are Lipinski's Rule of 5 and other physiochemical filters applied at the very start of a virtual screen cascade rather than after docking?",
+            question: "Why are Lipinski's Rule of Five and other physicochemical filters applied at the very start of a virtual screen cascade rather than after docking?",
             options: [
               "Because molecules that violate Lipinski's rules will dock incorrectly in the binding pocket.",
               "Because docking is computationally expensive (seconds/minutes per molecule), whereas calculating molecular descriptors takes milliseconds, allowing rapid discard of 90%+ of the library.",

@@ -7,6 +7,7 @@ const sections: LessonSection[] = [
     title: "Reproducibility is part of the scientific method",
     paragraphs: [
       "A result is reproducible when another researcher can recover the same inputs, environment, parameters, random seeds, workflow steps, and outputs. A folder full of commands is useful evidence, but it becomes a scientific workflow only when assumptions and provenance are explicit.",
+      "This module is the operational counterpart to the rest of the course. Every method you have met carries hidden choices that decide the result: the standardization and tautomer rules behind a fingerprint (Module 5), the grid center and protonation state behind a docking score (Module 6), the ordering and thresholds of a screening cascade (Module 8), the train/test split and random seed behind a QSAR metric (Module 9), and the water model, thermostat, and starting velocities behind a trajectory (Module 10). None of those are incidental settings — each one can change the conclusion, so each one has to be recorded.",
     ],
     cards: [
       {

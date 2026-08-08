@@ -183,7 +183,7 @@ export default function MolecularMechanicsPage() {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 bg-white p-5 rounded-lg border border-slate-200">
           {/* Newman projection */}
           <div className="md:col-span-5 flex flex-col items-center">
-            <svg viewBox="0 0 200 200" className="w-full max-w-[210px]">
+            <svg role="img" aria-label="Newman projection of butane viewed along the C2–C3 bond, showing the two methyl groups at the selected dihedral angle." viewBox="0 0 200 200" className="w-full max-w-[210px]">
               {/* rear atom bonds (drawn from circle edge outward) */}
               {rearSubs.map((s, i) => {
                 const a = polar(s.a, NC.r);
@@ -238,7 +238,7 @@ export default function MolecularMechanicsPage() {
 
             {/* Energy curve */}
             <div className="bg-slate-50 border border-slate-200 rounded-lg p-1">
-              <svg viewBox="0 0 300 160" className="w-full">
+              <svg role="img" aria-label="Butane torsional energy profile: relative energy in kcal/mol against dihedral angle, with anti and gauche minima and syn and eclipsed maxima." viewBox="0 0 300 160" className="w-full">
                 {/* axes */}
                 <line x1="30" y1="140" x2="288" y2="140" stroke="currentColor" className="text-slate-300" strokeWidth="1" />
                 <line x1="30" y1="15" x2="30" y2="140" stroke="currentColor" className="text-slate-300" strokeWidth="1" />
