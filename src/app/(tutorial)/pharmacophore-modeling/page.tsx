@@ -778,6 +778,129 @@ export default function PharmacophoreModelingPage() {
         </div>
       </section>
 
+      {/* Excluded volumes */}
+      <section className="space-y-4 border-t border-border pt-8">
+        <h2>Excluded Volumes: Encoding Where a Ligand May <em>Not</em> Go</h2>
+        <p>
+          Everything so far describes features a molecule must <strong>have</strong>. That is only half a pharmacophore, and on its own it is dangerously permissive: a query made purely of required features will happily match an enormous molecule that satisfies every point and also occupies the space where the protein backbone sits.
+        </p>
+        <p>
+          <strong>Excluded volumes</strong> are spheres marking regions the receptor already fills. A candidate is rejected if any of its heavy atoms falls inside one. They convert the query from a shopping list of chemistry into a genuine shape constraint, and they are the single most effective way to raise the specificity of a structure-based pharmacophore.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 not-prose">
+          <div className="p-4 rounded-xl border border-border bg-white space-y-1.5">
+            <h4 className="font-bold text-sm text-slate-900">Where they come from</h4>
+            <p className="text-sm text-slate-800 leading-relaxed font-medium">
+              In a structure-based model, place them on the receptor atoms lining the pocket — this is essentially free, since you already have the protein. In a ligand-based model you have no receptor, so they are inferred instead: regions that <em>inactive</em> compounds occupy but actives never do are the best available evidence of where the protein is.
+            </p>
+          </div>
+          <div className="p-4 rounded-xl border border-border bg-white space-y-1.5">
+            <h4 className="font-bold text-sm text-slate-900">The tuning problem</h4>
+            <p className="text-sm text-slate-800 leading-relaxed font-medium">
+              Excluded volumes carry the same trade-off as feature tolerance, in the opposite direction. Too few, or too small, and bulky false positives survive. Too many, or too large, and you forbid the induced fit that lets a real ligand push a side chain aside — discarding actives for moving a residue the protein was always going to move.
+            </p>
+          </div>
+        </div>
+
+        <div className="border-l-2 border-accent pl-4 bg-accent/5 p-4 rounded-r-xl text-sm">
+          <strong className="text-foreground block mb-1">Connecting the two controls</strong>
+          <p className="text-slate-700 leading-relaxed">
+            Feature tolerance sets how much positional error you forgive on the interactions you require; excluded volumes set how much overlap you forbid with the protein you know is there. A well-built model tightens one to compensate for loosening the other — which is why quoting a pharmacophore&apos;s hit rate without stating both is meaningless.
+          </p>
+        </div>
+      </section>
+
+      {/* Conformers */}
+      <section className="space-y-4 border-t border-border pt-8">
+        <h2>Conformers: The Step That Quietly Decides Everything</h2>
+        <p>
+          A 3D pharmacophore describes features at fixed distances, but the molecules you are screening are flexible and stored as 2D graphs. Before any matching happens, every database compound must be expanded into a <strong>conformer ensemble</strong> — a set of plausible 3D shapes. A compound is scored as a hit if <em>any single conformer</em> satisfies the query.
+        </p>
+        <p>
+          This makes conformer generation a silent gatekeeper. If the bioactive conformation is not in the ensemble, the compound cannot match, no matter how good the molecule is or how well built the pharmacophore is. Most disappointing pharmacophore screens are conformer failures misdiagnosed as model failures.
+        </p>
+
+        <div className="space-y-3 not-prose">
+          <div className="p-4 rounded-xl border border-border bg-white space-y-1.5">
+            <h4 className="font-bold text-sm text-slate-900">How many conformers?</h4>
+            <p className="text-sm text-slate-800 leading-relaxed font-medium">
+              Coverage rises steeply and then plateaus, while cost rises without limit. A rigid ring system may need a handful; a chain with eight rotatable bonds may need hundreds before the bioactive shape reliably appears. Common practice is a per-molecule cap (often 50–500) together with an energy window that discards conformers far above the local minimum, on the argument that a ligand will not pay an arbitrarily large strain penalty to bind.
+            </p>
+          </div>
+          <div className="p-4 rounded-xl border border-border bg-white space-y-1.5">
+            <h4 className="font-bold text-sm text-slate-900">The strain-energy trap</h4>
+            <p className="text-sm text-slate-800 leading-relaxed font-medium">
+              Tighten the energy window too far and you delete the bioactive conformation, because bound ligands genuinely do adopt strained geometries — binding pays for the strain out of the interaction energy. Loosen it too far and you fill the ensemble with shapes no molecule adopts, letting almost anything match something. This is the conformational search problem from Module 4, arriving in a new costume.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Validation */}
+      <section className="space-y-4 border-t border-border pt-8">
+        <h2>Validating a Pharmacophore Model</h2>
+        <p>
+          A pharmacophore query will always return <em>something</em>. The question is whether those hits are enriched in real actives or merely numerous, and you cannot answer it by inspecting the model — you have to test it retrospectively against compounds whose answer you already know.
+        </p>
+        <p>
+          Build a validation set of known actives plus <strong>decoys</strong>: compounds presumed inactive, chosen to match the actives in gross physicochemical properties (molecular weight, logP, charge, rotatable bonds) while differing in topology. The property matching is essential. Random decoys make any model look excellent, because the model ends up separating small polar molecules from large greasy ones rather than recognising the pharmacophore.
+        </p>
+
+        <div className="overflow-x-auto not-prose">
+          <table className="w-full text-sm border border-border rounded-xl overflow-hidden">
+            <thead className="bg-slate-50 dark:bg-slate-900">
+              <tr className="text-left">
+                <th className="px-3 py-2 font-bold text-slate-900 dark:text-slate-100">Metric</th>
+                <th className="px-3 py-2 font-bold text-slate-900 dark:text-slate-100">What it measures</th>
+                <th className="px-3 py-2 font-bold text-slate-900 dark:text-slate-100">Watch out for</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              <tr>
+                <td className="px-3 py-2 font-semibold">Sensitivity (recall)</td>
+                <td className="px-3 py-2 text-slate-700">Fraction of known actives the query retrieves</td>
+                <td className="px-3 py-2 text-slate-700">Trivially 1.0 for a query loose enough to match everything</td>
+              </tr>
+              <tr>
+                <td className="px-3 py-2 font-semibold">Specificity</td>
+                <td className="px-3 py-2 text-slate-700">Fraction of decoys correctly rejected</td>
+                <td className="px-3 py-2 text-slate-700">Depends entirely on how well the decoys were chosen</td>
+              </tr>
+              <tr>
+                <td className="px-3 py-2 font-semibold">Enrichment factor (EF)</td>
+                <td className="px-3 py-2 text-slate-700">How much richer in actives the hit list is than the database</td>
+                <td className="px-3 py-2 text-slate-700">Bounded by 1/(active fraction) — compare only at the same cut-off</td>
+              </tr>
+              <tr>
+                <td className="px-3 py-2 font-semibold">Güner-Henry (GH) score</td>
+                <td className="px-3 py-2 text-slate-700">Combines yield of actives and recall into one 0–1 number</td>
+                <td className="px-3 py-2 text-slate-700">A single number hides which half of the trade-off you bought</td>
+              </tr>
+              <tr>
+                <td className="px-3 py-2 font-semibold">ROC-AUC</td>
+                <td className="px-3 py-2 text-slate-700">Ranking quality across every possible threshold</td>
+                <td className="px-3 py-2 text-slate-700">Rewards global ranking; screening only cares about the top of the list</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p className="text-sm text-slate-700">
+          These are the same metrics used to judge any screening method, and they are treated in full — including the early-recognition problem and how to put a confidence interval on an AUC — in <strong>Module 8</strong>.
+        </p>
+
+        <div className="border-l-2 border-rose-400 pl-4 bg-rose-50/50 dark:bg-rose-950/10 p-4 rounded-r-xl text-sm space-y-2">
+          <strong className="text-foreground block">Four ways a pharmacophore model goes wrong</strong>
+          <ul className="list-disc pl-5 space-y-1.5 text-slate-700 leading-relaxed">
+            <li><strong>Too few features.</strong> A two-point query is a substructure search with extra steps; it will match thousands of unrelated compounds.</li>
+            <li><strong>Too many features.</strong> Every additional required point multiplies the chance that a genuine active misses one. Models built from a single co-crystal are especially prone to encoding incidental contacts as requirements.</li>
+            <li><strong>No excluded volumes.</strong> The query describes chemistry but not shape, and oversized compounds sail through.</li>
+            <li><strong>Actives too similar to each other.</strong> If every training ligand shares a scaffold, the model encodes that scaffold rather than the pharmacophore — and you lose the scaffold hopping that was the point of the method.</li>
+          </ul>
+        </div>
+      </section>
+
       {/* Advanced Topic: 3D Pharmacophore Fingerprints */}
       <section className="space-y-4 border-t border-border pt-8">
         <h2>Advanced: 3D Pharmacophore Fingerprints &amp; Dynamic Pharmacophores</h2>
@@ -852,6 +975,28 @@ export default function PharmacophoreModelingPage() {
             ],
             correctIndex: 2,
             explanation: "To distill a clean geometric query from a cloud of thousands of points, features are grouped by class (e.g. all acceptors) and clustered using k-means. Centroids representing hotspots shared by a majority of active input ligands (>= 50%) are retained as the consensus pharmacophore query."
+          },
+          {
+            question: "A structure-based pharmacophore built from three required features retrieves a very large number of hits, many of them far bulkier than the co-crystallized ligand. What is the most likely omission?",
+            options: [
+              "The feature tolerance radius was set too small.",
+              "The model has no excluded volumes, so it constrains chemistry but not shape.",
+              "The conformer ensembles were generated with too high an energy window.",
+              "The aromatic feature should have been defined as hydrophobic."
+            ],
+            correctIndex: 1,
+            explanation: "Required features specify what a molecule must have, not where it must not go. Without excluded volumes marking the receptor atoms lining the pocket, an oversized compound can satisfy every feature point while also occupying space the protein already fills. Adding excluded volumes from the receptor is the standard fix and is nearly free in a structure-based model."
+          },
+          {
+            question: "A pharmacophore model reports 95% sensitivity and 98% specificity against its validation set, but performs poorly in a prospective screen. The decoys were drawn at random from a vendor catalogue. What went wrong?",
+            options: [
+              "The validation set was too large, causing overfitting of the tolerance radii.",
+              "Random decoys differ from the actives in bulk properties, so the model was rewarded for separating physicochemistry rather than recognising the pharmacophore.",
+              "Sensitivity and specificity are invalid metrics for pharmacophore models.",
+              "The model should have been validated with ROC-AUC, which is immune to decoy selection."
+            ],
+            correctIndex: 1,
+            explanation: "Decoys must be property-matched to the actives — similar molecular weight, logP, charge, and rotatable-bond count — while differing in topology. Random decoys typically differ from the actives in gross properties, so a model can score superbly by separating small polar molecules from large greasy ones, which is not what it will be asked to do prospectively. No choice of metric repairs a badly chosen decoy set."
           }
         ]}
       />
