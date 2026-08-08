@@ -242,6 +242,18 @@ export default function LigandReceptorInteractionsPage() {
 
       <hr className="border-slate-200" />
 
+      {/* Learning outcomes */}
+      <section className="rounded-xl border border-border bg-surface p-5 space-y-2">
+        <h2 className="!mt-0 !text-base font-bold">Learning outcomes</h2>
+        <ul className="list-disc pl-5 text-sm text-slate-800 space-y-1 leading-relaxed">
+          <li>Decompose binding free energy into enthalpic and entropic contributions.</li>
+          <li>Identify the major non-covalent interactions and their characteristic geometries.</li>
+          <li>Explain the hydrophobic effect and why desolvation can dominate an affinity change.</li>
+          <li>Use ligand efficiency and LLE to compare hits of different sizes and lipophilicities.</li>
+          <li>Name the four ways the pairwise-contact picture of binding breaks down.</li>
+        </ul>
+      </section>
+
       {/* Section 1: Recognition Models */}
       <section className="space-y-4">
         <h2>1. Molecular Recognition Models</h2>
@@ -934,57 +946,99 @@ export default function LigandReceptorInteractionsPage() {
         </div>
       </section>
 
+      {/* Section 5: Where this model breaks */}
+      <section className="space-y-4">
+        <h2>5. Where This Picture Breaks Down</h2>
+        <p>
+          Everything above treats binding as a sum of pairwise contacts between a ligand and a rigid pocket. That picture is useful enough to design drugs with, and wrong in four specific ways that resurface throughout the course.
+        </p>
+
+        <div className="space-y-3 not-prose">
+          <div className="p-4 rounded-lg border border-border bg-white space-y-1.5">
+            <h4 className="font-bold text-sm text-slate-900">Interactions are not additive</h4>
+            <p className="text-sm text-slate-800 leading-relaxed">
+              Adding a hydrogen bond worth 2 kcal/mol to a ligand rarely buys 2 kcal/mol of affinity. The new contact may cost desolvation, restrict a rotatable bond, or strain the pose. Non-additivity is precisely why medicinal chemistry still requires synthesis rather than arithmetic — and why scoring functions (Module 6) fail in the way they do.
+            </p>
+          </div>
+          <div className="p-4 rounded-lg border border-border bg-white space-y-1.5">
+            <h4 className="font-bold text-sm text-slate-900">The pocket is not rigid</h4>
+            <p className="text-sm text-slate-800 leading-relaxed">
+              Induced fit above is a cartoon of a much larger effect: side chains rotate, loops close, and some pockets do not exist until a ligand arrives. Anything computed on one fixed structure inherits that structure&apos;s assumptions (Modules 6 and 10).
+            </p>
+          </div>
+          <div className="p-4 rounded-lg border border-border bg-white space-y-1.5">
+            <h4 className="font-bold text-sm text-slate-900">Water is a participant, not a background</h4>
+            <p className="text-sm text-slate-800 leading-relaxed">
+              Every contact you form must first break a contact with water, and a few ordered waters in a pocket can be worth more than a whole substituent. Desolvation is the single most commonly underestimated term in this module.
+            </p>
+          </div>
+          <div className="p-4 rounded-lg border border-border bg-white space-y-1.5">
+            <h4 className="font-bold text-sm text-slate-900">Affinity is not the objective</h4>
+            <p className="text-sm text-slate-800 leading-relaxed">
+              ΔG tells you how tightly a ligand binds its target — not whether it is selective, absorbed, metabolically stable, or safe. Ligand efficiency and LLE exist to keep potency honest, and Modules 12 and 15 supply the constraints that ultimately decide whether a tight binder becomes a drug.
+            </p>
+          </div>
+        </div>
+
+        <p className="text-sm text-slate-700">
+          Every one of these is a physical shortcoming of the pairwise model, and each is the reason a later technique exists. Module 4 turns these same interactions into computable energy terms; keep the four caveats in mind, because they explain most of what goes wrong afterwards.
+        </p>
+      </section>
+
       {/* Quiz Section */}
       <hr className="border-slate-200 my-8" />
-      <Quiz 
-        moduleTitle="Module 3: Fundamentals of Ligand-Receptor Interactions"
-        questions={[
-          {
-            question: "Why does locking a highly flexible ligand into its binding site cost entropy?",
-            options: [
-              "Because the water molecules surrounding the ligand become more ordered.",
-              "Because free rotations around single bonds are frozen upon complex formation, reducing the ligand's conformational degrees of freedom.",
-              "Because the binding site undergoes a conformational transition to the induced-fit state.",
-              "Because the ligand is forced to form electrostatic salt bridges."
-            ],
-            correctIndex: 1,
-            explanation: "Free ligand molecules in solution have high conformational entropy due to rotation about single bonds. When the ligand binds to the receptor, these rotational bonds are locked into a single active conformation. Freezing these degrees of freedom costs conformational entropy, which acts as a thermodynamic barrier (+TΔS penalty) to binding."
-          },
-          {
-            question: "How does the hydrophobic effect drive ligand binding thermodynamically?",
-            options: [
-              "By changing solvent organization when nonpolar surfaces are buried, which can release constrained interfacial water into bulk solution.",
-              "By forming strong hydrogen bonds between the ligand's non-polar groups and target water molecules.",
-              "By increasing the enthalpy of the system through hydrophobic dipole interactions.",
-              "By rigidifying target side chains to lower conformational entropy barriers."
-            ],
-            correctIndex: 0,
-            explanation: "Burying nonpolar surfaces changes the solvent-exposed area and the organization of nearby water. Releasing constrained interfacial waters can provide a favorable entropic contribution, but the magnitude depends on the local water network and pocket environment."
-          },
-          {
-            question: "What does lipophilic ligand efficiency help reveal within a related series?",
-            options: [
-              "Whether potency is improving faster than lipophilicity",
-              "Whether a protein contains alpha helices",
-              "The exact binding pose",
-              "The number of crystallographic waters"
-            ],
-            correctIndex: 0,
-            explanation: "LLE or LipE relates pActivity to logD or logP. It helps detect potency gains that mainly come from adding lipophilicity, but the assay endpoint and lipophilicity convention must be consistent."
-          },
-          {
-            question: "Why should an apparently favorable binding enthalpy not be optimized in isolation?",
-            options: [
-              "Enthalpy cannot be measured",
-              "Affinity also reflects entropy, solvent, protonation, and conformational changes",
-              "Only molecular weight affects affinity",
-              "A favorable enthalpy always means lower selectivity"
-            ],
-            correctIndex: 1,
-            explanation: "Binding terms are coupled. Enthalpy-entropy compensation and experimental conditions can produce similar affinity from different profiles, so the full evidence panel matters."
-          }
-        ]}
-      />
+      <section className="space-y-5">
+        <h2>Knowledge check</h2>
+        <Quiz 
+          moduleTitle="Module 3: Fundamentals of Ligand-Receptor Interactions"
+          questions={[
+            {
+              question: "Why does locking a highly flexible ligand into its binding site cost entropy?",
+              options: [
+                "Because the water molecules surrounding the ligand become more ordered.",
+                "Because free rotations around single bonds are frozen upon complex formation, reducing the ligand's conformational degrees of freedom.",
+                "Because the binding site undergoes a conformational transition to the induced-fit state.",
+                "Because the ligand is forced to form electrostatic salt bridges."
+              ],
+              correctIndex: 1,
+              explanation: "Free ligand molecules in solution have high conformational entropy due to rotation about single bonds. When the ligand binds to the receptor, these rotational bonds are locked into a single active conformation. Freezing these degrees of freedom costs conformational entropy, which acts as a thermodynamic barrier (+TΔS penalty) to binding."
+            },
+            {
+              question: "How does the hydrophobic effect drive ligand binding thermodynamically?",
+              options: [
+                "By changing solvent organization when nonpolar surfaces are buried, which can release constrained interfacial water into bulk solution.",
+                "By forming strong hydrogen bonds between the ligand's non-polar groups and target water molecules.",
+                "By increasing the enthalpy of the system through hydrophobic dipole interactions.",
+                "By rigidifying target side chains to lower conformational entropy barriers."
+              ],
+              correctIndex: 0,
+              explanation: "Burying nonpolar surfaces changes the solvent-exposed area and the organization of nearby water. Releasing constrained interfacial waters can provide a favorable entropic contribution, but the magnitude depends on the local water network and pocket environment."
+            },
+            {
+              question: "What does lipophilic ligand efficiency help reveal within a related series?",
+              options: [
+                "Whether potency is improving faster than lipophilicity",
+                "Whether a protein contains alpha helices",
+                "The exact binding pose",
+                "The number of crystallographic waters"
+              ],
+              correctIndex: 0,
+              explanation: "LLE or LipE relates pActivity to logD or logP. It helps detect potency gains that mainly come from adding lipophilicity, but the assay endpoint and lipophilicity convention must be consistent."
+            },
+            {
+              question: "Why should an apparently favorable binding enthalpy not be optimized in isolation?",
+              options: [
+                "Enthalpy cannot be measured",
+                "Affinity also reflects entropy, solvent, protonation, and conformational changes",
+                "Only molecular weight affects affinity",
+                "A favorable enthalpy always means lower selectivity"
+              ],
+              correctIndex: 1,
+              explanation: "Binding terms are coupled. Enthalpy-entropy compensation and experimental conditions can produce similar affinity from different profiles, so the full evidence panel matters."
+            }
+          ]}
+        />
+      </section>
     </div>
   );
 }

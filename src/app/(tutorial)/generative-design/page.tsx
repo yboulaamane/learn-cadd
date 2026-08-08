@@ -76,6 +76,18 @@ export default function GenerativeDesignPage() {
 
       <hr className="border-slate-200" />
 
+      {/* Learning outcomes */}
+      <section className="rounded-xl border border-border bg-surface p-5 space-y-2">
+        <h2 className="!mt-0 !text-base font-bold">Learning outcomes</h2>
+        <ul className="list-disc pl-5 text-sm text-slate-800 space-y-1 leading-relaxed">
+          <li>Explain why generation explores chemical space that enumeration cannot reach.</li>
+          <li>Separate any generative system into construction, scoring, and search.</li>
+          <li>Trade structural control against synthesizability when choosing a construction method.</li>
+          <li>Recognize reward hacking and design multi-objective scoring that resists it.</li>
+          <li>Read a Pareto frontier and identify candidates that never win at any weighting.</li>
+        </ul>
+      </section>
+
       {/* Section 1: paradigm */}
       <section className="space-y-4">
         <h2>1. From Searching to Designing</h2>
@@ -380,50 +392,53 @@ export default function GenerativeDesignPage() {
       </section>
 
       {/* Quiz */}
-      <Quiz
-        moduleTitle="Module 11: De Novo & Generative Molecular Design"
-        questions={[
-          {
-            question:
-              "Your generative model optimizes docking score alone and returns very large, highly lipophilic molecules with superb predicted affinity. What went wrong?",
-            options: [
-              "The docking scoring function is buggy and must be replaced.",
-              "The search algorithm collapsed into a local minimum.",
-              "Nothing is wrong with the score — it is incomplete. Docking scores generally improve with more atoms making more contacts, so single-objective optimization drives molecular size upward. The fix is multi-objective scoring that also penalizes size, lipophilicity and synthetic difficulty.",
-              "The construction method must have been reaction-based.",
-            ],
-            correctIndex: 2,
-            explanation:
-              "This is the classic reward-hacking failure. The model did exactly what you asked: it maximized the number you gave it. Because docking scores tend to reward additional favourable contacts, 'more atoms' is a legitimate strategy for maximizing that one objective. The generator is not broken — the objective was under-specified. Real design requires balancing several objectives simultaneously, which is why the Pareto frontier matters.",
-          },
-          {
-            question:
-              "In the Pareto playground, molecule H (synthesizability 6.0, potency 6.5) is dominated. What does that mean practically?",
-            options: [
-              "H is the second-best molecule and should be kept as a backup.",
-              "H would be selected if you weighted synthesizability highly enough.",
-              "At least one other molecule is as good or better on BOTH objectives, so no weighting of potency vs synthesizability could ever make H the optimal choice — synthesising it is strictly wasted effort.",
-              "H is dominated only because the scoring function is inaccurate.",
-            ],
-            correctIndex: 2,
-            explanation:
-              "Domination is absolute, not a matter of preference. Molecule C (6.5, 8.2) beats H on both axes — it is easier to make AND more potent. There is no set of weights, no project priority, no trade-off under which H is the right answer. That is what makes the Pareto frontier so useful: it discards options that are irrational under every preference, leaving only genuine trade-offs.",
-          },
-          {
-            question:
-              "Why are atom-based construction and 3D pocket-conditioned diffusion models prone to the same weakness?",
-            options: [
-              "Both are too slow to be used in practice.",
-              "Both place atoms directly with essentially unconstrained freedom, so nothing in the generation process requires the result to be synthesisable — which is why both are typically paired with a downstream synthetic-accessibility filter.",
-              "Both can only generate molecules that already exist in the training set.",
-              "Both require a known protein structure to work at all.",
-            ],
-            correctIndex: 1,
-            explanation:
-              "A diffusion model is an atom-based constructor wearing a neural network. It positions atoms wherever the denoiser wants them, which grants maximum control over the chemistry and — by the control/synthesizability spectrum — minimum guarantee that a chemist can make the result. Reaction-based methods avoid this by construction, since they can only ever apply transformations that real chemists actually run.",
-          },
-        ]}
-      />
+      <section className="space-y-5">
+        <h2>Knowledge check</h2>
+        <Quiz
+          moduleTitle="Module 11: De Novo & Generative Molecular Design"
+          questions={[
+            {
+              question:
+                "Your generative model optimizes docking score alone and returns very large, highly lipophilic molecules with superb predicted affinity. What went wrong?",
+              options: [
+                "The docking scoring function is buggy and must be replaced.",
+                "The search algorithm collapsed into a local minimum.",
+                "Nothing is wrong with the score — it is incomplete. Docking scores generally improve with more atoms making more contacts, so single-objective optimization drives molecular size upward. The fix is multi-objective scoring that also penalizes size, lipophilicity and synthetic difficulty.",
+                "The construction method must have been reaction-based.",
+              ],
+              correctIndex: 2,
+              explanation:
+                "This is the classic reward-hacking failure. The model did exactly what you asked: it maximized the number you gave it. Because docking scores tend to reward additional favourable contacts, 'more atoms' is a legitimate strategy for maximizing that one objective. The generator is not broken — the objective was under-specified. Real design requires balancing several objectives simultaneously, which is why the Pareto frontier matters.",
+            },
+            {
+              question:
+                "In the Pareto playground, molecule H (synthesizability 6.0, potency 6.5) is dominated. What does that mean practically?",
+              options: [
+                "H is the second-best molecule and should be kept as a backup.",
+                "H would be selected if you weighted synthesizability highly enough.",
+                "At least one other molecule is as good or better on BOTH objectives, so no weighting of potency vs synthesizability could ever make H the optimal choice — synthesising it is strictly wasted effort.",
+                "H is dominated only because the scoring function is inaccurate.",
+              ],
+              correctIndex: 2,
+              explanation:
+                "Domination is absolute, not a matter of preference. Molecule C (6.5, 8.2) beats H on both axes — it is easier to make AND more potent. There is no set of weights, no project priority, no trade-off under which H is the right answer. That is what makes the Pareto frontier so useful: it discards options that are irrational under every preference, leaving only genuine trade-offs.",
+            },
+            {
+              question:
+                "Why are atom-based construction and 3D pocket-conditioned diffusion models prone to the same weakness?",
+              options: [
+                "Both are too slow to be used in practice.",
+                "Both place atoms directly with essentially unconstrained freedom, so nothing in the generation process requires the result to be synthesisable — which is why both are typically paired with a downstream synthetic-accessibility filter.",
+                "Both can only generate molecules that already exist in the training set.",
+                "Both require a known protein structure to work at all.",
+              ],
+              correctIndex: 1,
+              explanation:
+                "A diffusion model is an atom-based constructor wearing a neural network. It positions atoms wherever the denoiser wants them, which grants maximum control over the chemistry and — by the control/synthesizability spectrum — minimum guarantee that a chemist can make the result. Reaction-based methods avoid this by construction, since they can only ever apply transformations that real chemists actually run.",
+            },
+          ]}
+        />
+      </section>
     </div>
   );
 }

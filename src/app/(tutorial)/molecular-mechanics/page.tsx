@@ -87,6 +87,18 @@ export default function MolecularMechanicsPage() {
 
       <hr className="border-slate-200" />
 
+      {/* Learning outcomes */}
+      <section className="rounded-xl border border-border bg-surface p-5 space-y-2">
+        <h2 className="!mt-0 !text-base font-bold">Learning outcomes</h2>
+        <ul className="list-disc pl-5 text-sm text-slate-800 space-y-1 leading-relaxed">
+          <li>Write out the force field energy decomposition and say what each term models.</li>
+          <li>Explain how force fields are parameterized and where transferability fails.</li>
+          <li>Read a torsional energy profile and derive conformer populations from it.</li>
+          <li>Distinguish energy minimization from conformational search, and know when each applies.</li>
+          <li>Predict which downstream errors trace back to which force field term.</li>
+        </ul>
+      </section>
+
       {/* Section 1 */}
       <section className="space-y-4">
         <h2>1. Atoms and Springs: The Central Approximation</h2>
@@ -452,50 +464,53 @@ print(f"Spread across {len(energies)} conformers: {energies[-1]-energies[0]:.2f}
       </section>
 
       {/* Quiz */}
-      <Quiz
-        moduleTitle="Module 4: Molecular Mechanics & Force Fields"
-        questions={[
-          {
-            question:
-              "Why can a classical force field never model a covalent inhibitor forming its bond with a cysteine residue?",
-            options: [
-              "Because force fields ignore hydrogen atoms.",
-              "Because bond stretching is modelled as a harmonic spring, whose energy rises quadratically forever — bonds can stretch but never break, since the model has no electrons to redistribute.",
-              "Because the Lennard-Jones term prevents atoms from approaching each other.",
-              "Because covalent bonds are too short for the non-bonded cutoff.",
-            ],
-            correctIndex: 1,
-            explanation:
-              "Molecular mechanics discards electrons and replaces each bond with a harmonic spring, E = k_b(r − r₀)². Stretch that spring and the energy simply keeps climbing — there is no dissociation limit, and no mechanism for making or breaking a bond. Modelling the reaction requires quantum mechanics for the reacting centre, which is exactly what QM/MM provides.",
-          },
-          {
-            question:
-              "In the butane profile, gauche sits ~0.86 kcal/mol above anti, yet roughly 30% of butane molecules are gauche at room temperature. Why is the gauche population so high?",
-            options: [
-              "Because the Boltzmann factor favours higher-energy states at 298 K.",
-              "Because there are two equivalent gauche wells (+60° and −60°) but only one anti well, so gauche gets a factor-of-2 degeneracy that partly offsets its energy penalty.",
-              "Because the torsional barrier is infinitely high, trapping molecules in gauche.",
-              "Because gauche is actually the global minimum.",
-            ],
-            correctIndex: 1,
-            explanation:
-              "Population depends on both energy and the number of states. The Boltzmann factor exp(−0.86/0.593) ≈ 0.23 disfavours each gauche well, but there are two of them, giving 2 × 0.23 ≈ 0.47 against anti's 1.0 — roughly a 70:30 anti:gauche mix, which matches experiment. Counting states matters as much as computing energies; this same degeneracy logic underlies the entropy terms in Module 3.",
-          },
-          {
-            question:
-              "You minimize a flexible ligand with 5 rotatable bonds and obtain a converged structure. Why is it a mistake to treat this as 'the' conformation of the molecule?",
-            options: [
-              "Because minimization always fails to converge for flexible molecules.",
-              "Because minimization only moves downhill, so it returns the nearest local minimum determined by your starting geometry — one of potentially hundreds — and cannot cross barriers to find the global minimum or the bioactive conformation.",
-              "Because force fields cannot handle molecules with more than 3 rotatable bonds.",
-              "Because the global minimum is always the bioactive conformation anyway.",
-            ],
-            correctIndex: 1,
-            explanation:
-              "Minimization is a downhill walk: it finds the bottom of whatever valley you started in and stops. With 5 rotatable bonds there are hundreds of valleys, and nothing about convergence tells you that you landed in the deepest one. Worse, the bioactive conformation — the shape the receptor actually binds — is frequently not the global minimum at all, since the protein can pay a few kcal/mol to distort the ligand. Finding conformations requires sampling (conformer generation, MC/GA, or MD), not minimization.",
-          },
-        ]}
-      />
+      <section className="space-y-5">
+        <h2>Knowledge check</h2>
+        <Quiz
+          moduleTitle="Module 4: Molecular Mechanics & Force Fields"
+          questions={[
+            {
+              question:
+                "Why can a classical force field never model a covalent inhibitor forming its bond with a cysteine residue?",
+              options: [
+                "Because force fields ignore hydrogen atoms.",
+                "Because bond stretching is modelled as a harmonic spring, whose energy rises quadratically forever — bonds can stretch but never break, since the model has no electrons to redistribute.",
+                "Because the Lennard-Jones term prevents atoms from approaching each other.",
+                "Because covalent bonds are too short for the non-bonded cutoff.",
+              ],
+              correctIndex: 1,
+              explanation:
+                "Molecular mechanics discards electrons and replaces each bond with a harmonic spring, E = k_b(r − r₀)². Stretch that spring and the energy simply keeps climbing — there is no dissociation limit, and no mechanism for making or breaking a bond. Modelling the reaction requires quantum mechanics for the reacting centre, which is exactly what QM/MM provides.",
+            },
+            {
+              question:
+                "In the butane profile, gauche sits ~0.86 kcal/mol above anti, yet roughly 30% of butane molecules are gauche at room temperature. Why is the gauche population so high?",
+              options: [
+                "Because the Boltzmann factor favours higher-energy states at 298 K.",
+                "Because there are two equivalent gauche wells (+60° and −60°) but only one anti well, so gauche gets a factor-of-2 degeneracy that partly offsets its energy penalty.",
+                "Because the torsional barrier is infinitely high, trapping molecules in gauche.",
+                "Because gauche is actually the global minimum.",
+              ],
+              correctIndex: 1,
+              explanation:
+                "Population depends on both energy and the number of states. The Boltzmann factor exp(−0.86/0.593) ≈ 0.23 disfavours each gauche well, but there are two of them, giving 2 × 0.23 ≈ 0.47 against anti's 1.0 — roughly a 70:30 anti:gauche mix, which matches experiment. Counting states matters as much as computing energies; this same degeneracy logic underlies the entropy terms in Module 3.",
+            },
+            {
+              question:
+                "You minimize a flexible ligand with 5 rotatable bonds and obtain a converged structure. Why is it a mistake to treat this as 'the' conformation of the molecule?",
+              options: [
+                "Because minimization always fails to converge for flexible molecules.",
+                "Because minimization only moves downhill, so it returns the nearest local minimum determined by your starting geometry — one of potentially hundreds — and cannot cross barriers to find the global minimum or the bioactive conformation.",
+                "Because force fields cannot handle molecules with more than 3 rotatable bonds.",
+                "Because the global minimum is always the bioactive conformation anyway.",
+              ],
+              correctIndex: 1,
+              explanation:
+                "Minimization is a downhill walk: it finds the bottom of whatever valley you started in and stops. With 5 rotatable bonds there are hundreds of valleys, and nothing about convergence tells you that you landed in the deepest one. Worse, the bioactive conformation — the shape the receptor actually binds — is frequently not the global minimum at all, since the protein can pay a few kcal/mol to distort the ligand. Finding conformations requires sampling (conformer generation, MC/GA, or MD), not minimization.",
+            },
+          ]}
+        />
+      </section>
     </div>
   );
 }

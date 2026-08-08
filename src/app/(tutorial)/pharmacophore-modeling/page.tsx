@@ -18,7 +18,6 @@ export default function PharmacophoreModelingPage() {
   const [tolerance, setTolerance] = useState(1.2); // Radius in Angstroms
   const [selectedMolecule, setSelectedMolecule] = useState<number>(0);
   const [screened, setScreened] = useState(false);
-  const [activeInfoTab, setActiveInfoTab] = useState<string>("concept");
   const [hoveredFeature, setHoveredFeature] = useState<string | null>(null);
 
   // Pharmacophore definitions and features
@@ -132,49 +131,22 @@ export default function PharmacophoreModelingPage() {
         </p>
       </div>
 
-      {/* Concept navigation tabs */}
-      <div className="border-b border-border">
-        <nav className="flex space-x-6 text-sm font-medium">
-          <button
-            onClick={() => setActiveInfoTab("concept")}
-            className={`pb-3 transition-colors ${
-              activeInfoTab === "concept" ? "border-b-2 border-accent text-accent font-semibold" : "text-slate-500 hover:text-slate-900"
-            }`}
-          >
-            Supramolecular Concepts
-          </button>
-          <button
-            onClick={() => setActiveInfoTab("workflow")}
-            className={`pb-3 transition-colors ${
-              activeInfoTab === "workflow" ? "border-b-2 border-accent text-accent font-semibold" : "text-slate-500 hover:text-slate-900"
-            }`}
-          >
-            Pharmacophore Workflows
-          </button>
-          <button
-            onClick={() => setActiveInfoTab("scaffold")}
-            className={`pb-3 transition-colors ${
-              activeInfoTab === "scaffold" ? "border-b-2 border-accent text-accent font-semibold" : "text-slate-500 hover:text-slate-900"
-            }`}
-          >
-            Scaffold Hopping Theory
-          </button>
-          <button
-            onClick={() => setActiveInfoTab("pipeline")}
-            className={`pb-3 transition-colors ${
-              activeInfoTab === "pipeline" ? "border-b-2 border-accent text-accent font-semibold" : "text-slate-500 hover:text-slate-900"
-            }`}
-          >
-            PDB-to-Pharmacophore Pipeline
-          </button>
-        </nav>
-      </div>
+      {/* Learning outcomes */}
+      <section className="rounded-xl border border-border bg-surface p-5 space-y-2">
+        <h2 className="!mt-0 !text-base font-bold">Learning outcomes</h2>
+        <ul className="list-disc pl-5 text-sm text-slate-800 space-y-1 leading-relaxed">
+          <li>State what a pharmacophore is — and what it is not — using the IUPAC definition.</li>
+          <li>Choose between a ligand-based and a structure-based model from the evidence you actually have.</li>
+          <li>Explain how a pharmacophore enables scaffold hopping where fingerprint similarity fails.</li>
+          <li>Balance feature tolerance against excluded volumes, and say what each one costs you.</li>
+          <li>Validate a model against property-matched decoys and read the resulting metrics honestly.</li>
+        </ul>
+      </section>
 
-      {/* Tabs Content */}
-      <div className="space-y-4">
-        {activeInfoTab === "concept" && (
-          <div className="space-y-4">
-            <h2>The IUPAC Blueprint of Molecular Recognition</h2>
+      {/* Sections */}
+      <div className="space-y-10">
+        <section className="space-y-4">
+            <h2>1. The IUPAC Blueprint of Molecular Recognition</h2>
             <div className="bg-surface border border-border rounded-xl p-5 mb-4">
               <span className="block font-semibold text-xs text-accent uppercase tracking-wider mb-2">IUPAC Definition</span>
               <p className="italic text-foreground text-base font-serif leading-relaxed">
@@ -188,12 +160,10 @@ export default function PharmacophoreModelingPage() {
             <p>
               By translating physical structures into abstract pharmacophoric features, computational chemists can screen billions of compounds without running full docking simulations, focusing solely on whether the key functional features are placed at the exact 3D coordinates required for binding.
             </p>
-          </div>
-        )}
+        </section>
 
-        {activeInfoTab === "workflow" && (
-          <div className="space-y-4">
-            <h2>Ligand-Based vs. Structure-Based Pharmacophores</h2>
+        <section className="space-y-4">
+            <h2>2. Ligand-Based vs. Structure-Based Pharmacophores</h2>
             <p>
               Depending on the availability of biological data, pharmacophore modeling follows one of two distinct methodologies:
             </p>
@@ -213,12 +183,10 @@ export default function PharmacophoreModelingPage() {
                 </p>
               </div>
             </div>
-          </div>
-        )}
+        </section>
 
-        {activeInfoTab === "scaffold" && (
-          <div className="space-y-4">
-            <h2>Scaffold Hopping: Breaking Structural Constraints</h2>
+        <section className="space-y-4">
+            <h2>3. Scaffold Hopping: Breaking Structural Constraints</h2>
             <p>
               One of the most powerful applications of pharmacophores is <strong>scaffold hopping</strong>: the identification of structurally novel active compounds that possess completely different core architectures (scaffolds) from the starting molecules.
             </p>
@@ -229,12 +197,13 @@ export default function PharmacophoreModelingPage() {
               <strong className="text-foreground block not-italic mb-1">Biological Equivalence:</strong>
               If Molecule A (steroidal core) and Molecule B (flexible alkyl core) present H-bond donor, acceptor, and aromatic groups at the same 3D spatial distances, they will trigger the same biological response at the receptor pocket, despite looking completely unrelated on paper.
             </div>
-          </div>
-        )}
+            <p className="text-sm text-slate-700">
+              The playground below is exactly this experiment: Molecule A is a steroid, Molecule B is a stilbene, and they share no scaffold at all — yet both satisfy the same three feature points.
+            </p>
+        </section>
 
-        {activeInfoTab === "pipeline" && (
-          <div className="space-y-4">
-            <h2>Computational PDB-to-3D Pharmacophore Pipeline</h2>
+        <section className="space-y-4">
+            <h2>4. Computational PDB-to-3D Pharmacophore Pipeline</h2>
             <p>
               When multiple crystal structures of a target protein bound to different ligands are available in the PDB, computational chemists run a 5-stage Python pipeline using open-source packages to extract an actionable consensus pharmacophore:
             </p>
@@ -285,8 +254,7 @@ export default function PharmacophoreModelingPage() {
                 </div>
               </div>
             </div>
-          </div>
-        )}
+        </section>
       </div>
 
       {/* Interactive Section */}
@@ -733,7 +701,7 @@ export default function PharmacophoreModelingPage() {
       </section>
 
       <section className="space-y-4">
-        <h2>Common Pharmacophoric Feature Types</h2>
+        <h2>5. Common Pharmacophoric Feature Types</h2>
         <p>
           Modern screening tools use seven canonical features to capture ligand-receptor binding properties. Below is their biophysical classification:
         </p>
@@ -780,7 +748,7 @@ export default function PharmacophoreModelingPage() {
 
       {/* Excluded volumes */}
       <section className="space-y-4 border-t border-border pt-8">
-        <h2>Excluded Volumes: Encoding Where a Ligand May <em>Not</em> Go</h2>
+        <h2>6. Excluded Volumes: Encoding Where a Ligand May <em>Not</em> Go</h2>
         <p>
           Everything so far describes features a molecule must <strong>have</strong>. That is only half a pharmacophore, and on its own it is dangerously permissive: a query made purely of required features will happily match an enormous molecule that satisfies every point and also occupies the space where the protein backbone sits.
         </p>
@@ -813,7 +781,7 @@ export default function PharmacophoreModelingPage() {
 
       {/* Conformers */}
       <section className="space-y-4 border-t border-border pt-8">
-        <h2>Conformers: The Step That Quietly Decides Everything</h2>
+        <h2>7. Conformers: The Step That Quietly Decides Everything</h2>
         <p>
           A 3D pharmacophore describes features at fixed distances, but the molecules you are screening are flexible and stored as 2D graphs. Before any matching happens, every database compound must be expanded into a <strong>conformer ensemble</strong> — a set of plausible 3D shapes. A compound is scored as a hit if <em>any single conformer</em> satisfies the query.
         </p>
@@ -839,7 +807,7 @@ export default function PharmacophoreModelingPage() {
 
       {/* Validation */}
       <section className="space-y-4 border-t border-border pt-8">
-        <h2>Validating a Pharmacophore Model</h2>
+        <h2>8. Validating a Pharmacophore Model</h2>
         <p>
           A pharmacophore query will always return <em>something</em>. The question is whether those hits are enriched in real actives or merely numerous, and you cannot answer it by inspecting the model — you have to test it retrospectively against compounds whose answer you already know.
         </p>
@@ -903,7 +871,7 @@ export default function PharmacophoreModelingPage() {
 
       {/* Advanced Topic: 3D Pharmacophore Fingerprints */}
       <section className="space-y-4 border-t border-border pt-8">
-        <h2>Advanced: 3D Pharmacophore Fingerprints &amp; Dynamic Pharmacophores</h2>
+        <h2>9. Advanced: 3D Pharmacophore Fingerprints &amp; Dynamic Pharmacophores</h2>
         <p>
           To accelerate screening, computers encode pharmacophores into 1D bit-strings called <strong>pharmacophore fingerprints</strong>. Instead of doing geometry alignments on the fly, molecules are represented as bins of distance pairs.
         </p>
@@ -940,66 +908,69 @@ export default function PharmacophoreModelingPage() {
 
       {/* Quiz Section */}
       <hr className="border-slate-200 my-8" />
-      <Quiz 
-        moduleTitle="Module 7: Pharmacophore Modeling"
-        questions={[
-          {
-            question: "What is the scientific purpose of applying the DBSCAN clustering algorithm during 3D pocket extraction?",
-            options: [
-              "It calculates the binding free energy of co-crystallized complexes.",
-              "It resolves crystallographic steric clashes and missing loops.",
-              "It groups aligned ligand coordinates by spatial density to cleanly isolate orthosteric binding pockets from allosteric sites and noise.",
-              "It assigns partial charges to raw PDB coordinates using semi-empirical Hamiltonians."
-            ],
-            correctIndex: 2,
-            explanation: "DBSCAN is a density-based spatial clustering algorithm. It is used to group co-crystallized ligand atoms overlaying in 3D space, which allows the pipeline to separate the orthosteric active site from allosteric binding pockets and filter out sparse water or buffer artifacts without knowing the number of clusters in advance."
-          },
-          {
-            question: "Why can you NOT feed raw ligand coordinates extracted directly from PDB files straight into RDKit for feature extraction?",
-            options: [
-              "PDB coordinates are encrypted by crystallographic symmetry.",
-              "PDB formats do not store bond orders, which would render the chemical structures and downstream feature tagging silently incorrect.",
-              "RDKit only parses line notations like SMILES or SELFIES.",
-              "PDB files only support macromolecular residues and reject small organic ligands."
-            ],
-            correctIndex: 1,
-            explanation: "PDB coordinates do not contain bond order metadata, resulting in all bonds returning as ambiguous single bonds. Downstream chemoinformatics libraries like RDKit need correct bond topologies to tag features accurately, which requires matching raw 3D coords against a 2D SMILES template to restore proper double bonds, aromatic rings, and carbonyls."
-          },
-          {
-            question: "How is the final consensus pharmacophore query compiled from the clustered ligand feature points?",
-            options: [
-              "We select the single highest-resolution PDB structure and copy its ligand points exactly.",
-              "All features from all input ligands are combined, generating a dense map of thousands of points.",
-              "A k-means algorithm is run within each feature type, keeping only the centroids shared by at least 50% of active input ligands.",
-              "The consensus model is derived using standard Tanimoto fingerprint similarities."
-            ],
-            correctIndex: 2,
-            explanation: "To distill a clean geometric query from a cloud of thousands of points, features are grouped by class (e.g. all acceptors) and clustered using k-means. Centroids representing hotspots shared by a majority of active input ligands (>= 50%) are retained as the consensus pharmacophore query."
-          },
-          {
-            question: "A structure-based pharmacophore built from three required features retrieves a very large number of hits, many of them far bulkier than the co-crystallized ligand. What is the most likely omission?",
-            options: [
-              "The feature tolerance radius was set too small.",
-              "The model has no excluded volumes, so it constrains chemistry but not shape.",
-              "The conformer ensembles were generated with too high an energy window.",
-              "The aromatic feature should have been defined as hydrophobic."
-            ],
-            correctIndex: 1,
-            explanation: "Required features specify what a molecule must have, not where it must not go. Without excluded volumes marking the receptor atoms lining the pocket, an oversized compound can satisfy every feature point while also occupying space the protein already fills. Adding excluded volumes from the receptor is the standard fix and is nearly free in a structure-based model."
-          },
-          {
-            question: "A pharmacophore model reports 95% sensitivity and 98% specificity against its validation set, but performs poorly in a prospective screen. The decoys were drawn at random from a vendor catalogue. What went wrong?",
-            options: [
-              "The validation set was too large, causing overfitting of the tolerance radii.",
-              "Random decoys differ from the actives in bulk properties, so the model was rewarded for separating physicochemistry rather than recognising the pharmacophore.",
-              "Sensitivity and specificity are invalid metrics for pharmacophore models.",
-              "The model should have been validated with ROC-AUC, which is immune to decoy selection."
-            ],
-            correctIndex: 1,
-            explanation: "Decoys must be property-matched to the actives — similar molecular weight, logP, charge, and rotatable-bond count — while differing in topology. Random decoys typically differ from the actives in gross properties, so a model can score superbly by separating small polar molecules from large greasy ones, which is not what it will be asked to do prospectively. No choice of metric repairs a badly chosen decoy set."
-          }
-        ]}
-      />
+      <section className="space-y-5">
+        <h2>Knowledge check</h2>
+        <Quiz 
+          moduleTitle="Module 7: Pharmacophore Modeling"
+          questions={[
+            {
+              question: "What is the scientific purpose of applying the DBSCAN clustering algorithm during 3D pocket extraction?",
+              options: [
+                "It calculates the binding free energy of co-crystallized complexes.",
+                "It resolves crystallographic steric clashes and missing loops.",
+                "It groups aligned ligand coordinates by spatial density to cleanly isolate orthosteric binding pockets from allosteric sites and noise.",
+                "It assigns partial charges to raw PDB coordinates using semi-empirical Hamiltonians."
+              ],
+              correctIndex: 2,
+              explanation: "DBSCAN is a density-based spatial clustering algorithm. It is used to group co-crystallized ligand atoms overlaying in 3D space, which allows the pipeline to separate the orthosteric active site from allosteric binding pockets and filter out sparse water or buffer artifacts without knowing the number of clusters in advance."
+            },
+            {
+              question: "Why can you NOT feed raw ligand coordinates extracted directly from PDB files straight into RDKit for feature extraction?",
+              options: [
+                "PDB coordinates are encrypted by crystallographic symmetry.",
+                "PDB formats do not store bond orders, which would render the chemical structures and downstream feature tagging silently incorrect.",
+                "RDKit only parses line notations like SMILES or SELFIES.",
+                "PDB files only support macromolecular residues and reject small organic ligands."
+              ],
+              correctIndex: 1,
+              explanation: "PDB coordinates do not contain bond order metadata, resulting in all bonds returning as ambiguous single bonds. Downstream chemoinformatics libraries like RDKit need correct bond topologies to tag features accurately, which requires matching raw 3D coords against a 2D SMILES template to restore proper double bonds, aromatic rings, and carbonyls."
+            },
+            {
+              question: "How is the final consensus pharmacophore query compiled from the clustered ligand feature points?",
+              options: [
+                "We select the single highest-resolution PDB structure and copy its ligand points exactly.",
+                "All features from all input ligands are combined, generating a dense map of thousands of points.",
+                "A k-means algorithm is run within each feature type, keeping only the centroids shared by at least 50% of active input ligands.",
+                "The consensus model is derived using standard Tanimoto fingerprint similarities."
+              ],
+              correctIndex: 2,
+              explanation: "To distill a clean geometric query from a cloud of thousands of points, features are grouped by class (e.g. all acceptors) and clustered using k-means. Centroids representing hotspots shared by a majority of active input ligands (>= 50%) are retained as the consensus pharmacophore query."
+            },
+            {
+              question: "A structure-based pharmacophore built from three required features retrieves a very large number of hits, many of them far bulkier than the co-crystallized ligand. What is the most likely omission?",
+              options: [
+                "The feature tolerance radius was set too small.",
+                "The model has no excluded volumes, so it constrains chemistry but not shape.",
+                "The conformer ensembles were generated with too high an energy window.",
+                "The aromatic feature should have been defined as hydrophobic."
+              ],
+              correctIndex: 1,
+              explanation: "Required features specify what a molecule must have, not where it must not go. Without excluded volumes marking the receptor atoms lining the pocket, an oversized compound can satisfy every feature point while also occupying space the protein already fills. Adding excluded volumes from the receptor is the standard fix and is nearly free in a structure-based model."
+            },
+            {
+              question: "A pharmacophore model reports 95% sensitivity and 98% specificity against its validation set, but performs poorly in a prospective screen. The decoys were drawn at random from a vendor catalogue. What went wrong?",
+              options: [
+                "The validation set was too large, causing overfitting of the tolerance radii.",
+                "Random decoys differ from the actives in bulk properties, so the model was rewarded for separating physicochemistry rather than recognising the pharmacophore.",
+                "Sensitivity and specificity are invalid metrics for pharmacophore models.",
+                "The model should have been validated with ROC-AUC, which is immune to decoy selection."
+              ],
+              correctIndex: 1,
+              explanation: "Decoys must be property-matched to the actives — similar molecular weight, logP, charge, and rotatable-bond count — while differing in topology. Random decoys typically differ from the actives in gross properties, so a model can score superbly by separating small polar molecules from large greasy ones, which is not what it will be asked to do prospectively. No choice of metric repairs a badly chosen decoy set."
+            }
+          ]}
+        />
+      </section>
     </div>
   );
 }

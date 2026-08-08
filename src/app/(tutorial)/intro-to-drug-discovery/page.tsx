@@ -163,6 +163,18 @@ export default function IntroToDrugDiscoveryPage() {
 
       <hr className="border-slate-100 dark:border-slate-900" />
 
+      {/* Learning outcomes */}
+      <section className="rounded-xl border border-border bg-surface p-5 space-y-2">
+        <h2 className="!mt-0 !text-base font-bold">Learning outcomes</h2>
+        <ul className="list-disc pl-5 text-sm text-slate-800 space-y-1 leading-relaxed">
+          <li>Trace a compound through the discovery pipeline and explain the attrition at each stage.</li>
+          <li>Distinguish a hit, a lead, and a drug candidate by the evidence each one requires.</li>
+          <li>Choose between target-based and phenotypic hit finding, and state what each costs you.</li>
+          <li>Explain why lack of efficacy — not potency — dominates late-stage failure.</li>
+          <li>Place any module in this course at the pipeline stage it serves.</li>
+        </ul>
+      </section>
+
       {/* Section 1: Overview */}
       <section className="space-y-4">
         <h2>1. The Drug Discovery and Development Pipeline</h2>

@@ -198,6 +198,18 @@ export default function CheminformaticsPage() {
 
       <hr className="border-slate-100 dark:border-slate-900" />
 
+      {/* Learning outcomes */}
+      <section className="rounded-xl border border-border bg-surface p-5 space-y-2">
+        <h2 className="!mt-0 !text-base font-bold">Learning outcomes</h2>
+        <ul className="list-disc pl-5 text-sm text-slate-800 space-y-1 leading-relaxed">
+          <li>Convert between SMILES, InChI, SMARTS, and SDF, and state what each format preserves.</li>
+          <li>Explain why InChIKey — not SMILES — is the basis for chemical identity and deduplication.</li>
+          <li>Describe the isomerism landscape and identify what standard fingerprints cannot see.</li>
+          <li>Compute Tanimoto and Tversky similarity and choose between them appropriately.</li>
+          <li>Design a curation pipeline that makes a public bioactivity dataset trainable.</li>
+        </ul>
+      </section>
+
       {/* Section 1: Overview */}
       <section className="space-y-4">
         <h2>1. Computers vs. Chemists: The Structural Challenge</h2>
@@ -266,9 +278,17 @@ export default function CheminformaticsPage() {
           </div>
         </div>
 
+      </section>
+
+      {/* Section 3: Identity, stereochemistry and standardisation */}
+      <section className="space-y-4">
+        <h2>3. Chemical Identity: InChI, InChIKey &amp; What SMILES Loses</h2>
+        <p>
+          The formats above <em>describe</em> a molecule. This section is about a harder problem: deciding whether two descriptions refer to the <strong>same</strong> molecule. That question underlies every deduplication step, every database join, and every train/test split you will make for the rest of the course — and SMILES alone cannot answer it, because one molecule has many valid SMILES.
+        </p>
+
         {/* InChI & InChIKey Subsection */}
-        <div className="mt-6 space-y-4 not-prose">
-          <h3 className="font-bold text-base text-slate-900">InChI &amp; InChIKey: The Universal Chemical Identifier</h3>
+        <div className="mt-2 space-y-4 not-prose">
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="p-4 rounded-xl border border-border bg-white space-y-1.5">
@@ -337,9 +357,19 @@ if mol:
     print('InChIKey Hash: ', inchi_key)`}
           />
 
+        </div>
+      </section>
+
+      {/* Section 4: Isomerism and stereochemistry */}
+      <section className="space-y-4">
+        <h2>4. The Isomerism Landscape: What a Graph Cannot Capture</h2>
+        <p>
+          Identity has a second, harder half. Two molecules can share a formula, a connectivity table, and even a canonical SMILES string, and still be different drugs — because the difference lives in three dimensions rather than in the graph. This is where cheminformatics most often fails silently, so it is worth being precise about which kinds of isomerism your representation can see.
+        </p>
+
+        <div className="space-y-4 not-prose">
           {/* The Isomerism Landscape */}
-          <div className="border-t border-slate-200 pt-6 mt-6 space-y-4">
-            <h4 className="font-bold text-sm text-slate-900">The Isomerism Landscape</h4>
+          <div className="space-y-4">
             <p className="text-sm text-slate-700 leading-relaxed">
               <strong>Isomers</strong> share a molecular formula but differ in some other way — and almost every kind changes biological activity. R/S chirality is only one branch of the tree. The split that matters most for a cheminformatician is whether the <em>connectivity</em> changes (a different graph) or only the <em>spatial arrangement</em> does (the same graph).
             </p>
@@ -831,7 +861,7 @@ for idx, isomer in enumerate(isomers):
 
       {/* Section 3: Fingerprints */}
       <section className="space-y-4">
-        <h2>3. Predefined vs. Topological Fingerprints</h2>
+        <h2>5. Predefined vs. Topological Fingerprints</h2>
         <p>
           While basic 1D descriptors capture simple properties (like logP or molecular weight), advanced machine learning relies on molecular fingerprints to encode spatial networks:
         </p>
@@ -895,7 +925,7 @@ for idx, isomer in enumerate(isomers):
 
       {/* Section 4: Quantitative Similarity */}
       <section className="space-y-4">
-        <h2>4. The Tanimoto Coefficient: Defining Chemical Similarity</h2>
+        <h2>6. The Tanimoto Coefficient: Defining Chemical Similarity</h2>
         <p>
           In virtual database screening, we compare candidate molecules to a known active reference molecule to identify biological hits. The standard metric to quantify structural similarity is the <strong>Tanimoto Coefficient (Tc)</strong>:
         </p>
@@ -921,7 +951,7 @@ for idx, isomer in enumerate(isomers):
 
       {/* Section 5: Local SAR transformations */}
       <section className="space-y-4">
-        <h2>5. Matched Molecular Pairs, Activity Cliffs &amp; Bioisosteres</h2>
+        <h2>7. Matched Molecular Pairs, Activity Cliffs &amp; Bioisosteres</h2>
         <p>
           Whole-molecule similarity is useful for retrieval, but medicinal chemistry often asks a
           more local question: what changed when one defined structural transformation was made
@@ -964,7 +994,7 @@ for idx, isomer in enumerate(isomers):
 
       {/* Section 6: Curation & Standardisation */}
       <section className="space-y-4">
-        <h2>6. Chemical Data Curation &amp; Standardisation Pipeline</h2>
+        <h2>8. Chemical Data Curation &amp; Standardisation Pipeline</h2>
         <p>
           In public bioactivity databases (e.g. ChEMBL, PubChem), molecules are uploaded as raw SMILES representing diverse experimental settings. They often contain counterions (salts), solvent molecules, incorrect formal charges, and mismatching tautomeric forms. If used directly in machine learning, these artifacts degrade prediction accuracy.
         </p>
@@ -1051,7 +1081,7 @@ def standardize_smiles(raw_smiles: str) -> str:
 
       {/* Advanced Section: Practical Cheminformatics with RDKit */}
       <section className="space-y-4 border-t border-border pt-8">
-        <h2>Advanced: Practical Cheminformatics with RDKit</h2>
+        <h2>9. Advanced: Practical Cheminformatics with RDKit</h2>
         <p>
           RDKit is the industry-standard library for cheminformatics in Python. Beyond chemical standardization, it provides robust APIs for multi-format file operations, 3D conformer generation, and chemical reaction processing.
         </p>
@@ -1189,44 +1219,47 @@ print('BRICS fragment leaves: ' + str(brics_fragments))`}
 
       {/* Quiz Section */}
       <hr className="border-slate-200 my-8" />
-      <Quiz 
-        moduleTitle="Module 5: Cheminformatics & Molecular Representations"
-        questions={[
-          {
-            question: "Why is tautomer canonicalization critical before generating ECFP4 fingerprints for machine learning models?",
-            options: [
-              "Because tautomers represent different stereoisomers, which have different molecular weights.",
-              "Because the same chemical compound can exist in multiple tautomeric forms (e.g. keto vs enol), which would result in different SMILES and different circular fingerprints, confusing the machine learning model.",
-              "Because RDKit cannot calculate fingerprints on non-canonical structures.",
-              "Because it is required to remove solvent water molecules from the connection table."
-            ],
-            correctIndex: 1,
-            explanation: "Tautomers are chemical isomers that interconvert rapidly in solution (like keto and enol forms). Although they are functionally the same drug, they have different bond connectivity and atom states. ECFP4 circular fingerprints encode local bond connectivity; hence, different tautomeric forms of the same molecule would generate different fingerprints. Canonicalizing them to a single standard form ensures consistent ML features."
-          },
-          {
-            question: "When calculating Tanimoto Similarity between compound fingerprints, what does a score of Tc = 1.0 indicate?",
-            options: [
-              "The compounds are chemically identical and share identical formal connectivity.",
-              "The compounds have identical 3D shapes and conformers in solution.",
-              "The compound fingerprints share the exact same active bits, which means they are topologically identical at the fingerprint level, though they could occasionally be different structural molecules due to hash collisions.",
-              "The compounds have the same molecular weight and logP values."
-            ],
-            correctIndex: 2,
-            explanation: "Tanimoto coefficient measures fingerprint bit vector overlap. Tc = 1.0 means the bit vectors are identical. While this usually indicates identical molecules, fingerprints are fixed-length arrays generated via hash functions. In rare cases, two different substructures can map to the same bit (hash collision), or two different molecules can generate the same bit vector, though they are structurally distinct."
-          },
-          {
-            question: "What makes a matched molecular pair useful for medicinal-chemistry SAR?",
-            options: [
-              "The compounds differ by many scaffolds at once.",
-              "A localized structural transformation can be related to a property change within a controlled context.",
-              "It proves the same transformation will work for every target.",
-              "It removes the need for experimental measurements."
-            ],
-            correctIndex: 1,
-            explanation: "Matched pairs isolate one local transformation more cleanly than a whole-series comparison. The inferred effect remains assay- and context-dependent and is strongest when it repeats across several examples."
-          }
-        ]}
-      />
+      <section className="space-y-5">
+        <h2>Knowledge check</h2>
+        <Quiz 
+          moduleTitle="Module 5: Cheminformatics & Molecular Representations"
+          questions={[
+            {
+              question: "Why is tautomer canonicalization critical before generating ECFP4 fingerprints for machine learning models?",
+              options: [
+                "Because tautomers represent different stereoisomers, which have different molecular weights.",
+                "Because the same chemical compound can exist in multiple tautomeric forms (e.g. keto vs enol), which would result in different SMILES and different circular fingerprints, confusing the machine learning model.",
+                "Because RDKit cannot calculate fingerprints on non-canonical structures.",
+                "Because it is required to remove solvent water molecules from the connection table."
+              ],
+              correctIndex: 1,
+              explanation: "Tautomers are chemical isomers that interconvert rapidly in solution (like keto and enol forms). Although they are functionally the same drug, they have different bond connectivity and atom states. ECFP4 circular fingerprints encode local bond connectivity; hence, different tautomeric forms of the same molecule would generate different fingerprints. Canonicalizing them to a single standard form ensures consistent ML features."
+            },
+            {
+              question: "When calculating Tanimoto Similarity between compound fingerprints, what does a score of Tc = 1.0 indicate?",
+              options: [
+                "The compounds are chemically identical and share identical formal connectivity.",
+                "The compounds have identical 3D shapes and conformers in solution.",
+                "The compound fingerprints share the exact same active bits, which means they are topologically identical at the fingerprint level, though they could occasionally be different structural molecules due to hash collisions.",
+                "The compounds have the same molecular weight and logP values."
+              ],
+              correctIndex: 2,
+              explanation: "Tanimoto coefficient measures fingerprint bit vector overlap. Tc = 1.0 means the bit vectors are identical. While this usually indicates identical molecules, fingerprints are fixed-length arrays generated via hash functions. In rare cases, two different substructures can map to the same bit (hash collision), or two different molecules can generate the same bit vector, though they are structurally distinct."
+            },
+            {
+              question: "What makes a matched molecular pair useful for medicinal-chemistry SAR?",
+              options: [
+                "The compounds differ by many scaffolds at once.",
+                "A localized structural transformation can be related to a property change within a controlled context.",
+                "It proves the same transformation will work for every target.",
+                "It removes the need for experimental measurements."
+              ],
+              correctIndex: 1,
+              explanation: "Matched pairs isolate one local transformation more cleanly than a whole-series comparison. The inferred effect remains assay- and context-dependent and is strongest when it repeats across several examples."
+            }
+          ]}
+        />
+      </section>
     </div>
   );
 }
