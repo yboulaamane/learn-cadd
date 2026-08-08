@@ -53,3 +53,9 @@ The project compiles cleanly using Next.js Turbopack:
 ```bash
 npm run build
 ```
+
+## License
+
+Released under the [MIT License](LICENSE). You are free to use, adapt, and
+redistribute the material, including for teaching, provided the copyright
+notice is retained.
