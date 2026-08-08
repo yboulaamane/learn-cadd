@@ -283,6 +283,18 @@ export default function InSilicoToxicologyPage() {
 
       <hr className="border-slate-100 dark:border-slate-900" />
 
+      {/* Learning outcomes */}
+      <section className="rounded-xl border border-border bg-surface p-5 space-y-2">
+        <h2 className="!mt-0 !text-base font-bold">Learning outcomes</h2>
+        <ul className="list-disc pl-5 text-sm text-slate-800 space-y-1 leading-relaxed">
+          <li>Profile oral drug-likeness with Lipinski and Veber, treating both as alerts not gates.</li>
+          <li>Explain the mechanisms behind hERG, DILI, and Ames liabilities.</li>
+          <li>Build and validate a toxicity classifier for an imbalanced dataset.</li>
+          <li>Interpret SHAP attributions on a toxicophore and state their limits.</li>
+          <li>Say what a structure-derived safety prediction cannot tell you about exposure.</li>
+        </ul>
+      </section>
+
       {/* Section 1: Predictive Toxicology */}
       <section className="space-y-4">
         <h2>1. Critical Safety Endpoints in Drug Discovery</h2>
@@ -819,46 +831,88 @@ print("Toxicity-driving fragment SHAP value: " + str(np.max(first_comp_shap[:, 1
         </div>
       </section>
 
+      {/* Section 5: Limits */}
+      <section className="space-y-4">
+        <h2>5. What These Predictions Cannot Tell You</h2>
+        <p>
+          ADMET models are the most over-trusted tools in computational chemistry, because they return a clean probability for a question — <em>is this compound safe?</em> — that no model can actually answer. Four limits are worth carrying forward.
+        </p>
+
+        <div className="space-y-3 not-prose">
+          <div className="p-4 rounded-lg border border-border bg-white space-y-1.5">
+            <h4 className="font-bold text-sm text-slate-900">A rule is an alert, not a verdict</h4>
+            <p className="text-sm text-slate-800 leading-relaxed">
+              Lipinski and Veber describe tendencies in oral drugs, not requirements. Plenty of approved drugs violate them, and entire modalities — PROTACs, macrocycles, peptides — sit far outside that space by design. Use the rules to raise questions, never to close them.
+            </p>
+          </div>
+          <div className="p-4 rounded-lg border border-border bg-white space-y-1.5">
+            <h4 className="font-bold text-sm text-slate-900">Toxicity models inherit their training sets</h4>
+            <p className="text-sm text-slate-800 leading-relaxed">
+              A hERG or DILI classifier learned from historical compounds knows historical chemistry. Present it a novel chemotype and it will answer confidently from outside its applicability domain (Module 9). Check the domain before believing the probability.
+            </p>
+          </div>
+          <div className="p-4 rounded-lg border border-border bg-white space-y-1.5">
+            <h4 className="font-bold text-sm text-slate-900">SHAP explains the model, not the biology</h4>
+            <p className="text-sm text-slate-800 leading-relaxed">
+              A Shapley value tells you which features drove <em>this model&apos;s</em> output. If the model learned a dataset artefact, SHAP will explain the artefact fluently and persuasively. Attribution is not mechanism.
+            </p>
+          </div>
+          <div className="p-4 rounded-lg border border-border bg-white space-y-1.5">
+            <h4 className="font-bold text-sm text-slate-900">Structure is not exposure</h4>
+            <p className="text-sm text-slate-800 leading-relaxed">
+              Everything in this module is computed from a structure. Whether a compound reaches a harmful concentration at a sensitive tissue depends on dose, clearance, protein binding, and route — which is where Module 15 picks up.
+            </p>
+          </div>
+        </div>
+
+        <p className="text-sm text-slate-700">
+          Used well, these models reorder your synthesis queue and catch liabilities while they are still cheap to fix. Used as a pass/fail gate, they discard good compounds and wave through bad ones with equal confidence.
+        </p>
+      </section>
+
       {/* Quiz Section */}
       <hr className="border-slate-200 my-8" />
-      <Quiz 
-        moduleTitle="Module 12: In Silico ADMET & Safety Assessment"
-        questions={[
-          {
-            question: "Why is a basic tertiary nitrogen frequently flagged with a high positive SHAP value in predictive cardiotoxicity models?",
-            options: [
-              "Because basic tertiary nitrogens are highly electrophilic, reacting immediately with cellular DNA.",
-              "Because basic tertiary nitrogens form strong electrostatic salt bridges with Acid 189 in the active site of metabolic kinase receptors.",
-              "Because at physiological pH 7.4, the basic nitrogen is protonated and fits the hydrophobic/electrostatic inner cavity of the hERG channel, causing cardiotoxic blockade.",
-              "Because it prevents phase-I oxidation pathways, leading to direct cell painting degradation."
-            ],
-            correctIndex: 2,
-            explanation: "At physiological pH 7.4, basic tertiary nitrogens are protonated (positively charged). The hERG potassium channel possesses a large hydrophobic vestibule lined with negative electrostatic potential and aromatic residues (like Tyr652 and Phe656). The protonated nitrogen fits perfectly into this cavity, making it a critical toxicophore structural flag with massive positive SHAP impact in cardiotoxicity models."
-          },
-          {
-            question: "When comparing two ROC curves on the same chemical database, why is DeLong's test preferred over a standard independent t-test for comparing AUC scores?",
-            options: [
-              "Because DeLong's test does not require the calculation of true positive or false positive rates.",
-              "Because the predictions of two models tested on the exact same dataset are highly correlated (non-independent), requiring DeLong's z-score calculation to account for their covariance.",
-              "Because DeLong's test operates on a logarithmic scale, reducing the leverage of extreme chemical outliers.",
-              "Because DeLong's test is only valid for consensus models and cannot evaluate single Random Forests."
-            ],
-            correctIndex: 1,
-            explanation: "When evaluating Model A and Model B on the exact same dataset, their prediction profiles are highly correlated because they are responding to the same chemical space. A standard t-test assumes independent distributions, which would lead to an incorrect (inflated) standard error. DeLong's method computes the covariance of the correlated AUC estimates to calculate a valid z-score and diagnostic p-value."
-          },
-          {
-            question: "Which metabolic mechanism is primarily responsible for Acetaminophen (Paracetamol) hepatotoxicity, and how is it computationally classified?",
-            options: [
-              "Mutagenic DNA-alkylation, classified by searching for electrophilic aromatic nitro alerts in RDKit.",
-              "Metabolic conversion by cytochrome P450 into the reactive quinone-imine metabolite NAPQI, classified by modeling DILI endpoints with Random Forests.",
-              "hERG channel blockade, classified using support vector machine consensus regression.",
-              "Phase-II glucuronidation conjugation, classified using Cell Painting morphometry."
-            ],
-            correctIndex: 1,
-            explanation: "Acetaminophen is safe at standard therapeutic levels but at high concentrations, Cytochrome P450 enzymes oxidize it into NAPQI (N-acetyl-p-benzoquinone imine), a highly reactive quinone-imine that binds to liver proteins, generating toxic stress. DILI classifiers model this endpoint by identifying structural alerts linked to metabolic NAPQI formation and its subsequent hepatotoxicity."
-          }
-        ]}
-      />
+      <section className="space-y-5">
+        <h2>Knowledge check</h2>
+        <Quiz 
+          moduleTitle="Module 12: In Silico ADMET & Safety Assessment"
+          questions={[
+            {
+              question: "Why is a basic tertiary nitrogen frequently flagged with a high positive SHAP value in predictive cardiotoxicity models?",
+              options: [
+                "Because basic tertiary nitrogens are highly electrophilic, reacting immediately with cellular DNA.",
+                "Because basic tertiary nitrogens form strong electrostatic salt bridges with Acid 189 in the active site of metabolic kinase receptors.",
+                "Because at physiological pH 7.4, the basic nitrogen is protonated and fits the hydrophobic/electrostatic inner cavity of the hERG channel, causing cardiotoxic blockade.",
+                "Because it prevents phase-I oxidation pathways, leading to direct cell painting degradation."
+              ],
+              correctIndex: 2,
+              explanation: "At physiological pH 7.4, basic tertiary nitrogens are protonated (positively charged). The hERG potassium channel possesses a large hydrophobic vestibule lined with negative electrostatic potential and aromatic residues (like Tyr652 and Phe656). The protonated nitrogen fits perfectly into this cavity, making it a critical toxicophore structural flag with massive positive SHAP impact in cardiotoxicity models."
+            },
+            {
+              question: "When comparing two ROC curves on the same chemical database, why is DeLong's test preferred over a standard independent t-test for comparing AUC scores?",
+              options: [
+                "Because DeLong's test does not require the calculation of true positive or false positive rates.",
+                "Because the predictions of two models tested on the exact same dataset are highly correlated (non-independent), requiring DeLong's z-score calculation to account for their covariance.",
+                "Because DeLong's test operates on a logarithmic scale, reducing the leverage of extreme chemical outliers.",
+                "Because DeLong's test is only valid for consensus models and cannot evaluate single Random Forests."
+              ],
+              correctIndex: 1,
+              explanation: "When evaluating Model A and Model B on the exact same dataset, their prediction profiles are highly correlated because they are responding to the same chemical space. A standard t-test assumes independent distributions, which would lead to an incorrect (inflated) standard error. DeLong's method computes the covariance of the correlated AUC estimates to calculate a valid z-score and diagnostic p-value."
+            },
+            {
+              question: "Which metabolic mechanism is primarily responsible for Acetaminophen (Paracetamol) hepatotoxicity, and how is it computationally classified?",
+              options: [
+                "Mutagenic DNA-alkylation, classified by searching for electrophilic aromatic nitro alerts in RDKit.",
+                "Metabolic conversion by cytochrome P450 into the reactive quinone-imine metabolite NAPQI, classified by modeling DILI endpoints with Random Forests.",
+                "hERG channel blockade, classified using support vector machine consensus regression.",
+                "Phase-II glucuronidation conjugation, classified using Cell Painting morphometry."
+              ],
+              correctIndex: 1,
+              explanation: "Acetaminophen is safe at standard therapeutic levels but at high concentrations, Cytochrome P450 enzymes oxidize it into NAPQI (N-acetyl-p-benzoquinone imine), a highly reactive quinone-imine that binds to liver proteins, generating toxic stress. DILI classifiers model this endpoint by identifying structural alerts linked to metabolic NAPQI formation and its subsequent hepatotoxicity."
+            }
+          ]}
+        />
+      </section>
     </div>
   );
 }

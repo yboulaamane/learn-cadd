@@ -67,6 +67,18 @@ export default function TargetIdentificationPage() {
 
       <hr className="border-slate-200" />
 
+      {/* Learning outcomes */}
+      <section className="rounded-xl border border-border bg-surface p-5 space-y-2">
+        <h2 className="!mt-0 !text-base font-bold">Learning outcomes</h2>
+        <ul className="list-disc pl-5 text-sm text-slate-800 space-y-1 leading-relaxed">
+          <li>State the three independent conditions a genuine therapeutic target must satisfy.</li>
+          <li>Assemble an evidence chain for target validation and rank the strength of its links.</li>
+          <li>Compare geometric, energetic, and knowledge-based binding-site detection methods.</li>
+          <li>Compute and interpret a SiteMap Dscore, and explain why PPI interfaces score badly.</li>
+          <li>Explain how polypharmacology turns target prediction into a similarity search.</li>
+        </ul>
+      </section>
+
       {/* Section 1: What is a target */}
       <section className="space-y-4">
         <h2>1. What Is a Therapeutic Target?</h2>
@@ -441,50 +453,53 @@ print(predict_targets("CC(C)Cc1ccc(C(C)C(=O)O)cc1"))
       </section>
 
       {/* Quiz */}
-      <Quiz
-        moduleTitle="Module 2: Target Identification, Validation & Druggability"
-        questions={[
-          {
-            question:
-              "A protein-protein interaction interface has a very large surface area, yet SiteMap classifies it as undruggable. Why?",
-            options: [
-              "Because large pockets always score poorly — the Dscore penalizes pocket size.",
-              "Because the Dscore rewards enclosure (+0.60) and penalizes hydrophilic character (−0.324); a PPI interface is flat and solvent-exposed, so it loses on both despite its size.",
-              "Because SiteMap can only evaluate enzyme active sites.",
-              "Because protein-protein interfaces contain no hydrophobic residues at all.",
-            ],
-            correctIndex: 1,
-            explanation:
-              "Size actually helps the Dscore — the +0.094·√n term is positive. PPI interfaces fail on the other two terms: they are flat (low enclosure e, which carries the large +0.60 weight) and solvent-exposed/polar (high p, penalized at −0.324). This is why the field turned to alternative modalities such as PROTACs and molecular glues for these targets, rather than trying harder to find a conventional inhibitor.",
-          },
-          {
-            question:
-              "A CETSA assay confirms your compound engages its target inside cells, but the compound shows no effect on disease phenotype in a validated animal model. What has most likely happened?",
-            options: [
-              "The compound has poor solubility.",
-              "The assay must be wrong, since target engagement guarantees efficacy.",
-              "The target has been invalidated: engagement was achieved, but modulating this target does not change the disease.",
-              "The compound is hitting too many off-targets.",
-            ],
-            correctIndex: 2,
-            explanation:
-              "Target engagement and efficacy are different claims. Engagement proves the chemistry worked — the compound found and bound its target. If the phenotype is still unchanged, the failure is biological, not chemical: the target itself does not drive the disease. This is precisely the failure mode behind 'lack of efficacy' Phase II attrition, and no amount of downstream medicinal chemistry can rescue it.",
-          },
-          {
-            question:
-              "Why is human genetic evidence considered the strongest single form of target validation?",
-            options: [
-              "Because it proves the target has a druggable binding pocket.",
-              "Because genetic experiments are cheaper than chemical ones.",
-              "Because it links the target to human disease biology directly, rather than relying on a model organism — and targets with human genetic support succeed in the clinic roughly twice as often.",
-              "Because it guarantees the compound will be safe.",
-            ],
-            correctIndex: 2,
-            explanation:
-              "Human genetics ties the target to the actual species you intend to treat, sidestepping the translation gap that kills so many mouse-validated targets. Note it says nothing about druggability — a genetically bulletproof target can still be an undruggable flat surface, which is exactly why validation (biology) and druggability (structure) are separate, independent conditions.",
-          },
-        ]}
-      />
+      <section className="space-y-5">
+        <h2>Knowledge check</h2>
+        <Quiz
+          moduleTitle="Module 2: Target Identification, Validation & Druggability"
+          questions={[
+            {
+              question:
+                "A protein-protein interaction interface has a very large surface area, yet SiteMap classifies it as undruggable. Why?",
+              options: [
+                "Because large pockets always score poorly — the Dscore penalizes pocket size.",
+                "Because the Dscore rewards enclosure (+0.60) and penalizes hydrophilic character (−0.324); a PPI interface is flat and solvent-exposed, so it loses on both despite its size.",
+                "Because SiteMap can only evaluate enzyme active sites.",
+                "Because protein-protein interfaces contain no hydrophobic residues at all.",
+              ],
+              correctIndex: 1,
+              explanation:
+                "Size actually helps the Dscore — the +0.094·√n term is positive. PPI interfaces fail on the other two terms: they are flat (low enclosure e, which carries the large +0.60 weight) and solvent-exposed/polar (high p, penalized at −0.324). This is why the field turned to alternative modalities such as PROTACs and molecular glues for these targets, rather than trying harder to find a conventional inhibitor.",
+            },
+            {
+              question:
+                "A CETSA assay confirms your compound engages its target inside cells, but the compound shows no effect on disease phenotype in a validated animal model. What has most likely happened?",
+              options: [
+                "The compound has poor solubility.",
+                "The assay must be wrong, since target engagement guarantees efficacy.",
+                "The target has been invalidated: engagement was achieved, but modulating this target does not change the disease.",
+                "The compound is hitting too many off-targets.",
+              ],
+              correctIndex: 2,
+              explanation:
+                "Target engagement and efficacy are different claims. Engagement proves the chemistry worked — the compound found and bound its target. If the phenotype is still unchanged, the failure is biological, not chemical: the target itself does not drive the disease. This is precisely the failure mode behind 'lack of efficacy' Phase II attrition, and no amount of downstream medicinal chemistry can rescue it.",
+            },
+            {
+              question:
+                "Why is human genetic evidence considered the strongest single form of target validation?",
+              options: [
+                "Because it proves the target has a druggable binding pocket.",
+                "Because genetic experiments are cheaper than chemical ones.",
+                "Because it links the target to human disease biology directly, rather than relying on a model organism — and targets with human genetic support succeed in the clinic roughly twice as often.",
+                "Because it guarantees the compound will be safe.",
+              ],
+              correctIndex: 2,
+              explanation:
+                "Human genetics ties the target to the actual species you intend to treat, sidestepping the translation gap that kills so many mouse-validated targets. Note it says nothing about druggability — a genetically bulletproof target can still be an undruggable flat surface, which is exactly why validation (biology) and druggability (structure) are separate, independent conditions.",
+            },
+          ]}
+        />
+      </section>
     </div>
   );
 }

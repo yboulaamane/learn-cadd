@@ -199,6 +199,18 @@ export default function MolecularDockingPage() {
 
       <hr className="border-slate-200" />
 
+      {/* Learning outcomes */}
+      <section className="rounded-xl border border-border bg-surface p-5 space-y-2">
+        <h2 className="!mt-0 !text-base font-bold">Learning outcomes</h2>
+        <ul className="list-disc pl-5 text-sm text-slate-800 space-y-1 leading-relaxed">
+          <li>Compare systematic, stochastic, and incremental conformational search strategies.</li>
+          <li>Distinguish force-field, empirical, and knowledge-based scoring functions.</li>
+          <li>Prepare a receptor and ligand correctly, including protonation and charge assignment.</li>
+          <li>Validate a docking protocol by redocking and interpreting RMSD.</li>
+          <li>Explain why covalent and PROTAC ternary docking need different machinery.</li>
+        </ul>
+      </section>
+
       {/* Section 1: Overview */}
       <section className="space-y-4">
         <h2>1. What is Molecular Docking?</h2>
@@ -943,44 +955,47 @@ export default function MolecularDockingPage() {
 
       {/* Quiz Section */}
       <hr className="border-slate-200 my-8" />
-      <Quiz 
-        moduleTitle="Module 6: Molecular Docking"
-        questions={[
-          {
-            question: "Why is the AM1-BCC charge model preferred over Gasteiger charges for final docking scoring?",
-            options: [
-              "AM1-BCC runs fully in ab initio HF/6-31G* quantum chemistry, which is faster.",
-              "AM1-BCC applies bond charge corrections that accurately reproduce expensive RESP-quality electrostatic potentials at a low semi-empirical computational cost.",
-              "Gasteiger charges are historically more accurate but take too long to compute.",
-              "AM1-BCC ignores polarization effects, which makes the scoring function less complex."
-            ],
-            correctIndex: 1,
-            explanation: "AM1-BCC runs a very fast semi-empirical AM1 quantum calculation and applies bond charge corrections to mimic ab initio RESP (fit to HF/6-31G*) charges. Gasteiger charges are extremely fast but lack the electrostatic fidelity needed for precise scoring."
-          },
-          {
-            question: "What is a major risk of using a protein monomer extracted from an asymmetric unit instead of the biological assembly for molecular dynamics or docking?",
-            options: [
-              "The monomer will contain duplicate chain segments that break the force field parameters.",
-              "It exposes hydrophobic interfaces (normally buried in the oligomeric assembly) to the bulk solvent, causing artificial conformations.",
-              "The asymmetric unit format is incompatible with Next.js Turbopack compilers.",
-              "NMR ensembles cannot represent monomer conformations."
-            ],
-            correctIndex: 1,
-            explanation: "The biological assembly represents the functional oligomeric state. The asymmetric unit is a crystal lattice packing convenience. If a protein is natively a dimer, docking or running MD on a monomer extracted from the asymmetric unit exposes large hydrophobic surfaces to solvent, causing non-physical collapses."
-          },
-          {
-            question: "By which year will new PDB depositions discontinue generating legacy .pdb files in favor of the mmCIF standard?",
-            options: [
-              "Mid-2026",
-              "End of 2029",
-              "Mid-2027",
-              "Format transitions have already finished in 2024"
-            ],
-            correctIndex: 2,
-            explanation: "By mid-2027, the Worldwide Protein Data Bank will strictly enforce the PDBx/mmCIF (.cif) format and 12-character alphanumeric IDs for all new depositions, deprecating the legacy .pdb columns system."
-          }
-        ]}
-      />
+      <section className="space-y-5">
+        <h2>Knowledge check</h2>
+        <Quiz 
+          moduleTitle="Module 6: Molecular Docking"
+          questions={[
+            {
+              question: "Why is the AM1-BCC charge model preferred over Gasteiger charges for final docking scoring?",
+              options: [
+                "AM1-BCC runs fully in ab initio HF/6-31G* quantum chemistry, which is faster.",
+                "AM1-BCC applies bond charge corrections that accurately reproduce expensive RESP-quality electrostatic potentials at a low semi-empirical computational cost.",
+                "Gasteiger charges are historically more accurate but take too long to compute.",
+                "AM1-BCC ignores polarization effects, which makes the scoring function less complex."
+              ],
+              correctIndex: 1,
+              explanation: "AM1-BCC runs a very fast semi-empirical AM1 quantum calculation and applies bond charge corrections to mimic ab initio RESP (fit to HF/6-31G*) charges. Gasteiger charges are extremely fast but lack the electrostatic fidelity needed for precise scoring."
+            },
+            {
+              question: "What is a major risk of using a protein monomer extracted from an asymmetric unit instead of the biological assembly for molecular dynamics or docking?",
+              options: [
+                "The monomer will contain duplicate chain segments that break the force field parameters.",
+                "It exposes hydrophobic interfaces (normally buried in the oligomeric assembly) to the bulk solvent, causing artificial conformations.",
+                "The asymmetric unit format is incompatible with Next.js Turbopack compilers.",
+                "NMR ensembles cannot represent monomer conformations."
+              ],
+              correctIndex: 1,
+              explanation: "The biological assembly represents the functional oligomeric state. The asymmetric unit is a crystal lattice packing convenience. If a protein is natively a dimer, docking or running MD on a monomer extracted from the asymmetric unit exposes large hydrophobic surfaces to solvent, causing non-physical collapses."
+            },
+            {
+              question: "By which year will new PDB depositions discontinue generating legacy .pdb files in favor of the mmCIF standard?",
+              options: [
+                "Mid-2026",
+                "End of 2029",
+                "Mid-2027",
+                "Format transitions have already finished in 2024"
+              ],
+              correctIndex: 2,
+              explanation: "By mid-2027, the Worldwide Protein Data Bank will strictly enforce the PDBx/mmCIF (.cif) format and 12-character alphanumeric IDs for all new depositions, deprecating the legacy .pdb columns system."
+            }
+          ]}
+        />
+      </section>
     </div>
   );
 }

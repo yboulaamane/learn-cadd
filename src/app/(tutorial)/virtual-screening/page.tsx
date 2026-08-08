@@ -218,6 +218,18 @@ export default function VirtualScreeningPage() {
 
       <hr className="border-slate-200" />
 
+      {/* Learning outcomes */}
+      <section className="rounded-xl border border-border bg-surface p-5 space-y-2">
+        <h2 className="!mt-0 !text-base font-bold">Learning outcomes</h2>
+        <ul className="list-disc pl-5 text-sm text-slate-800 space-y-1 leading-relaxed">
+          <li>Choose between ligand-based and structure-based screening from available evidence.</li>
+          <li>Order a multi-stage cascade so each filter is cheap enough for the pool entering it.</li>
+          <li>Prepare a screening library, including protonation, tautomers, and 3D conformers.</li>
+          <li>Compute and interpret enrichment factor, BEDROC, and ROC-AUC.</li>
+          <li>Use DeLong's test to decide whether two screening models genuinely differ.</li>
+        </ul>
+      </section>
+
       {/* Section 1: Overview */}
       <section className="space-y-4">
         <h2>1. What is Virtual Screening (VS)?</h2>
@@ -889,44 +901,47 @@ def fast_delong_roc_variance(ground_truth, predictions):
 
       {/* Quiz Section */}
       <hr className="border-slate-200 my-8" />
-      <Quiz 
-        moduleTitle="Module 8: Virtual Screening Strategies"
-        questions={[
-          {
-            question: "Why are Lipinski's Rule of Five and other physicochemical filters applied at the very start of a virtual screen cascade rather than after docking?",
-            options: [
-              "Because molecules that violate Lipinski's rules will dock incorrectly in the binding pocket.",
-              "Because docking is computationally expensive (seconds/minutes per molecule), whereas calculating molecular descriptors takes milliseconds, allowing rapid discard of 90%+ of the library.",
-              "Because the docking scoring functions already include Lipinski filters in their calculations.",
-              "Because it is required to prevent covalent binders from reacting with the pocket."
-            ],
-            correctIndex: 1,
-            explanation: "Molecular docking requires expensive conformational search algorithms, taking significant CPU time per molecule. By contrast, calculating MW or logP is instantaneous. Screening libraries can contain millions or billions of structures; filtering out non-drug-like compounds beforehand saves enormous computational budgets by avoiding docking molecules that will ultimately fail downstream filters."
-          },
-          {
-            question: "How should a PAINS or reactivity alert be used when triaging a screening hit?",
-            options: [
-              "As definitive proof that the compound is inactive.",
-              "As a hypothesis that prioritizes orthogonal assays, counterscreens, and mechanism-specific controls.",
-              "As a replacement for checking compound purity and identity.",
-              "As evidence that every compound without an alert is a valid hit."
-            ],
-            correctIndex: 1,
-            explanation: "Structural alerts flag mechanisms that can produce misleading assay signals, but they are neither necessary nor sufficient proof of interference. Confirm each hit using independent readouts, counterscreens, compound controls, and direct target-engagement evidence."
-          },
-          {
-            question: "Why is a simple point-estimate of ROC-AUC alone insufficient when comparing the performance of two different virtual screening models on a small test library?",
-            options: [
-              "Because ROC-AUC cannot be calculated on small datasets.",
-              "Because small test sets carry high statistical variance. An apparent difference in AUC (e.g., 0.80 vs. 0.76) could be due to random sample noise rather than actual superiority, requiring a significance test like DeLong's test to compute covariance and p-value.",
-              "Because point-estimates of AUC ignore the molecular weight filters of the ligands.",
-              "Because docking scores must be normalized by rotatable bonds before computing the AUC."
-            ],
-            correctIndex: 1,
-            explanation: "When test set sizes are small, the variance in AUC is very high, which means sample noise can easily inflate or deflate the score. To compare two models reliably, you must compute the confidence intervals of the AUC and run a statistical significance test (such as DeLong's test, which accounts for the correlation between predictions on the same set) to see if the p-value is below 0.05."
-          }
-        ]}
-      />
+      <section className="space-y-5">
+        <h2>Knowledge check</h2>
+        <Quiz 
+          moduleTitle="Module 8: Virtual Screening Strategies"
+          questions={[
+            {
+              question: "Why are Lipinski's Rule of Five and other physicochemical filters applied at the very start of a virtual screen cascade rather than after docking?",
+              options: [
+                "Because molecules that violate Lipinski's rules will dock incorrectly in the binding pocket.",
+                "Because docking is computationally expensive (seconds/minutes per molecule), whereas calculating molecular descriptors takes milliseconds, allowing rapid discard of 90%+ of the library.",
+                "Because the docking scoring functions already include Lipinski filters in their calculations.",
+                "Because it is required to prevent covalent binders from reacting with the pocket."
+              ],
+              correctIndex: 1,
+              explanation: "Molecular docking requires expensive conformational search algorithms, taking significant CPU time per molecule. By contrast, calculating MW or logP is instantaneous. Screening libraries can contain millions or billions of structures; filtering out non-drug-like compounds beforehand saves enormous computational budgets by avoiding docking molecules that will ultimately fail downstream filters."
+            },
+            {
+              question: "How should a PAINS or reactivity alert be used when triaging a screening hit?",
+              options: [
+                "As definitive proof that the compound is inactive.",
+                "As a hypothesis that prioritizes orthogonal assays, counterscreens, and mechanism-specific controls.",
+                "As a replacement for checking compound purity and identity.",
+                "As evidence that every compound without an alert is a valid hit."
+              ],
+              correctIndex: 1,
+              explanation: "Structural alerts flag mechanisms that can produce misleading assay signals, but they are neither necessary nor sufficient proof of interference. Confirm each hit using independent readouts, counterscreens, compound controls, and direct target-engagement evidence."
+            },
+            {
+              question: "Why is a simple point-estimate of ROC-AUC alone insufficient when comparing the performance of two different virtual screening models on a small test library?",
+              options: [
+                "Because ROC-AUC cannot be calculated on small datasets.",
+                "Because small test sets carry high statistical variance. An apparent difference in AUC (e.g., 0.80 vs. 0.76) could be due to random sample noise rather than actual superiority, requiring a significance test like DeLong's test to compute covariance and p-value.",
+                "Because point-estimates of AUC ignore the molecular weight filters of the ligands.",
+                "Because docking scores must be normalized by rotatable bonds before computing the AUC."
+              ],
+              correctIndex: 1,
+              explanation: "When test set sizes are small, the variance in AUC is very high, which means sample noise can easily inflate or deflate the score. To compare two models reliably, you must compute the confidence intervals of the AUC and run a statistical significance test (such as DeLong's test, which accounts for the correlation between predictions on the same set) to see if the p-value is below 0.05."
+            }
+          ]}
+        />
+      </section>
     </div>
   );
 }

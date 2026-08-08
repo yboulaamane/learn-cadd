@@ -124,6 +124,18 @@ export default function MolecularDynamicsPage() {
 
       <hr className="border-slate-100 dark:border-slate-900" />
 
+      {/* Learning outcomes */}
+      <section className="rounded-xl border border-border bg-surface p-5 space-y-2">
+        <h2 className="!mt-0 !text-base font-bold">Learning outcomes</h2>
+        <ul className="list-disc pl-5 text-sm text-slate-800 space-y-1 leading-relaxed">
+          <li>Set up a solvated simulation and explain each equilibration stage.</li>
+          <li>Analyze a trajectory with RMSD, RMSF, Rg, and SASA, and judge convergence.</li>
+          <li>Select an enhanced sampling method appropriate to the barrier you need to cross.</li>
+          <li>Compare MM/GBSA and FEP by accuracy, cost, and the questions each can answer.</li>
+          <li>Explain what machine-learned force fields fix and what they still cannot do.</li>
+        </ul>
+      </section>
+
       {/* Section 1: Overview */}
       <section className="space-y-4">
         <h2>1. Why Simulate Motion?</h2>
@@ -817,44 +829,47 @@ mpirun -np 8 gmx_mpi mdrun -multi 8 -replex 1000 -s topol_.tpr -deffnm remd`}
 
       {/* Quiz Section */}
       <hr className="border-slate-200 my-8" />
-      <Quiz
-        moduleTitle="Module 10: Molecular Dynamics & Free Energy Methods"
-        questions={[
-          {
-            question: "Why must raw MD trajectories undergo post-processing (unwrapping) before computing RMSD or Radius of Gyration (Rg)?",
-            options: [
-              "Because force field parameters are encrypted during the simulation run.",
-              "To remove water molecules that would otherwise crash the plotting library.",
-              "To correct Periodic Boundary Condition (PBC) wrapping artifacts that split molecules across box boundaries, which would yield artificially inflated deviations.",
-              "To accelerate the GPU-rendering pipeline in Next.js."
-            ],
-            correctIndex: 2,
-            explanation: "In PBC simulations, atoms that exit one side of the box re-enter from the opposite side. This can mathematically split a molecular chain across box boundaries. Calculating RMSD or Rg on wrapped coordinates yields massive errors; trajectories must be post-processed (unwrapped/re-centered using tools like `gmx trjconv`) beforehand."
-          },
-          {
-            question: "How does Temperature Replica Exchange (T-REMD) help simulations escape local energy minima?",
-            options: [
-              "It runs a single copy at 300K but dynamically increases the time step to skip energy barriers.",
-              "It runs N parallel replicas of the system at different temperatures, periodically swapping configurations using a Metropolis criteria to allow coordinates to traverse energy barriers.",
-              "It freezes the side-chain rotamers so that only loops are permitted to move.",
-              "It replaces explicit solvent models with implicit generalized Born approximations."
-            ],
-            correctIndex: 1,
-            explanation: "T-REMD runs multiple parallel copies (replicas) of the same system at a range of temperatures. Higher temperature replicas can easily cross rugged energy barriers. By periodically swapping configurations based on Metropolis acceptance probability, the physiological (lower temperature) replica benefits from the conformational space sampled at higher temperatures."
-          },
-          {
-            question: "Why is relying on a single production trajectory considered a methodological pitfall in MD studies?",
-            options: [
-              "MD runs are deterministic and running duplicates is redundant.",
-              "Single trajectories fail to output the concordance correlation coefficients.",
-              "Molecular dynamics is inherently stochastic; a single trajectory represents a single probabilistic pathway. Standard practice requires 3–5 replicates with different velocity seeds to confirm trends.",
-              "Single runs are restricted to tip3p water models."
-            ],
-            correctIndex: 2,
-            explanation: "Since molecular dynamics calculations contain stochastic elements (e.g. random starting velocity distributions), a single run might capture a rare, unrepresentative event. To establish statistical significance, researchers must conduct duplicate runs (typically 3–5 replicates) with different starting seeds."
-          }
-        ]}
-      />
+      <section className="space-y-5">
+        <h2>Knowledge check</h2>
+        <Quiz
+          moduleTitle="Module 10: Molecular Dynamics & Free Energy Methods"
+          questions={[
+            {
+              question: "Why must raw MD trajectories undergo post-processing (unwrapping) before computing RMSD or Radius of Gyration (Rg)?",
+              options: [
+                "Because force field parameters are encrypted during the simulation run.",
+                "To remove water molecules that would otherwise crash the plotting library.",
+                "To correct Periodic Boundary Condition (PBC) wrapping artifacts that split molecules across box boundaries, which would yield artificially inflated deviations.",
+                "To accelerate the GPU-rendering pipeline in Next.js."
+              ],
+              correctIndex: 2,
+              explanation: "In PBC simulations, atoms that exit one side of the box re-enter from the opposite side. This can mathematically split a molecular chain across box boundaries. Calculating RMSD or Rg on wrapped coordinates yields massive errors; trajectories must be post-processed (unwrapped/re-centered using tools like `gmx trjconv`) beforehand."
+            },
+            {
+              question: "How does Temperature Replica Exchange (T-REMD) help simulations escape local energy minima?",
+              options: [
+                "It runs a single copy at 300K but dynamically increases the time step to skip energy barriers.",
+                "It runs N parallel replicas of the system at different temperatures, periodically swapping configurations using a Metropolis criteria to allow coordinates to traverse energy barriers.",
+                "It freezes the side-chain rotamers so that only loops are permitted to move.",
+                "It replaces explicit solvent models with implicit generalized Born approximations."
+              ],
+              correctIndex: 1,
+              explanation: "T-REMD runs multiple parallel copies (replicas) of the same system at a range of temperatures. Higher temperature replicas can easily cross rugged energy barriers. By periodically swapping configurations based on Metropolis acceptance probability, the physiological (lower temperature) replica benefits from the conformational space sampled at higher temperatures."
+            },
+            {
+              question: "Why is relying on a single production trajectory considered a methodological pitfall in MD studies?",
+              options: [
+                "MD runs are deterministic and running duplicates is redundant.",
+                "Single trajectories fail to output the concordance correlation coefficients.",
+                "Molecular dynamics is inherently stochastic; a single trajectory represents a single probabilistic pathway. Standard practice requires 3–5 replicates with different velocity seeds to confirm trends.",
+                "Single runs are restricted to tip3p water models."
+              ],
+              correctIndex: 2,
+              explanation: "Since molecular dynamics calculations contain stochastic elements (e.g. random starting velocity distributions), a single run might capture a rare, unrepresentative event. To establish statistical significance, researchers must conduct duplicate runs (typically 3–5 replicates) with different starting seeds."
+            }
+          ]}
+        />
+      </section>
     </div>
   );
 }

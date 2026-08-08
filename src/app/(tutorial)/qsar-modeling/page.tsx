@@ -180,6 +180,18 @@ export default function QsarModelingPage() {
 
       <hr className="border-slate-200" />
 
+      {/* Learning outcomes */}
+      <section className="rounded-xl border border-border bg-surface p-5 space-y-2">
+        <h2 className="!mt-0 !text-base font-bold">Learning outcomes</h2>
+        <ul className="list-disc pl-5 text-sm text-slate-800 space-y-1 leading-relaxed">
+          <li>Build a classical Hansch model and interpret pi, sigma, and Es substituent constants.</li>
+          <li>Select descriptors and algorithms appropriate to a dataset's size and endpoint.</li>
+          <li>Apply the three-tier validation framework and the five OECD principles.</li>
+          <li>Define an applicability domain by leverage and by model confidence.</li>
+          <li>Interpret a model with SHAP without mistaking attribution for mechanism.</li>
+        </ul>
+      </section>
+
       {/* Section 1: Introduction */}
       <section className="space-y-4">
         <h2>1. What is QSAR Modeling?</h2>
@@ -670,6 +682,15 @@ export default function QsarModelingPage() {
           </p>
         </div>
 
+      </section>
+
+      {/* Section 6: Applicability domain */}
+      <section className="space-y-4">
+        <h2>6. The Applicability Domain: Where the Model Is Allowed to Speak</h2>
+        <p>
+          A validated model is not validated everywhere. It was fitted on a particular region of chemical space, and outside that region its predictions are extrapolation dressed up as inference — returned with the same confident number and no warning. The <strong>applicability domain</strong> is the explicit boundary of that region, and defining one is the third OECD principle above rather than an optional extra.
+        </p>
+
         {/* Williams Plot Description */}
         <div className="p-4 rounded-xl border border-border bg-white space-y-2">
           <h4 className="font-bold text-sm text-slate-900">Williams Plot: Detecting Structural Outliers</h4>
@@ -686,6 +707,15 @@ export default function QsarModelingPage() {
             Where <span className="font-semibold">X</span> is the training set descriptor matrix. The critical warning limit is defined as <strong>h* = 3p/n</strong>, where p is the number of model parameters (descriptors) plus 1, and n is the number of training compounds. Compounds with h &gt; h* lie outside the applicability domain of the model, meaning predictions for them represent extrapolation rather than interpolation and are highly unreliable.
           </p>
         </div>
+
+      </section>
+
+      {/* Section 7: Choosing metrics */}
+      <section className="space-y-4">
+        <h2>7. Choosing the Right Metric for the Question</h2>
+        <p>
+          The tiers above tell you <em>when</em> to measure; these tables tell you <em>what</em> to measure. The choice is dictated by the endpoint: a model predicting whether a compound blocks hERG is a classifier, while one predicting its IC<sub>50</sub> is a regressor, and reporting the wrong family of metric is one of the easiest ways to make a weak model look strong.
+        </p>
 
         {/* Classification Metrics Table */}
         <div className="space-y-2">
@@ -802,6 +832,15 @@ export default function QsarModelingPage() {
             </table>
           </div>
         </div>
+
+      </section>
+
+      {/* Section 8: Consensus modeling */}
+      <section className="space-y-4">
+        <h2>8. Consensus Models and Confidence-Based Domains</h2>
+        <p>
+          The Williams plot bounds the domain by <em>chemical space</em> — how far a compound sits from the training set. A second, complementary approach bounds it by <em>model confidence</em>: if several independently trained models disagree, or a single ensemble is unsure, treat the prediction as out of domain regardless of where the compound sits geometrically.
+        </p>
 
         {/* Consensus Modeling & Probability-Based AD */}
         <div className="p-4 rounded-xl border border-border bg-white space-y-2">
@@ -1038,7 +1077,7 @@ export default function QsarModelingPage() {
 
       {/* Section 6: Evolution of Graph Neural Networks */}
       <section className="space-y-4">
-        <h2>6. The Deep Learning Paradigm: Graph Neural Networks (GNNs)</h2>
+        <h2>9. The Deep Learning Paradigm: Graph Neural Networks (GNNs)</h2>
         <p>
           While classical QSAR maps molecules to fixed binary fingerprints, modern drug discovery has migrated to Graph Neural Networks (GNNs). A small molecule is naturally represented as a graph where atoms are nodes and chemical bonds are edges.
         </p>
@@ -1095,7 +1134,7 @@ export default function QsarModelingPage() {
 
       {/* Section 7: ADMET, SHAP, & Hybrid Modeling */}
       <section className="space-y-4">
-        <h2>7. In Silico ADMET, Explainable AI, &amp; Hybrid Phenotypic Modeling</h2>
+        <h2>10. In Silico ADMET, Explainable AI, &amp; Hybrid Phenotypic Modeling</h2>
         <p>
           While classical QSAR models general binding affinity, modern drug discovery requires optimization for Absorption, Distribution, Metabolism, Excretion, and Toxicity (ADMET) endpoints to prevent clinical trial failures. The machinery is identical to everything above — descriptors, a train/test split, an applicability domain — only the endpoint changes. Module 12 applies it to the safety endpoints in depth, and Module 15 continues past prediction into the pharmacokinetics those endpoints stand in for.
         </p>
@@ -1202,66 +1241,69 @@ def calculate_similarity_domain(test_smiles: str, training_smiles_list: list) ->
 
       {/* Quiz Section */}
       <hr className="border-slate-200 my-8" />
-      <Quiz 
-        moduleTitle="Module 9: QSAR Modeling & AI Interpretation"
-        questions={[
-          {
-            question: "What is the primary scientific goal of running a Y-scrambling validation check?",
-            options: [
-              "To verify that the descriptors are normalized according to physical scaling laws.",
-              "To randomly shuffle descriptor values to check for feature scaling errors.",
-              "To randomly shuffle target bioactivity values against structural descriptors, confirming the model collapses to R² / Q² ≈ 0 and is not memorizing structural noise.",
-              "To check whether the test dataset matches the applicability domain envelope."
-            ],
-            correctIndex: 2,
-            explanation: "Y-scrambling randomly shuffles target bioactivity values relative to structural descriptors and retrains the model. If a model still achieves high correlation statistics after scrambling target variables, it is a red flag indicating the model is capturing database artifacts or noise rather than a physical structure-activity correlation."
-          },
-          {
-            question: "Why is the Concordance Correlation Coefficient (CCC) considered a more diagnostic metric than R² for QSAR regression models?",
-            options: [
-              "CCC operates on a logarithmic scale, which stabilizes extreme outliers.",
-              "R² only measures correlation slope, whereas CCC jointly measures precision and accuracy, penalizing models that are systematically offset or biased.",
-              "CCC defines the multidimensional applicability domain boundaries.",
-              "CCC requires leaving out large fractions of the dataset during training."
-            ],
-            correctIndex: 1,
-            explanation: "The coefficient of determination (R²) only checks for linear correlation (regression slope). A model can be systematically biased (predicting everything 2 units too high) and still have a high R². The Concordance Correlation Coefficient (CCC) penalizes these offsets by jointly measuring both precision and absolute translation accuracy."
-          },
-          {
-            question: "In modern graph neural networks, how does Multiple Instance Learning (ABMIL) solve the multi-pose docking challenge?",
-            options: [
-              "It runs molecular dynamics on all poses simultaneously and calculates the averaged RMSD.",
-              "It filters out any poses with an RMSD > 2.0 Å before the graph model starts.",
-              "It treats each docked pose as a separate graph instance, using learned attention weights to pool pose embeddings and identify the active binding conformation.",
-              "It translates the 3D coordinates into 1D SMILES strings to run sequence transformers."
-            ],
-            correctIndex: 2,
-            explanation: "Docking yields multiple pose hypotheses. Rather than picking one pose by arbitrary score, ABMIL represents each pose as a graph instance and passes them into the GNN. The attention mechanism dynamically weights each pose, learning which conformation matches the active footprint and aggregating them into a single compound-level prediction."
-          },
-          {
-            question: "Why can accuracy be misleading for a QSAR classifier with very few active compounds?",
-            options: [
-              "Accuracy cannot be calculated for binary labels.",
-              "A model can predict nearly everything as inactive and still achieve high accuracy.",
-              "Rare actives automatically create scaffold leakage.",
-              "Accuracy measures probability calibration only."
-            ],
-            correctIndex: 1,
-            explanation: "With severe class imbalance, the majority inactive class dominates accuracy. Precision, recall, PR-AUC, MCC, balanced accuracy, and calibration provide a more informative view of whether the rare active class is being recovered."
-          },
-          {
-            question: "What is the central additional assumption in a 3D-QSAR model such as CoMFA?",
-            options: [
-              "All compounds have identical molecular weights.",
-              "The chosen ligand conformations and spatial alignment represent a comparable binding mode.",
-              "No external validation set is needed.",
-              "Only one molecular field can be calculated."
-            ],
-            correctIndex: 1,
-            explanation: "3D-QSAR field values depend on where each aligned atom and functional group is placed. An uncertain conformation or binding-mode alignment can change both the model and its contour interpretation."
-          }
-        ]}
-      />
+      <section className="space-y-5">
+        <h2>Knowledge check</h2>
+        <Quiz 
+          moduleTitle="Module 9: QSAR Modeling & AI Interpretation"
+          questions={[
+            {
+              question: "What is the primary scientific goal of running a Y-scrambling validation check?",
+              options: [
+                "To verify that the descriptors are normalized according to physical scaling laws.",
+                "To randomly shuffle descriptor values to check for feature scaling errors.",
+                "To randomly shuffle target bioactivity values against structural descriptors, confirming the model collapses to R² / Q² ≈ 0 and is not memorizing structural noise.",
+                "To check whether the test dataset matches the applicability domain envelope."
+              ],
+              correctIndex: 2,
+              explanation: "Y-scrambling randomly shuffles target bioactivity values relative to structural descriptors and retrains the model. If a model still achieves high correlation statistics after scrambling target variables, it is a red flag indicating the model is capturing database artifacts or noise rather than a physical structure-activity correlation."
+            },
+            {
+              question: "Why is the Concordance Correlation Coefficient (CCC) considered a more diagnostic metric than R² for QSAR regression models?",
+              options: [
+                "CCC operates on a logarithmic scale, which stabilizes extreme outliers.",
+                "R² only measures correlation slope, whereas CCC jointly measures precision and accuracy, penalizing models that are systematically offset or biased.",
+                "CCC defines the multidimensional applicability domain boundaries.",
+                "CCC requires leaving out large fractions of the dataset during training."
+              ],
+              correctIndex: 1,
+              explanation: "The coefficient of determination (R²) only checks for linear correlation (regression slope). A model can be systematically biased (predicting everything 2 units too high) and still have a high R². The Concordance Correlation Coefficient (CCC) penalizes these offsets by jointly measuring both precision and absolute translation accuracy."
+            },
+            {
+              question: "In modern graph neural networks, how does Multiple Instance Learning (ABMIL) solve the multi-pose docking challenge?",
+              options: [
+                "It runs molecular dynamics on all poses simultaneously and calculates the averaged RMSD.",
+                "It filters out any poses with an RMSD > 2.0 Å before the graph model starts.",
+                "It treats each docked pose as a separate graph instance, using learned attention weights to pool pose embeddings and identify the active binding conformation.",
+                "It translates the 3D coordinates into 1D SMILES strings to run sequence transformers."
+              ],
+              correctIndex: 2,
+              explanation: "Docking yields multiple pose hypotheses. Rather than picking one pose by arbitrary score, ABMIL represents each pose as a graph instance and passes them into the GNN. The attention mechanism dynamically weights each pose, learning which conformation matches the active footprint and aggregating them into a single compound-level prediction."
+            },
+            {
+              question: "Why can accuracy be misleading for a QSAR classifier with very few active compounds?",
+              options: [
+                "Accuracy cannot be calculated for binary labels.",
+                "A model can predict nearly everything as inactive and still achieve high accuracy.",
+                "Rare actives automatically create scaffold leakage.",
+                "Accuracy measures probability calibration only."
+              ],
+              correctIndex: 1,
+              explanation: "With severe class imbalance, the majority inactive class dominates accuracy. Precision, recall, PR-AUC, MCC, balanced accuracy, and calibration provide a more informative view of whether the rare active class is being recovered."
+            },
+            {
+              question: "What is the central additional assumption in a 3D-QSAR model such as CoMFA?",
+              options: [
+                "All compounds have identical molecular weights.",
+                "The chosen ligand conformations and spatial alignment represent a comparable binding mode.",
+                "No external validation set is needed.",
+                "Only one molecular field can be calculated."
+              ],
+              correctIndex: 1,
+              explanation: "3D-QSAR field values depend on where each aligned atom and functional group is placed. An uncertain conformation or binding-mode alignment can change both the model and its contour interpretation."
+            }
+          ]}
+        />
+      </section>
     </div>
   );
 }
