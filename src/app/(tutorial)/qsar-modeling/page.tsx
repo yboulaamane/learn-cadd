@@ -158,7 +158,11 @@ export default function QsarModelingPage() {
   const activeSub = hanschSubstituents.find((s) => s.label === hanschPick) ?? hanschSubstituents[0];
   const piVal = activeSub.pi;
   const sigmaVal = activeSub.sigma;
-  // Phenol antiseptic model (Hansch & Fujita): log(1/C) = 2.5·π − 0.2·σ + 2.3
+  // Illustrative Hansch-form model for substituted phenols: log(1/C) = 2.5·π − 0.2·σ + 2.3.
+  // The coefficients are representative teaching values chosen to reproduce the well-known
+  // qualitative result (lipophilicity dominates, electronics contribute weakly); they are not
+  // taken from a specific published regression. The π and σ values below ARE literature
+  // constants (Hansch aromatic π and Hammett σ_para).
   const hanschActivity = 2.5 * piVal - 0.2 * sigmaVal + 2.3;
   // Craig-plot pixel mapping (viewBox 300 x 200, origin at 150,100)
   const craigX = 150 + piVal * 70;
@@ -232,7 +236,7 @@ export default function QsarModelingPage() {
           <h3 className="font-bold text-base text-slate-900">Interactive Playground: Hansch Model &amp; Craig Plot</h3>
         </div>
         <p className="text-sm text-slate-800 leading-normal">
-          A real Hansch analysis of antiseptic phenols yielded <span className="font-mono font-semibold">log(1/C) = 2.5·π − 0.2·σ + 2.3</span> (n = 23, r² = 0.81). Pick a <em>para</em>-substituent to place it on the <strong>Craig plot</strong> and see its predicted activity. The lipophilic term dominates, so potency is maximized in the high-π / low-σ quadrant.
+          A Hansch-form model for antiseptic activity in substituted phenols, <span className="font-mono font-semibold">log(1/C) = 2.5·π − 0.2·σ + 2.3</span>. The <em>substituent constants</em> below are literature values — Hansch aromatic π and Hammett σ<sub>para</sub> — while the regression coefficients are representative rather than taken from one published fit. Pick a <em>para</em>-substituent to place it on the <strong>Craig plot</strong> and see its predicted activity. The lipophilic term dominates, so potency is maximized in the high-π / low-σ quadrant, which is the robust experimental finding for this compound class.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center bg-white p-5 rounded-lg border border-slate-200">

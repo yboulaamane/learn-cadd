@@ -178,9 +178,9 @@ export default function PharmacophoreModelingPage() {
             <div className="bg-surface border border-border rounded-xl p-5 mb-4">
               <span className="block font-semibold text-xs text-accent uppercase tracking-wider mb-2">IUPAC Definition</span>
               <p className="italic text-foreground text-base font-serif leading-relaxed">
-                &ldquo;A pharmacophore is the ensemble of steric and electronic features that is necessary to ensure the optimal supramolecular interaction with a specific biological target structure and to trigger (or block) its biological response.&rdquo;
+                &ldquo;A pharmacophore is the ensemble of steric and electronic features that is necessary to ensure the optimal supramolecular interactions with a specific biological target structure and to trigger (or to block) its biological response.&rdquo;
               </p>
-              <span className="block text-xs text-slate-500 text-right mt-2 font-bold font-mono">Pure Appl. Chem., Vol. 70 (1998)</span>
+              <span className="block text-xs text-slate-500 text-right mt-2 font-bold font-mono">Wermuth, Ganellin, Lindberg &amp; Mitscher, <span className="not-italic">Pure Appl. Chem.</span> <strong>70</strong>(5), 1129–1143 (1998)</span>
             </div>
             <p>
               In computer-aided drug design, a pharmacophore is <strong>not a chemical structure</strong> or a collection of atoms. Instead, it is an abstract skeleton of molecular recognition points. While a chemist looks at a molecule as rings, double bonds, and chains, a biological receptor experiences it as a spatial distribution of electrostatic potentials, hydrogen-bond directional vectors, and hydrophobic surfaces.
