@@ -28,19 +28,26 @@ export default function PharmacophoreModelingPage() {
     { id: "aromatic", name: "Aromatic Ring Center (AR)", color: "stroke-amber-500 fill-amber-50/30 text-amber-600 bg-amber-50 border-amber-200" },
   ];
 
-  // Target database of structures with features and coordinates
+  // Target database of structures with features and coordinates.
+  // Offsets from the query points are deliberately staggered so that the
+  // tolerance slider sweeps three distinct regimes:
+  //   < 1.05 Å  → only the reference matches (the scaffold hop is missed)
+  //   1.05–2.08 Å → reference + scaffold hop match (the useful window)
+  //   ≥ 2.09 Å  → the ortho-substituted decoy is admitted too (false positive)
   const dbMolecules = [
     {
       id: 0,
       name: "Molecule A (Estradiol Analogue)",
       scaffold: "Steroidal",
       features: ["acceptor", "aromatic", "donor"],
+      // Reference ligand: the pharmacophore was derived from this pose, so all
+      // three features sit exactly on the query points (0.00 Å deviation).
       coords: {
-        aromatic: { x: 125, y: 115, match: true },
-        acceptor: { x: 75, y: 145, match: true },
-        donor: { x: 320, y: 115, match: true }
+        aromatic: { x: 125, y: 115 },
+        acceptor: { x: 75, y: 145 },
+        donor: { x: 320, y: 115 }
       },
-      desc: "An organic compound built on a four-ring steroidal skeleton. The phenolic A-ring acts as the aromatic center and H-bond acceptor, while the cyclopentane D-ring hydroxyl acts as the H-bond donor. Both match the 3D distances perfectly.",
+      desc: "An organic compound built on a four-ring steroidal skeleton. The phenolic A-ring acts as the aromatic center and H-bond acceptor, while the cyclopentane D-ring hydroxyl acts as the H-bond donor. This is the reference ligand the pharmacophore was derived from, so every feature sits exactly on its query point.",
       chemicalFormula: "C₁₈H₂₄O₂",
       bindingAffinity: "K_d = 0.2 nM",
     },
@@ -49,26 +56,31 @@ export default function PharmacophoreModelingPage() {
       name: "Molecule B (Diethylstilbestrol)",
       scaffold: "Stilbene (Non-Steroidal)",
       features: ["acceptor", "aromatic", "donor"],
+      // Genuine scaffold hop: the phenol pair spans the same distance, but the
+      // stilbene geometry cannot place the second oxygen perfectly — the HBD
+      // lands 1.04 Å from the query point.
       coords: {
-        aromatic: { x: 125, y: 115, match: true },
-        acceptor: { x: 75, y: 145, match: true },
-        donor: { x: 320, y: 115, match: true }
+        aromatic: { x: 125, y: 115 },
+        acceptor: { x: 75, y: 145 },
+        donor: { x: 334, y: 137 }
       },
-      desc: "A synthetic, non-steroidal estrogen analogue. Chemically, it is a stilbene derivative. Despite having zero skeletal similarity to a steroid, its flexible ethyl chains allow it to adopt a conformation that places its two phenolic hydroxyl groups in the exact same 3D spatial points as Estradiol. This is a classic example of Scaffold Hopping.",
+      desc: "A synthetic, non-steroidal estrogen. Despite having no skeletal similarity to a steroid, its two phenolic hydroxyls span nearly the same distance as estradiol's, so it recovers the same pharmacophore on a completely different scaffold — the classic example of scaffold hopping. The overlay is good but not exact: the second phenol lands about 1 Å off the query point, so an over-strict tolerance will discard this true active.",
       chemicalFormula: "C₁₈H₂₀O₂",
       bindingAffinity: "K_d = 0.5 nM",
     },
     {
       id: 2,
-      name: "Molecule C (Incompatible Regioisomer)",
+      name: "Molecule C (Ortho-Substituted Decoy)",
       scaffold: "Benzene Derivative",
       features: ["aromatic", "acceptor", "donor"],
+      // Decoy: right features, wrong vector. The HBD falls 2.09 Å away, so it
+      // is only admitted once the tolerance is pushed past ~2.1 Å.
       coords: {
-        aromatic: { x: 125, y: 115, match: true },
-        acceptor: { x: 75, y: 145, match: true },
-        donor: { x: 263, y: 155, match: false } // Too short/different direction
+        aromatic: { x: 125, y: 115 },
+        acceptor: { x: 75, y: 145 },
+        donor: { x: 283, y: 152 }
       },
-      desc: "A smaller benzene derivative. While it contains an aromatic core and a matching H-bond acceptor, its aliphatic alcohol group is positioned on a different carbon atom, placing the H-bond donor center far outside the tolerance zone of the receptor's active site pharmacophore model.",
+      desc: "2-(4-Hydroxybutyl)phenol. It carries all three required feature types — an aromatic ring, a phenolic acceptor, and a hydroxyl donor — but the side chain branches ortho to the phenol rather than across the ring, so the donor vector points the wrong way and the hydroxyl falls about 2.1 Å short of the query point. It is a useful reminder that matching feature types is not the same as matching feature geometry: widen the tolerance far enough and this inactive compound passes.",
       chemicalFormula: "C₁₀H₁₄O₂",
       bindingAffinity: "K_d > 10,000 nM (Inactive)",
     },
@@ -84,7 +96,7 @@ export default function PharmacophoreModelingPage() {
   };
 
   // Check if a molecule feature matches based on spatial tolerance
-  // Query center coordinates: AR(125, 115), HBA(75, 115), HBD(320, 115)
+  // Query center coordinates: AR(125, 115), HBA(75, 145), HBD(320, 115)
   const queryCoords = {
     aromatic: { x: 125, y: 115 },
     acceptor: { x: 75, y: 145 },
@@ -211,7 +223,7 @@ export default function PharmacophoreModelingPage() {
               One of the most powerful applications of pharmacophores is <strong>scaffold hopping</strong>: the identification of structurally novel active compounds that possess completely different core architectures (scaffolds) from the starting molecules.
             </p>
             <p>
-              Standard chemical searches rely on topological similarity (e.g. Tanimoto coefficient of molecular fingerprints), which will fail to find active molecules of another class. Pharmacophores bypass this restriction by prioritizing <strong>supramolecular function over structural topology</strong>.
+              Standard chemical searches rely on topological similarity (e.g. the Tanimoto coefficient over molecular fingerprints, Module 5), which will fail to find active molecules of another class. Pharmacophores bypass this restriction by prioritizing <strong>supramolecular function over structural topology</strong>. This is exactly why a pharmacophore query earns its place as an early filter in a screening cascade (Module 8): it is cheap enough to run over millions of compounds, and unlike a fingerprint search it can retrieve chemotypes that share no scaffold with the reference.
             </p>
             <div className="border-l-2 border-accent pl-4 italic bg-accent/5 p-4 rounded-r-xl my-2 text-sm">
               <strong className="text-foreground block not-italic mb-1">Biological Equivalence:</strong>
@@ -286,7 +298,7 @@ export default function PharmacophoreModelingPage() {
               <h3 className="font-bold text-foreground text-base">Interactive Graph: 3D-to-2D Pharmacophore Alignment</h3>
             </div>
             <p className="text-sm text-slate-800 font-medium">
-              Select a compound to project its functional group coordinates onto the pharmacophore query. Change distance tolerance to alter feature spheres.
+              Select a compound to project its functional group coordinates onto the pharmacophore query, then sweep the tolerance to see how it trades sensitivity against selectivity. Below ~1.0 Å you lose the scaffold hop (Molecule B); above ~2.1 Å you start admitting the inactive decoy (Molecule C).
             </p>
           </div>
           
@@ -471,6 +483,8 @@ export default function PharmacophoreModelingPage() {
             {/* SVG Visual Canvas */}
             <div className="flex-1 flex items-center justify-center p-2">
               <svg 
+                role="img"
+                aria-label="Pharmacophore alignment canvas: the skeleton of the selected molecule overlaid on the aromatic, acceptor and donor query points, each drawn with its tolerance sphere."
                 viewBox="0 0 400 300" 
                 className="w-full max-w-[420px] aspect-[4/3] bg-white rounded-xl border border-border shadow-inner"
               >
@@ -602,15 +616,17 @@ export default function PharmacophoreModelingPage() {
                       {/* C4' carbon atom — where right phenol –OH attaches */}
                       <circle cx="306" cy="130" r="4.5" fill="#475569" stroke="white" strokeWidth="1.5" />
 
-                      {/* C4'–O bond (HBD: right phenolic oxygen, diagonal to pharmacophore point) */}
-                      <line x1="306" y1="130" x2="320" y2="115" stroke="#3b82f6" strokeWidth="2.5" />
-                      <circle cx="320" cy="115" r="8" fill="#dbeafe" stroke="#3b82f6" strokeWidth="1.5" />
-                      <text x="320" y="119" textAnchor="middle" fill="#1d4ed8"
+                      {/* C4'–O bond (HBD: right phenolic oxygen).
+                          Lands at (334,137) — 1.04 Å from the query point at (320,115),
+                          so the scaffold hop only passes once tolerance ≥ 1.1 Å. */}
+                      <line x1="306" y1="130" x2="334" y2="137" stroke="#3b82f6" strokeWidth="2.5" />
+                      <circle cx="334" cy="137" r="8" fill="#dbeafe" stroke="#3b82f6" strokeWidth="1.5" />
+                      <text x="334" y="141" textAnchor="middle" fill="#1d4ed8"
                             fontSize="9" fontWeight="bold" fontFamily="sans-serif">OH</text>
                     </g>
                   )}
 
-                  {/* Molecule C — Incompatible regioisomer (HBD in wrong position) */}
+                  {/* Molecule C — 2-(4-hydroxybutyl)phenol decoy (HBD vector points the wrong way) */}
                   {selectedMolecule === 2 && (
                     <g strokeLinecap="round" strokeLinejoin="round">
                       {/* Benzene ring. Vertices identical to Mol A A-ring. */}
@@ -628,24 +644,29 @@ export default function PharmacophoreModelingPage() {
                       <text x="75" y="149" textAnchor="middle" fill="#dc2626"
                             fontSize="9" fontWeight="bold" fontFamily="sans-serif">OH</text>
 
-                      {/* C5 carbon atom — where misplaced side chain branches off */}
+                      {/* C2 carbon atom — chain branches ortho to the phenol, not across the ring */}
                       <circle cx="125" cy="145" r="4.5" fill="#475569" stroke="white" strokeWidth="1.5" />
 
-                      {/* Aliphatic side chain — 4-bond zig-zag gives C₁₀ total (6 ring + 4 chain) */}
+                      {/* Aliphatic side chain — 4-carbon zig-zag gives C₁₀ total (6 ring + 4 chain) */}
                       <line x1="125" y1="145" x2="158" y2="168" stroke="#94a3b8" strokeWidth="2" />
                       <line x1="158" y1="168" x2="193" y2="151" stroke="#94a3b8" strokeWidth="2" />
                       <line x1="193" y1="151" x2="228" y2="172" stroke="#94a3b8" strokeWidth="2" />
-                      <line x1="228" y1="172" x2="263" y2="155" stroke="#94a3b8" strokeWidth="2" />
+                      <line x1="228" y1="172" x2="255" y2="157" stroke="#94a3b8" strokeWidth="2" />
 
-                      {/* HBD oxygen at wrong regiochemical position */}
-                      <circle cx="263" cy="155" r="8" fill="#dbeafe" stroke="#3b82f6" strokeWidth="1.5" />
-                      <text x="263" y="159" textAnchor="middle" fill="#1d4ed8"
+                      {/* Terminal carbon bearing the hydroxyl */}
+                      <circle cx="255" cy="157" r="4.5" fill="#475569" stroke="white" strokeWidth="1.5" />
+
+                      {/* C–O bond to the HBD oxygen at (283,152) — 2.09 Å from the query
+                          point at (320,115), so this decoy is only admitted at tolerance ≥ 2.1 Å. */}
+                      <line x1="255" y1="157" x2="283" y2="152" stroke="#3b82f6" strokeWidth="2.5" />
+                      <circle cx="283" cy="152" r="8" fill="#dbeafe" stroke="#3b82f6" strokeWidth="1.5" />
+                      <text x="283" y="156" textAnchor="middle" fill="#1d4ed8"
                             fontSize="9" fontWeight="bold" fontFamily="sans-serif">OH</text>
 
                       {/* Dashed red indicator pointing toward correct HBD position (320,115) */}
-                      <line x1="271" y1="152" x2="305" y2="133" stroke="#f87171"
+                      <line x1="291" y1="149" x2="309" y2="128" stroke="#f87171"
                             strokeDasharray="3,2" strokeWidth="1.5" />
-                      <text x="313" y="130" fill="#dc2626" fontSize="10" fontWeight="bold"
+                      <text x="316" y="126" fill="#dc2626" fontSize="10" fontWeight="bold"
                             fontFamily="sans-serif">✗</text>
                     </g>
                   )}

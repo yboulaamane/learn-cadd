@@ -16,9 +16,28 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const siteDescription =
+  "An interactive, first-principles course in computer-aided drug design, from structural bioinformatics and molecular docking to AI, DMPK, biologics, and reproducible workflows.";
+
 export const metadata: Metadata = {
-  title: "Learn CADD — Computer-Aided Drug Design",
-  description: "An interactive, first-principles course in computer-aided drug design, from structural bioinformatics and molecular docking to AI, DMPK, biologics, and reproducible workflows.",
+  // Module routes supply their own `title`; the template appends the site name
+  // so every page gets a distinct, self-describing tab and search result.
+  title: {
+    default: "Learn CADD — Computer-Aided Drug Design",
+    template: "%s — Learn CADD",
+  },
+  description: siteDescription,
+  openGraph: {
+    title: "Learn CADD — Computer-Aided Drug Design",
+    description: siteDescription,
+    siteName: "Learn CADD",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Learn CADD — Computer-Aided Drug Design",
+    description: siteDescription,
+  },
 };
 
 export default function RootLayout({

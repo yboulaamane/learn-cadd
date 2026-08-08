@@ -573,7 +573,12 @@ for idx, isomer in enumerate(isomers):
 
               {/* Dynamic Molecule Graph SVG */}
               <div className="w-full max-w-[280px] aspect-[4/3] relative flex justify-center">
-                <svg viewBox="-80 -20 300 200" className="w-full h-full">
+                <svg
+                  role="img"
+                  aria-label={`Chemical graph of ${molA.name}: atoms drawn as labelled vertices and bonds as edges, with the selected ECFP atom neighbourhood highlighted.`}
+                  viewBox="-80 -20 300 200"
+                  className="w-full h-full"
+                >
                   {/* Edges */}
                   {molA.edges.map((edge, idx) => {
                     const srcNode = molA.nodes.find((n) => n.id === edge.source)!;

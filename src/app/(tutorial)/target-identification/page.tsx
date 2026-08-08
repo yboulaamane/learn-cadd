@@ -179,7 +179,7 @@ export default function TargetIdentificationPage() {
       <section className="space-y-4">
         <h2>4. Target Validation: Building an Evidence Chain</h2>
         <p>
-          Validation asks: <em>if I modulate this target, does the disease change?</em> No single experiment settles it. Confidence comes from stacking independent, orthogonal lines of evidence — the more independent the sources, the lower the risk.
+          Validation asks: <em>if I modulate this target, does the disease change?</em> No single experiment settles it. Confidence comes from stacking independent, orthogonal lines of evidence — the more independent the sources, the lower the risk. Module 17 covers where that evidence comes from: omics data, interaction networks, pathway context, and perturbation screens, and how to weigh them without fooling yourself.
         </p>
 
         <div className="space-y-3 not-prose">
@@ -374,7 +374,7 @@ export default function TargetIdentificationPage() {
             <Info className="h-4 w-4 text-blue-600" /> What the equation is telling you
           </span>
           <p className="leading-relaxed font-medium">
-            Because enclosure carries a <strong>+0.60</strong> coefficient and hydrophilicity a <strong>−0.324</strong> one, a pocket earns its druggability mainly by being <em>buried and greasy</em>. A PPI interface fails not because it is small — it is usually enormous — but because it is <strong>flat and wet</strong>. This is exactly why the field invented PROTACs and molecular glues (Modules 1 and 6): if you cannot win the binding-site argument, change the modality so you no longer need a deep pocket.
+            Because enclosure carries a <strong>+0.60</strong> coefficient and hydrophilicity a <strong>−0.324</strong> one, a pocket earns its druggability mainly by being <em>buried and greasy</em>. A PPI interface fails not because it is small — it is usually enormous — but because it is <strong>flat and wet</strong>. This is exactly why the field invented PROTACs and molecular glues (Modules 1 and 6): if you cannot win the binding-site argument, change the modality so you no longer need a deep pocket. Antibodies and other biologics take the same escape route from the opposite direction — they bind flat, polar epitopes precisely because they present a large complementary surface rather than filling a cavity; Module 16 covers modelling those interfaces.
           </p>
         </div>
       </section>

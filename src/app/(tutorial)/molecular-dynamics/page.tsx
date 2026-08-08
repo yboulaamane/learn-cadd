@@ -239,7 +239,7 @@ export default function MolecularDynamicsPage() {
               
               {/* Simulated physical layout */}
               <div className="relative flex-1">
-                <svg viewBox="0 0 200 120" className="w-full h-full">
+                <svg role="img" aria-label="Simulation cell: the solvated protein-ligand system inside a periodic water box." viewBox="0 0 200 120" className="w-full h-full">
                   {/* Solvation Water Box Boundary */}
                   <rect x="5" y="5" width="190" height="110" rx="3" fill="none" stroke="currentColor" className="text-slate-200" strokeWidth="0.8" strokeDasharray="3,3" />
                   
@@ -366,7 +366,7 @@ export default function MolecularDynamicsPage() {
             {/* Trajectory Plot SVG Graph */}
             <div className="relative flex-1 py-4 flex flex-col justify-center items-center">
               <div className="w-full h-44 bg-slate-50 border border-slate-200 rounded-lg p-2.5 relative flex flex-col justify-between">
-                <svg viewBox="0 0 240 100" className="w-full h-full">
+                <svg role="img" aria-label="Trajectory plot of the selected observable against simulation time." viewBox="0 0 240 100" className="w-full h-full">
                   {/* Grid lines */}
                   <line x1="25" y1="10" x2="230" y2="10" className="stroke-slate-100 dark:stroke-slate-800" strokeWidth="0.8" />
                   <line x1="25" y1="50" x2="230" y2="50" className="stroke-slate-100 dark:stroke-slate-800" strokeWidth="0.8" />

@@ -215,7 +215,7 @@ export default function GenerativeDesignPage() {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 bg-white p-5 rounded-lg border border-slate-200">
           {/* Plot */}
           <div className="md:col-span-7">
-            <svg viewBox="0 0 300 200" className="w-full">
+            <svg role="img" aria-label="Pareto frontier scatter plot: 16 candidate molecules plotted by potency against synthesizability, with non-dominated candidates marked." viewBox="0 0 300 200" className="w-full">
               {/* axes */}
               <line x1="40" y1="165" x2="288" y2="165" stroke="currentColor" className="text-slate-300" strokeWidth="1" />
               <line x1="40" y1="12" x2="40" y2="165" stroke="currentColor" className="text-slate-300" strokeWidth="1" />

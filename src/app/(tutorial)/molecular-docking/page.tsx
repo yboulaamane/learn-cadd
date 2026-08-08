@@ -255,7 +255,7 @@ export default function MolecularDockingPage() {
           {/* Simulation Display */}
           <div className="md:col-span-6 flex justify-center">
             <div className="w-full max-w-[240px] aspect-square relative bg-white border border-slate-200 rounded-xl p-4 flex flex-col justify-center items-center shadow-inner overflow-hidden">
-              <svg viewBox="0 0 100 100" className="w-full h-full">
+              <svg role="img" aria-label="Docking pose matcher: a draggable and rotatable ligand positioned inside the receptor binding site." viewBox="0 0 100 100" className="w-full h-full">
                 <defs>
                   <linearGradient id="proteinGrad" x1="0%" y1="0%" x2="0%" y2="100%">
                     <stop offset="0%" stopColor="var(--color-widget-bg)" />
@@ -892,7 +892,7 @@ export default function MolecularDockingPage() {
 
           {/* Curve */}
           <div className="md:col-span-7">
-            <svg viewBox="0 0 300 200" className="w-full">
+            <svg role="img" aria-label="PROTAC ternary complex yield curve, showing the hook effect as the yield falls at high PROTAC concentration." viewBox="0 0 300 200" className="w-full">
               <line x1="30" y1="170" x2="285" y2="170" stroke="currentColor" className="text-slate-300" strokeWidth="1" />
               <line x1="30" y1="15" x2="30" y2="170" stroke="currentColor" className="text-slate-300" strokeWidth="1" />
               {[25, 50, 75, 100].map((v) => (

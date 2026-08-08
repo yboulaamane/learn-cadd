@@ -288,7 +288,7 @@ export default function QsarModelingPage() {
           {/* Craig plot */}
           <div className="md:col-span-7 flex justify-center">
             <div className="w-full max-w-[320px] aspect-[3/2] relative bg-slate-50 border border-slate-200 rounded-lg p-2">
-              <svg viewBox="0 0 300 200" className="w-full h-full">
+              <svg role="img" aria-label="Craig plot: Hammett sigma against hydrophobic pi for a substituent series, with activity quadrants labelled." viewBox="0 0 300 200" className="w-full h-full">
                 {/* High-activity quadrant: +π (right), −σ (lower) */}
                 <rect x="150" y="100" width="150" height="100" className="fill-emerald-100/60" />
                 <text x="222" y="192" textAnchor="middle" fontSize="8" className="fill-emerald-700 font-bold">high activity</text>
@@ -519,7 +519,7 @@ export default function QsarModelingPage() {
           {/* Tree Visualization SVG */}
           <div className="md:col-span-7 flex justify-center">
             <div className="w-full max-w-[280px] aspect-square relative bg-slate-50 border border-slate-200 rounded-lg p-4">
-              <svg viewBox="0 0 160 160" className="w-full h-full">
+              <svg role="img" aria-label="Decision tree diagram splitting compounds into predicted active and inactive classes." viewBox="0 0 160 160" className="w-full h-full">
                 
                 {/* Node 1: Root */}
                 <rect x="55" y="10" width="50" height="20" rx="3" fill="none" stroke="currentColor" className="text-slate-400" strokeWidth="1" />
@@ -832,6 +832,8 @@ export default function QsarModelingPage() {
             <div className="w-full relative bg-slate-100 border border-slate-200 rounded-lg p-2 select-none overflow-hidden">
               <svg 
                 ref={svgRef}
+                role="img"
+                aria-label="PCA chemical space plot showing training compounds, the applicability domain boundary, and the query compound&apos;s position relative to it."
                 viewBox="0 0 300 200" 
                 className="w-full h-auto cursor-crosshair touch-none"
                 onMouseDown={handleMouseDown}
@@ -1091,7 +1093,7 @@ export default function QsarModelingPage() {
       <section className="space-y-4">
         <h2>7. In Silico ADMET, Explainable AI, &amp; Hybrid Phenotypic Modeling</h2>
         <p>
-          While classical QSAR models general binding affinity, modern drug discovery requires optimization for Absorption, Distribution, Metabolism, Excretion, and Toxicity (ADMET) endpoints to prevent clinical trial failures.
+          While classical QSAR models general binding affinity, modern drug discovery requires optimization for Absorption, Distribution, Metabolism, Excretion, and Toxicity (ADMET) endpoints to prevent clinical trial failures. The machinery is identical to everything above — descriptors, a train/test split, an applicability domain — only the endpoint changes. Module 12 applies it to the safety endpoints in depth, and Module 15 continues past prediction into the pharmacokinetics those endpoints stand in for.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 not-prose">

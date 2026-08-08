@@ -512,7 +512,11 @@ export default function LigandReceptorInteractionsPage() {
       {/* Section 4: Non-covalent Interactions */}
       <section className="space-y-4">
         <h2>4. Types of Non-Covalent Interactions</h2>
-        
+
+        <p className="text-sm text-slate-800 leading-relaxed">
+          Each interaction below is a physical phenomenon first and a line of arithmetic second. Module 4 shows how a force field turns them into computable terms — hydrogen bonds and salt bridges fall out of the Coulomb term, dispersion and steric clash out of the Lennard-Jones term — and every docking score (Module 6) and free-energy estimate (Module 10) you meet later is built from exactly these contributions.
+        </p>
+
         <div className="space-y-3 not-prose">
           <div className="flex gap-3 p-3.5 rounded-lg border border-border bg-white">
             <span className="h-5 w-5 text-sm font-bold bg-slate-100 border border-border rounded flex items-center justify-center flex-shrink-0 text-slate-900">1</span>
@@ -581,7 +585,7 @@ export default function LigandReceptorInteractionsPage() {
           {/* Simulation Viewport */}
           <div className="md:col-span-6 flex justify-center">
             <div className="w-full max-w-[240px] aspect-square relative bg-slate-50 border border-slate-200 rounded-lg p-4 flex flex-col justify-center items-center">
-              <svg viewBox="0 0 100 100" className="w-full h-full">
+              <svg role="img" aria-label="Desolvation diagram: ordered water molecules released from a hydrophobic surface as the ligand binds." viewBox="0 0 100 100" className="w-full h-full">
                 <path d="M10,20 L30,20 C35,45 65,45 70,20 L90,20 L90,80 L10,80 Z" fill="currentColor" className="text-slate-200" stroke="currentColor" strokeWidth="1" />
                 <text x="50" y="70" textAnchor="middle" fill="currentColor" className="text-slate-800 font-bold" fontSize="5" fontWeight="semibold">HYDROPHOBIC POCKET</text>
 
@@ -677,6 +681,8 @@ export default function LigandReceptorInteractionsPage() {
             <div className="w-full relative bg-slate-100 border border-slate-200 rounded-lg p-2 overflow-hidden select-none">
               <svg 
                 ref={svgRef}
+                role="img"
+                aria-label="Supramolecular binding sandbox: a draggable ligand core with amine, hydroxyl and phenyl groups positioned against aspartate, histidine and phenylalanine residues."
                 viewBox="0 0 300 200" 
                 className="w-full h-auto cursor-default touch-none"
                 onMouseMove={handleMouseMove}
