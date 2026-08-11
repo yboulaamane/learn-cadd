@@ -2,6 +2,8 @@
 
 An interactive, visual, first-principles web guide to computer-aided drug design (CADD) — from the physics of binding to generative molecular design. Every module pairs the theory with a hands-on browser playground.
 
+<img width="1372" height="912" alt="image" src="https://github.com/user-attachments/assets/192b8d61-f2d0-44d9-b3f5-872af438ff3f" />
+
 ## Course Structure
 
 The curriculum runs to **18 modules across two tracks**, each pairing theory with a browser playground and a short knowledge check:
