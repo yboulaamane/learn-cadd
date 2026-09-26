@@ -63,6 +63,19 @@ const compoundLibrary: Compound[] = [
   { id: "C36", name: "Chlorinated Lead Core", mw: 375, logp: 3.9, hbd: 1, hba: 3, pains: null, score: -8.6 }
 ];
 
+// Teaching labels for a synthetic retrospective benchmark. Several actives were
+// deliberately chosen to fail common filters so learners can see false negatives.
+const SYNTHETIC_ACTIVES = new Set([
+  "C01", "C03", "C06", "C07", "C10", "C12",
+  "C16", "C18", "C23", "C26", "C27", "C35",
+]);
+
+const SCREENING_PRESETS = {
+  Broad: { lipinski: false, pains: false, docking: false, threshold: -5.5 },
+  Balanced: { lipinski: true, pains: true, docking: true, threshold: -7.5 },
+  Aggressive: { lipinski: true, pains: true, docking: true, threshold: -8.5 },
+};
+
 interface BenchmarkCompound {
   active: boolean;
   baseScore: number;
@@ -127,6 +140,9 @@ export default function VirtualScreeningPage() {
   const [filterLipinski, setFilterLipinski] = useState(true);
   const [filterPains, setFilterPains] = useState(true);
   const [filterDocking, setFilterDocking] = useState(true);
+  const [dockingThreshold, setDockingThreshold] = useState(-7.5);
+  const [screeningPrediction, setScreeningPrediction] = useState<"retain-more" | "miss-more" | "no-change" | null>(null);
+  const [pipelineInteracted, setPipelineInteracted] = useState(false);
 
   const [currentIndex, setCurrentIndex] = useState(-1);
   const [isRunning, setIsRunning] = useState(false);
@@ -138,7 +154,7 @@ export default function VirtualScreeningPage() {
   const evaluateCompound = (c: Compound) => {
     const passLipinski = !filterLipinski || (c.mw <= 500 && c.logp <= 5.0 && c.hbd <= 5 && c.hba <= 10);
     const passPains = !filterPains || (c.pains === null);
-    const passDocking = !filterDocking || (c.score <= -7.5);
+    const passDocking = !filterDocking || (c.score <= dockingThreshold);
     const passed = passLipinski && passPains && passDocking;
     return { passLipinski, passPains, passDocking, passed };
   };
@@ -182,6 +198,28 @@ export default function VirtualScreeningPage() {
     setCurrentIndex(-1);
   };
 
+  const applyScreeningPreset = (name: keyof typeof SCREENING_PRESETS) => {
+    const preset = SCREENING_PRESETS[name];
+    setFilterLipinski(preset.lipinski);
+    setFilterPains(preset.pains);
+    setFilterDocking(preset.docking);
+    setDockingThreshold(preset.threshold);
+    setPipelineInteracted(true);
+    handleReset();
+  };
+
+  const resetAll = () => {
+    const preset = SCREENING_PRESETS.Balanced;
+    setFilterLipinski(preset.lipinski);
+    setFilterPains(preset.pains);
+    setFilterDocking(preset.docking);
+    setDockingThreshold(preset.threshold);
+    setSpeed(200);
+    setScreeningPrediction(null);
+    setPipelineInteracted(false);
+    handleReset();
+  };
+
   // Active statistics calculated from screened library
   const screenedCount = Math.min(currentIndex + 1, compoundLibrary.length);
   const screenedList = compoundLibrary.slice(0, screenedCount);
@@ -203,6 +241,25 @@ export default function VirtualScreeningPage() {
 
   const currentComp = currentIndex >= 0 && currentIndex < compoundLibrary.length ? compoundLibrary[currentIndex] : null;
   const currentEvaluation = currentComp ? evaluateCompound(currentComp) : null;
+
+  const benchmarkSelections = compoundLibrary.map((compound) => ({
+    compound,
+    active: SYNTHETIC_ACTIVES.has(compound.id),
+    selected: evaluateCompound(compound).passed,
+  }));
+  const retainedActives = benchmarkSelections.filter((result) => result.active && result.selected).length;
+  const missedActives = SYNTHETIC_ACTIVES.size - retainedActives;
+  const retainedInactives = benchmarkSelections.filter((result) => !result.active && result.selected).length;
+  const totalSelected = retainedActives + retainedInactives;
+  const activeRecall = (retainedActives / SYNTHETIC_ACTIVES.size) * 100;
+  const activePrecision = totalSelected > 0 ? (retainedActives / totalSelected) * 100 : 0;
+  const activePreset = (Object.entries(SCREENING_PRESETS) as Array<[keyof typeof SCREENING_PRESETS, typeof SCREENING_PRESETS.Balanced]>).find(
+    ([, preset]) =>
+      preset.lipinski === filterLipinski &&
+      preset.pains === filterPains &&
+      preset.docking === filterDocking &&
+      preset.threshold === dockingThreshold,
+  )?.[0];
 
   const benchmark = calculateScreeningBenchmark(scoreSeparation);
 
@@ -226,7 +283,7 @@ export default function VirtualScreeningPage() {
           <li>Order a multi-stage cascade so each filter is cheap enough for the pool entering it.</li>
           <li>Prepare a screening library, including protonation, tautomers, and 3D conformers.</li>
           <li>Compute and interpret enrichment factor, BEDROC, and ROC-AUC.</li>
-          <li>Use DeLong's test to decide whether two screening models genuinely differ.</li>
+          <li>Use DeLong&apos;s test to decide whether two screening models genuinely differ.</li>
         </ul>
       </section>
 
@@ -518,8 +575,41 @@ export default function VirtualScreeningPage() {
           <h3 className="font-bold text-base text-slate-900">Interactive Playground: Live High-Throughput Virtual Screen Simulator</h3>
         </div>
         <p className="text-sm text-slate-800">
-          Experience a multi-stage virtual screening pipeline in action. Configure filters, kick off the automated screen, and watch the compound library get filtered in real time. Plotted on the live scatter chart are the Molecular Weight (MW) vs. Docking Score for all analyzed compounds.
+          Configure a synthetic 36-compound benchmark, then watch the cascade trade false positives
+          against missed actives. The scatter chart plots molecular weight against a synthetic docking score.
         </p>
+
+        <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
+          <p className="text-xs font-extrabold uppercase tracking-wider text-blue-800">Guided experiment</p>
+          <p className="mt-2 text-sm font-bold leading-relaxed text-slate-950">
+            Before choosing Aggressive, predict what stricter filtering will do to the number of missed actives.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2" aria-label="Prediction for stricter filtering">
+            {[
+              ["retain-more", "Miss fewer actives"],
+              ["miss-more", "Miss more actives"],
+              ["no-change", "No change"],
+            ].map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setScreeningPrediction(value as typeof screeningPrediction)}
+                aria-pressed={screeningPrediction === value}
+                className={`rounded-md border px-3 py-1.5 text-xs font-bold ${screeningPrediction === value ? "border-slate-900 bg-slate-900 text-white" : "border-blue-200 bg-white text-slate-700 hover:border-blue-400"}`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          {screeningPrediction && !pipelineInteracted && (
+            <p className="mt-3 text-xs text-blue-900">Now compare the Broad, Balanced, and Aggressive presets.</p>
+          )}
+          {screeningPrediction && pipelineInteracted && (
+            <p role="status" className="mt-3 rounded-lg bg-white p-3 text-xs leading-relaxed text-slate-800 ring-1 ring-inset ring-blue-200">
+              <strong>What the benchmark shows:</strong> this pipeline retains {retainedActives} of {SYNTHETIC_ACTIVES.size} known actives and misses {missedActives}. Stricter filters can improve the fraction of selected compounds that are active, but they usually reduce recall. The rejected compounds are hypotheses lost, not proven inactives.
+            </p>
+          )}
+        </div>
 
         {/* Configurations Banner */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 bg-white p-5 rounded-lg border border-slate-200">
@@ -528,6 +618,21 @@ export default function VirtualScreeningPage() {
           <div className="md:col-span-5 flex flex-col justify-between space-y-4">
             <div className="space-y-3">
               <h4 className="font-extrabold text-sm uppercase tracking-wider text-slate-900 border-b pb-1">Pipeline Filters</h4>
+
+              <div className="flex flex-wrap gap-2" aria-label="Screening pipeline presets">
+                {(Object.keys(SCREENING_PRESETS) as Array<keyof typeof SCREENING_PRESETS>).map((name) => (
+                  <button
+                    key={name}
+                    type="button"
+                    onClick={() => applyScreeningPreset(name)}
+                    disabled={isRunning}
+                    aria-pressed={activePreset === name}
+                    className={`rounded-full border px-3 py-1.5 text-xs font-bold transition disabled:cursor-not-allowed disabled:opacity-50 ${activePreset === name ? "border-blue-700 bg-blue-700 text-white" : "border-slate-200 bg-white text-slate-700 hover:border-blue-400"}`}
+                  >
+                    {name}
+                  </button>
+                ))}
+              </div>
               
               {/* Checkboxes */}
               <div className="space-y-2 text-sm font-bold text-slate-800">
@@ -535,7 +640,11 @@ export default function VirtualScreeningPage() {
                   <input 
                     type="checkbox" 
                     checked={filterLipinski} 
-                    onChange={(e) => setFilterLipinski(e.target.checked)}
+                    onChange={(e) => {
+                      setFilterLipinski(e.target.checked);
+                      setPipelineInteracted(true);
+                      handleReset();
+                    }}
                     disabled={isRunning}
                     className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900 cursor-pointer"
                   />
@@ -545,7 +654,11 @@ export default function VirtualScreeningPage() {
                   <input 
                     type="checkbox" 
                     checked={filterPains} 
-                    onChange={(e) => setFilterPains(e.target.checked)}
+                    onChange={(e) => {
+                      setFilterPains(e.target.checked);
+                      setPipelineInteracted(true);
+                      handleReset();
+                    }}
                     disabled={isRunning}
                     className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900 cursor-pointer"
                   />
@@ -555,18 +668,45 @@ export default function VirtualScreeningPage() {
                   <input 
                     type="checkbox" 
                     checked={filterDocking} 
-                    onChange={(e) => setFilterDocking(e.target.checked)}
+                    onChange={(e) => {
+                      setFilterDocking(e.target.checked);
+                      setPipelineInteracted(true);
+                      handleReset();
+                    }}
                     disabled={isRunning}
                     className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900 cursor-pointer"
                   />
-                  <span>3. Mpro Docking Score Threshold (≤ -7.5 kcal/mol)</span>
+                  <span>3. Synthetic docking-score threshold (≤ {dockingThreshold.toFixed(1)} kcal/mol)</span>
                 </label>
               </div>
 
-              {/* Speed Controller */}
-              <div className="space-y-1.5 pt-2">
-                <span className="text-xs text-slate-800 font-bold uppercase tracking-wider block">Screening Speed</span>
-                <div className="flex gap-2">
+              <details className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                <summary className="cursor-pointer text-xs font-extrabold text-slate-800">Explore further</summary>
+                <div className="mt-3 space-y-4">
+                  <label className="block space-y-2 text-xs font-bold text-slate-800">
+                    <span className="flex items-center justify-between gap-3">
+                      Docking cutoff
+                      <span className="font-mono text-slate-950">{dockingThreshold.toFixed(1)} kcal/mol</span>
+                    </span>
+                    <input
+                      type="range"
+                      min="-9.5"
+                      max="-5.5"
+                      step="0.5"
+                      value={dockingThreshold}
+                      disabled={!filterDocking || isRunning}
+                      onChange={(event) => {
+                        setDockingThreshold(Number(event.target.value));
+                        setPipelineInteracted(true);
+                        handleReset();
+                      }}
+                      className="h-2 w-full cursor-pointer appearance-none rounded-full bg-slate-200 accent-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                    />
+                  </label>
+
+                  <div className="space-y-1.5">
+                    <span className="text-xs text-slate-800 font-bold uppercase tracking-wider block">Screening speed</span>
+                    <div className="flex gap-2">
                   <button 
                     onClick={() => setSpeed(600)} 
                     className={`flex-1 text-xs py-1 rounded font-bold border transition-colors ${speed === 600 ? "bg-slate-900 text-white border-slate-900 dark:bg-blue-600 dark:border-blue-500" : "bg-white text-slate-800 border-slate-200 hover:bg-slate-50"}`}
@@ -585,8 +725,10 @@ export default function VirtualScreeningPage() {
                   >
                     Fast
                   </button>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              </details>
             </div>
 
             {/* Run Action Buttons */}
@@ -607,10 +749,10 @@ export default function VirtualScreeningPage() {
                 </button>
               )}
               <button
-                onClick={handleReset}
+                onClick={resetAll}
                 className="flex items-center justify-center gap-1.5 border border-slate-300 hover:bg-slate-50 text-slate-800 py-2 px-3 rounded-lg font-bold text-sm transition-colors"
               >
-                <RotateCcw size={14} /> Reset
+                <RotateCcw size={14} /> Reset all
               </button>
             </div>
 
@@ -623,10 +765,32 @@ export default function VirtualScreeningPage() {
                 <div>No structural alerts: <span className="font-mono text-slate-950">{passedPainsCount}</span></div>
                 <div>Passed Docking: <span className="font-mono text-slate-950">{passedDockingCount}</span></div>
                 <div className="col-span-2 border-t border-slate-200/60 pt-1.5 flex justify-between text-sm text-slate-950">
-                  <span>Hits Identified: <strong className="text-emerald-700 font-black">{hitsCount}</strong></span>
-                  <span>Hit Rate: <strong className="font-black">{hitRate.toFixed(1)}%</strong></span>
+                  <span>Compounds selected: <strong className="text-emerald-700 font-black">{hitsCount}</strong></span>
+                  <span>Selection rate: <strong className="font-black">{hitRate.toFixed(1)}%</strong></span>
                 </div>
               </div>
+            </div>
+
+            <div className="rounded-lg border border-blue-200 bg-blue-50 p-3" aria-live="polite">
+              <span className="block text-xs font-extrabold uppercase tracking-wider text-blue-800">Synthetic benchmark outcome</span>
+              <dl className="mt-2 grid grid-cols-2 gap-2 text-xs">
+                <div className="rounded-md bg-white p-2">
+                  <dt className="font-bold text-slate-600">Actives retained</dt>
+                  <dd className="mt-0.5 text-lg font-black text-emerald-700">{retainedActives} / {SYNTHETIC_ACTIVES.size}</dd>
+                </div>
+                <div className="rounded-md bg-white p-2">
+                  <dt className="font-bold text-slate-600">Actives missed</dt>
+                  <dd className="mt-0.5 text-lg font-black text-red-700">{missedActives}</dd>
+                </div>
+                <div className="rounded-md bg-white p-2">
+                  <dt className="font-bold text-slate-600">Recall</dt>
+                  <dd className="mt-0.5 font-black text-slate-950">{activeRecall.toFixed(0)}%</dd>
+                </div>
+                <div className="rounded-md bg-white p-2">
+                  <dt className="font-bold text-slate-600">Selected are active</dt>
+                  <dd className="mt-0.5 font-black text-slate-950">{activePrecision.toFixed(0)}%</dd>
+                </div>
+              </dl>
             </div>
           </div>
 
@@ -675,11 +839,11 @@ export default function VirtualScreeningPage() {
                     <text x={30 + (500 - 100) * 0.5 - 4} y="16" textAnchor="end" className="fill-red-800 text-[6px] font-bold dark:fill-red-300">MW Limit (500)</text>
                   </g>
                 )}
-                {/* 2. Docking Score threshold (-7.5 kcal/mol) */}
+                {/* 2. Docking Score threshold */}
                 {filterDocking && (
                   <g>
-                    <line x1="30" y1={30 + (-7.5 - (-4)) * (-25)} x2="280" y2={30 + (-7.5 - (-4)) * (-25)} stroke="#3b82f6" strokeWidth="1" strokeDasharray="3,3" />
-                    <text x="276" y={30 + (-7.5 - (-4)) * (-25) - 3} textAnchor="end" className="fill-blue-700 text-[6px] font-bold dark:fill-blue-300">Score Limit (-7.5)</text>
+                    <line x1="30" y1={30 + (dockingThreshold - (-4)) * (-25)} x2="280" y2={30 + (dockingThreshold - (-4)) * (-25)} stroke="#3b82f6" strokeWidth="1" strokeDasharray="3,3" />
+                    <text x="276" y={30 + (dockingThreshold - (-4)) * (-25) - 3} textAnchor="end" className="fill-blue-700 text-[6px] font-bold dark:fill-blue-300">Score limit ({dockingThreshold.toFixed(1)})</text>
                   </g>
                 )}
 
@@ -692,6 +856,9 @@ export default function VirtualScreeningPage() {
 
                   return (
                     <g key={c.id}>
+                      {SYNTHETIC_ACTIVES.has(c.id) && (
+                        <circle cx={x} cy={y} r={isCurrent ? "7.5" : "5.3"} fill="none" stroke="#7c3aed" strokeWidth="1.2" />
+                      )}
                       <circle 
                         cx={x} 
                         cy={y} 
@@ -750,13 +917,24 @@ export default function VirtualScreeningPage() {
               ) : (
                 <div className="text-xs font-bold text-slate-800 text-center py-2 w-full">
                   {currentIndex >= compoundLibrary.length 
-                    ? "✓ Screen Complete! Review the identified hits in the database." 
+                    ? "✓ Screen complete. Review the selected compounds and missed actives."
                     : "Ready. Click 'Start Screening' to process the 36-compound library."}
                 </div>
               )}
             </div>
+            <div className="flex w-full flex-wrap gap-4 text-[10px] font-bold text-slate-600" aria-hidden="true">
+              <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />Selected</span>
+              <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-red-500" />Rejected</span>
+              <span className="flex items-center gap-1.5"><span className="h-3.5 w-3.5 rounded-full border-2 border-violet-600" />Known active</span>
+            </div>
           </div>
         </div>
+        <p className="rounded-lg bg-amber-50 p-3 text-xs leading-relaxed text-amber-950 ring-1 ring-inset ring-amber-200">
+          <strong>Teaching boundary:</strong> compound identities, known-active labels, docking scores,
+          and filter outcomes in this playground form a synthetic benchmark. A favorable score does
+          not establish binding, and a structural alert is a triage signal rather than proof of assay
+          interference. Experimental confirmation is still required.
+        </p>
       </section>
 
       {/* Section 5: Experimental hit triage */}

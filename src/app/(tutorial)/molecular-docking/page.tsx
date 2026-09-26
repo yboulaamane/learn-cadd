@@ -11,10 +11,17 @@ import {
 } from "lucide-react";
 import { Quiz } from "@/components/Quiz";
 
+const DOCKING_POSES = {
+  "Near fit": { x: 15, y: 13, rotation: 22 },
+  "Wall clash": { x: 25, y: 20, rotation: 105 },
+  "Bulk solvent": { x: -15, y: -15, rotation: 0 },
+};
+
 export default function MolecularDockingPage() {
   const [posX, setPosX] = useState(15); // Offset X — start near the docked pose
   const [posY, setPosY] = useState(13); // Offset Y — just short of optimal so there is a last-mile to optimize
   const [rotation, setRotation] = useState(22); // Angle in degrees (matches target orientation)
+  const [poseChoice, setPoseChoice] = useState<"A" | "B" | null>(null);
 
   // --- PROTAC ternary complex simulator state ---
   const [protacConc, setProtacConc] = useState(-7); // Log10 concentration (M). -9 = 1nM, -7 = 100nM, -5 = 10uM
@@ -187,6 +194,17 @@ export default function MolecularDockingPage() {
     setRotation(22);
   };
 
+  const applyDockingPose = (name: keyof typeof DOCKING_POSES) => {
+    const pose = DOCKING_POSES[name];
+    setPosX(pose.x);
+    setPosY(pose.y);
+    setRotation(pose.rotation);
+  };
+
+  const activeDockingPose = (Object.entries(DOCKING_POSES) as Array<[keyof typeof DOCKING_POSES, typeof DOCKING_POSES["Near fit"]]>).find(
+    ([, pose]) => pose.x === posX && pose.y === posY && pose.rotation === rotation,
+  )?.[0];
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -252,22 +270,84 @@ export default function MolecularDockingPage() {
         </div>
       </section>
 
-      {/* Interactive Widget: Manual Docking Game */}
+      {/* Interactive Widget: Pose evidence challenge */}
       <section className="p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-4">
         <div className="flex items-center gap-2">
           <Compass size={18} className="text-slate-800" />
-          <h3 className="font-bold text-base text-slate-900">Interactive Playground: Manual Pose Matcher</h3>
+          <h3 className="font-bold text-base text-slate-900">Interactive Playground: Pose Evidence Challenge</h3>
         </div>
         <p className="text-sm text-slate-800 leading-normal">
-          Use the translation (X, Y) and rotation sliders to dock the ligand into the active site pocket. Align the positive charge (+) with the negative charge (-) to optimize the binding score.
+          Choose which synthetic pose you would advance. Make the decision from the interaction pattern and geometry—not the score alone.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center bg-white p-5 rounded-lg border border-slate-200">
+        <div className="rounded-xl border border-blue-200 bg-blue-50 p-4">
+          <p className="text-xs font-extrabold uppercase tracking-wider text-blue-800">Guided experiment</p>
+          <p className="mt-2 text-sm font-bold text-slate-950">Which pose deserves priority for expert inspection and experimental follow-up?</p>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            {[
+              {
+                id: "A" as const,
+                score: "−9.4",
+                title: "Pose A: stronger score",
+                evidence: ["Salt bridge to Asp189", "One π-contact", "0.9 Å heavy-atom clash", "Buried donor left unsatisfied"],
+              },
+              {
+                id: "B" as const,
+                score: "−8.7",
+                title: "Pose B: cleaner geometry",
+                evidence: ["Two directional H-bonds", "Hydrophobic packing", "No severe clash", "Polar groups remain satisfied"],
+              },
+            ].map((pose) => (
+              <button
+                key={pose.id}
+                type="button"
+                onClick={() => setPoseChoice(pose.id)}
+                aria-pressed={poseChoice === pose.id}
+                className={`rounded-xl border p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${poseChoice === pose.id ? "border-blue-700 bg-white ring-2 ring-blue-200" : "border-blue-200 bg-white/80 hover:border-blue-400"}`}
+              >
+                <span className="flex items-center justify-between gap-3">
+                  <strong className="text-sm text-slate-950">{pose.title}</strong>
+                  <span className="font-mono text-sm font-black text-slate-900">{pose.score}</span>
+                </span>
+                <span className="mt-3 block space-y-1 text-xs text-slate-700">
+                  {pose.evidence.map((item) => <span key={item} className="block">• {item}</span>)}
+                </span>
+              </button>
+            ))}
+          </div>
+          {poseChoice && (
+            <p role="status" className="mt-4 rounded-lg bg-white p-3 text-xs leading-relaxed text-slate-800 ring-1 ring-inset ring-blue-200">
+              <strong>{poseChoice === "B" ? "Good evidence-based choice." : "The score is tempting, but inspect the geometry."}</strong>{" "}
+              Pose B is the safer pose to prioritize because its interaction geometry is coherent and it has no severe clash, despite its weaker synthetic score. That still does not establish the bound pose or binding: check protonation, conserved waters, alternate receptor states, redocking/pose recovery, and experimental structure or mutagenesis evidence.
+            </p>
+          )}
+        </div>
+
+        <details className="rounded-xl border border-slate-200 bg-white p-4">
+          <summary className="cursor-pointer text-sm font-extrabold text-slate-900">Explore further: move a pose yourself</summary>
+          <p className="mt-3 text-xs leading-relaxed text-slate-700">
+            Use the coordinate sliders or numeric inputs to move the ligand. The dashed outline is the fixed reference pose; the colored ligand is your current pose.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2" aria-label="Docking pose presets">
+            {(Object.keys(DOCKING_POSES) as Array<keyof typeof DOCKING_POSES>).map((name) => (
+              <button
+                key={name}
+                type="button"
+                onClick={() => applyDockingPose(name)}
+                aria-pressed={activeDockingPose === name}
+                className={`rounded-full border px-3 py-1.5 text-xs font-bold ${activeDockingPose === name ? "border-blue-700 bg-blue-700 text-white" : "border-slate-200 bg-slate-50 text-slate-700 hover:border-blue-400"}`}
+              >
+                {name}
+              </button>
+            ))}
+          </div>
+
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-12 gap-6 items-center bg-white p-5 rounded-lg border border-slate-200">
           
           {/* Simulation Display */}
           <div className="md:col-span-6 flex justify-center">
             <div className="w-full max-w-[240px] aspect-square relative bg-white border border-slate-200 rounded-xl p-4 flex flex-col justify-center items-center shadow-inner overflow-hidden">
-              <svg role="img" aria-label="Docking pose matcher: a draggable and rotatable ligand positioned inside the receptor binding site." viewBox="0 0 100 100" className="w-full h-full">
+              <svg role="img" aria-label="Docking pose matcher showing the current movable ligand and a dashed reference pose inside the receptor binding site." viewBox="0 0 100 100" className="w-full h-full">
                 <defs>
                   <linearGradient id="proteinGrad" x1="0%" y1="0%" x2="0%" y2="100%">
                     <stop offset="0%" stopColor="var(--color-widget-bg)" />
@@ -288,6 +368,14 @@ export default function MolecularDockingPage() {
                 <circle cx="50" cy="49" r="4.5" className="fill-red-500 stroke-white stroke-[0.75]" />
                 <text x="50" y="50.8" textAnchor="middle" fill="#ffffff" className="font-black font-sans select-none" fontSize="6.5" fontWeight="bold">-</text>
 
+                {/* Fixed comparison pose */}
+                <g
+                  aria-hidden="true"
+                  style={{ transform: "translate(15px, 14px) rotate(22deg)", transformOrigin: "35px 35px" }}
+                >
+                  <path d="M28,28 L42,28 L42,42 L35,42 L35,35 L28,35 Z" fill="none" stroke="#64748b" strokeWidth="1" strokeDasharray="2 2" strokeLinejoin="round" />
+                </g>
+
                 {/* Ligand container that translates and rotates */}
                 <g 
                   className="transition-transform duration-100 ease-out" 
@@ -307,10 +395,10 @@ export default function MolecularDockingPage() {
             {/* Real-time score card */}
             <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-lg space-y-1">
               <div className="flex justify-between items-center">
-                <span className="text-xs text-slate-800 font-bold uppercase tracking-wider block">Docking Score (ΔG)</span>
+                <span className="text-xs text-slate-800 font-bold uppercase tracking-wider block">Synthetic teaching score</span>
                 {isDocked ? (
                   <span className="text-xs font-bold text-emerald-700 flex items-center gap-1">
-                    <CheckCircle size={14} /> Optimal Binding!
+                    <CheckCircle size={14} /> Strong toy score
                   </span>
                 ) : stericClash > 0 ? (
                   <span className="text-xs font-bold text-red-600 flex items-center gap-1">
@@ -329,12 +417,12 @@ export default function MolecularDockingPage() {
                 <span className={isDocked ? "text-emerald-700" : stericClash > 0 ? "text-red-600" : isFarFromPocket ? "text-slate-400" : "text-amber-600"}>
                   {displayScore.toFixed(2)}
                 </span>
-                <span className="text-sm text-slate-800 font-semibold ml-1">kcal/mol</span>
+                <span className="text-sm text-slate-800 font-semibold ml-1">score units</span>
               </p>
 
               {isFarFromPocket && (
                 <p className="text-xs text-slate-500 mt-1 pt-1 border-t border-slate-200">
-                  No significant binding. Drag the ligand into the pocket above.
+                  Little modeled interaction. Move the ligand toward the pocket.
                 </p>
               )}
 
@@ -348,10 +436,15 @@ export default function MolecularDockingPage() {
             {/* Translation X slider */}
             <div className="space-y-1">
               <div className="flex justify-between items-center text-sm text-slate-800">
-                <span className="font-bold">Translate X</span>
-                <span className="font-extrabold text-slate-900">{posX} px</span>
+                <label htmlFor="dock-x" className="font-bold">Translate X</label>
+                <label className="flex items-center rounded-md border border-slate-200 bg-white text-xs focus-within:ring-2 focus-within:ring-blue-500">
+                  <span className="sr-only">Translate X numeric value</span>
+                  <input type="number" min="-15" max="30" value={posX} onChange={(e) => setPosX(Number(e.target.value))} className="w-16 bg-transparent px-2 py-1 text-right font-mono font-extrabold text-slate-900 outline-none" aria-label="Translate X numeric value" />
+                  <span className="border-l border-slate-200 px-2 py-1 text-slate-500">px</span>
+                </label>
               </div>
               <input
+                id="dock-x"
                 type="range"
                 min="-15"
                 max="30"
@@ -364,10 +457,15 @@ export default function MolecularDockingPage() {
             {/* Translation Y slider */}
             <div className="space-y-1">
               <div className="flex justify-between items-center text-sm text-slate-800">
-                <span className="font-bold">Translate Y</span>
-                <span className="font-extrabold text-slate-900">{posY} px</span>
+                <label htmlFor="dock-y" className="font-bold">Translate Y</label>
+                <label className="flex items-center rounded-md border border-slate-200 bg-white text-xs focus-within:ring-2 focus-within:ring-blue-500">
+                  <span className="sr-only">Translate Y numeric value</span>
+                  <input type="number" min="-15" max="25" value={posY} onChange={(e) => setPosY(Number(e.target.value))} className="w-16 bg-transparent px-2 py-1 text-right font-mono font-extrabold text-slate-900 outline-none" aria-label="Translate Y numeric value" />
+                  <span className="border-l border-slate-200 px-2 py-1 text-slate-500">px</span>
+                </label>
               </div>
               <input
+                id="dock-y"
                 type="range"
                 min="-15"
                 max="25"
@@ -380,10 +478,15 @@ export default function MolecularDockingPage() {
             {/* Rotation slider */}
             <div className="space-y-1">
               <div className="flex justify-between items-center text-sm text-slate-800">
-                <span className="font-bold">Rotate Ligand</span>
-                <span className="font-extrabold text-slate-900">{rotation}°</span>
+                <label htmlFor="dock-rotation" className="font-bold">Rotate ligand</label>
+                <label className="flex items-center rounded-md border border-slate-200 bg-white text-xs focus-within:ring-2 focus-within:ring-blue-500">
+                  <span className="sr-only">Ligand rotation numeric value</span>
+                  <input type="number" min="0" max="360" value={rotation} onChange={(e) => setRotation(Number(e.target.value))} className="w-16 bg-transparent px-2 py-1 text-right font-mono font-extrabold text-slate-900 outline-none" aria-label="Ligand rotation numeric value" />
+                  <span className="border-l border-slate-200 px-2 py-1 text-slate-500">°</span>
+                </label>
               </div>
               <input
+                id="dock-rotation"
                 type="range"
                 min="0"
                 max="360"
@@ -397,11 +500,18 @@ export default function MolecularDockingPage() {
               onClick={resetDocking}
               className="px-3 py-2 rounded bg-slate-100 text-slate-900 font-extrabold text-sm hover:bg-slate-200 transition-colors w-full text-center border border-slate-200"
             >
-              Reset Pose
+              Reset pose
             </button>
           </div>
 
         </div>
+        </details>
+
+        <p className="rounded-lg bg-amber-50 p-3 text-xs leading-relaxed text-amber-950 ring-1 ring-inset ring-amber-200">
+          <strong>Teaching boundary:</strong> the pose geometry, interaction labels, and score in this
+          playground are synthetic. The score is not a calibrated binding free energy, and a favorable
+          value does not establish binding or identify the experimental pose.
+        </p>
       </section>
 
       {/* Section 3: Choosing the Right PDB Structure */}
