@@ -138,35 +138,36 @@ export default function QsarModelingPage() {
   }, [handleMouseMove, handleMouseUp, isDragging]);
 
   // Widget 3 state (Classical Hansch analysis / Craig plot)
-  // Reference substituents with tabulated Hansch-Fujita π (hydrophobicity)
-  // and Hammett σ_para (electronic) constants.
+  // Hansch aromatic π and Hammett σ_para. n-Pr and t-Bu are included so the
+  // parabola has points past the lipophilicity optimum.
   const hanschSubstituents: { label: string; pi: number; sigma: number }[] = [
     { label: "H", pi: 0.0, sigma: 0.0 },
-    { label: "CH₃", pi: 0.56, sigma: -0.17 },
-    { label: "C₂H₅", pi: 1.02, sigma: -0.15 },
     { label: "F", pi: 0.14, sigma: 0.06 },
+    { label: "CH₃", pi: 0.56, sigma: -0.17 },
     { label: "Cl", pi: 0.71, sigma: 0.23 },
     { label: "Br", pi: 0.86, sigma: 0.23 },
+    { label: "CF₃", pi: 0.88, sigma: 0.54 },
+    { label: "C₂H₅", pi: 1.02, sigma: -0.15 },
+    { label: "n-C₃H₇", pi: 1.55, sigma: -0.13 },
+    { label: "t-Bu", pi: 1.98, sigma: -0.20 },
     { label: "OCH₃", pi: -0.02, sigma: -0.27 },
     { label: "OH", pi: -0.67, sigma: -0.37 },
-    { label: "NH₂", pi: -1.23, sigma: -0.66 },
-    { label: "CF₃", pi: 0.88, sigma: 0.54 },
     { label: "CN", pi: -0.57, sigma: 0.66 },
     { label: "NO₂", pi: -0.28, sigma: 0.78 },
+    { label: "NH₂", pi: -1.23, sigma: -0.66 },
   ];
-  const [hanschPick, setHanschPick] = useState("Cl");
+  const [hanschPick, setHanschPick] = useState("C₂H₅");
+  const [useParabola, setUseParabola] = useState(true);
   const activeSub = hanschSubstituents.find((s) => s.label === hanschPick) ?? hanschSubstituents[0];
   const piVal = activeSub.pi;
   const sigmaVal = activeSub.sigma;
-  // Illustrative Hansch-form model for substituted phenols: log(1/C) = 2.5·π − 0.2·σ + 2.3.
-  // The coefficients are representative teaching values chosen to reproduce the well-known
-  // qualitative result (lipophilicity dominates, electronics contribute weakly); they are not
-  // taken from a specific published regression. The π and σ values below ARE literature
-  // constants (Hansch aromatic π and Hammett σ_para).
-  const hanschActivity = 2.5 * piVal - 0.2 * sigmaVal + 2.3;
-  // Craig-plot pixel mapping (viewBox 300 x 200, origin at 150,100)
-  const craigX = 150 + piVal * 70;
-  const craigY = 100 - sigmaVal * 70;
+  // Teaching equation, not one published regression. π* = a/(2b) = 1.0.
+  const hanschActivityFor = (pi: number, sigma: number) => {
+    const linear = 2.4 * pi - 0.25 * sigma + 1.6;
+    return useParabola ? linear - 1.2 * pi * pi : linear;
+  };
+  const hanschActivity = hanschActivityFor(piVal, sigmaVal);
+  const piOptimum = 1.0;
 
   return (
     <div className="space-y-8">
@@ -245,15 +246,31 @@ export default function QsarModelingPage() {
       <section className="p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-4">
         <div className="flex items-center gap-2">
           <Sliders size={18} className="text-slate-900" />
-          <h3 className="font-bold text-base text-slate-900">Interactive Playground: Hansch Model &amp; Craig Plot</h3>
+          <h3 className="font-bold text-base text-slate-900">Interactive Playground: The Hansch Parabola</h3>
         </div>
         <p className="text-sm text-slate-800 leading-normal">
-          A Hansch-form model for antiseptic activity in substituted phenols, <span className="font-mono font-semibold">log(1/C) = 2.5·π − 0.2·σ + 2.3</span>. The <em>substituent constants</em> below are literature values — Hansch aromatic π and Hammett σ<sub>para</sub> — while the regression coefficients are representative rather than taken from one published fit. Pick a <em>para</em>-substituent to place it on the <strong>Craig plot</strong> and see its predicted activity. The lipophilic term dominates, so potency is maximized in the high-π / low-σ quadrant, which is the robust experimental finding for this compound class.
+          A teaching model for para-substituted phenols, <span className="font-mono font-semibold">log(1/C) = 2.4·π − 1.2·π² − 0.25·σ + 1.6</span>. The substituent constants are Hansch aromatic π and Hammett σ<sub>para</sub>. The coefficients are illustrative. The π² term puts the lipophilicity optimum at π* = 1.0. Drop it and the greasiest substituent wins.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center bg-white p-5 rounded-lg border border-slate-200">
           {/* Controls & readout */}
           <div className="md:col-span-5 space-y-4">
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setUseParabola(true)}
+                className={`rounded-md border px-2.5 py-1 text-xs font-bold ${useParabola ? "border-slate-900 bg-slate-900 text-white" : "border-slate-300 bg-white text-slate-800"}`}
+              >
+                Keep the π² term
+              </button>
+              <button
+                type="button"
+                onClick={() => setUseParabola(false)}
+                className={`rounded-md border px-2.5 py-1 text-xs font-bold ${!useParabola ? "border-slate-900 bg-slate-900 text-white" : "border-slate-300 bg-white text-slate-800"}`}
+              >
+                Drop π² (linear)
+              </button>
+            </div>
             <div className="space-y-1.5">
               <span className="text-sm text-slate-800 font-bold">Substituent (R on phenol)</span>
               <div className="flex flex-wrap gap-1.5">
@@ -289,51 +306,69 @@ export default function QsarModelingPage() {
               <p className="text-xl font-bold text-slate-950 font-mono">
                 log(1/C) = {hanschActivity.toFixed(2)}
               </p>
-              <div className="text-sm leading-normal">
-                {hanschActivity >= 3.8 ? (
-                  <span className="text-emerald-700 font-bold">High antiseptic activity — lipophilic, weakly electron-donating.</span>
-                ) : hanschActivity >= 2.3 ? (
-                  <span className="text-amber-700 font-bold">Moderate activity.</span>
+              <div className="text-sm leading-normal text-slate-800">
+                {!useParabola ? (
+                  <span className="font-bold text-amber-800">Without π², activity keeps rising with lipophilicity. tert-butyl looks best. That is the error the parabola was introduced to correct.</span>
+                ) : Math.abs(piVal - piOptimum) <= 0.25 ? (
+                  <span className="font-bold text-emerald-800">Near the lipophilicity optimum (π* = 1). Electronics move the prediction only slightly.</span>
+                ) : piVal > piOptimum + 0.25 ? (
+                  <span className="font-bold text-amber-800">Past π* = 1. More lipophilicity now lowers predicted activity. Compare ethyl with tert-butyl.</span>
                 ) : (
-                  <span className="text-rose-700 font-bold">Low activity — too polar or strongly electron-withdrawing.</span>
+                  <span className="font-bold text-slate-800">Short of the optimum. A somewhat more lipophilic substituent is still predicted to help.</span>
                 )}
               </div>
             </div>
           </div>
 
-          {/* Craig plot */}
+          {/* Activity versus π */}
           <div className="md:col-span-7 flex justify-center">
             <div className="w-full max-w-[320px] aspect-[3/2] relative bg-slate-50 border border-slate-200 rounded-lg p-2">
-              <svg role="img" aria-label="Craig plot: Hammett sigma against hydrophobic pi for a substituent series, with activity quadrants labelled." viewBox="0 0 300 200" className="w-full h-full">
-                {/* High-activity quadrant: +π (right), −σ (lower) */}
-                <rect x="150" y="100" width="150" height="100" className="fill-emerald-100/60" />
-                <text x="222" y="192" textAnchor="middle" fontSize="8" className="fill-emerald-700 font-bold">high activity</text>
-
-                {/* Axes */}
-                <line x1="10" y1="100" x2="290" y2="100" stroke="currentColor" className="text-slate-400" strokeWidth="0.8" />
-                <line x1="150" y1="10" x2="150" y2="190" stroke="currentColor" className="text-slate-400" strokeWidth="0.8" />
-                <text x="286" y="96" textAnchor="end" fontSize="9" className="fill-slate-600 font-bold">+π →</text>
-                <text x="153" y="17" fontSize="9" className="fill-slate-600 font-bold">+σ (EWG)</text>
-                <text x="153" y="188" fontSize="9" className="fill-slate-600 font-bold">−σ (EDG)</text>
-
-                {/* Reference substituents */}
+              <svg role="img" aria-label="Activity against Hansch pi, with the parabolic or linear model drawn through the substituent series." viewBox="0 0 320 180" className="w-full h-full">
+                <line x1="28" y1="158" x2="300" y2="158" stroke="currentColor" className="text-slate-400" strokeWidth="0.8" />
+                <line x1="36" y1="12" x2="36" y2="158" stroke="currentColor" className="text-slate-400" strokeWidth="0.8" />
+                <text x="292" y="146" textAnchor="end" fontSize="10" className="fill-slate-600 font-bold">π</text>
+                <text x="40" y="18" fontSize="10" className="fill-slate-600 font-bold">log(1/C)</text>
+                {useParabola && (
+                  <line
+                    x1={36 + ((piOptimum + 1.6) / 4) * 250}
+                    y1="20"
+                    x2={36 + ((piOptimum + 1.6) / 4) * 250}
+                    y2="158"
+                    stroke="currentColor"
+                    className="text-emerald-600"
+                    strokeDasharray="3 3"
+                  />
+                )}
+                <path
+                  d={(() => {
+                    let d = "";
+                    for (let pi = -1.4; pi <= 2.3; pi += 0.05) {
+                      const x = 36 + ((pi + 1.6) / 4) * 250;
+                      const y = 158 - ((hanschActivityFor(pi, 0) + 4) / 11) * 136;
+                      d += `${d ? "L" : "M"}${x.toFixed(1)},${y.toFixed(1)}`;
+                    }
+                    return d;
+                  })()}
+                  fill="none"
+                  stroke="currentColor"
+                  className="text-slate-900"
+                  strokeWidth="1.6"
+                />
                 {hanschSubstituents.map((s) => {
-                  const x = 150 + s.pi * 70;
-                  const y = 100 - s.sigma * 70;
+                  const x = 36 + ((s.pi + 1.6) / 4) * 250;
+                  const y = 158 - ((hanschActivityFor(s.pi, s.sigma) + 4) / 11) * 136;
                   const active = s.label === hanschPick;
                   return (
                     <g key={s.label}>
-                      <circle cx={x} cy={y} r={active ? 4.5 : 2.5} className={active ? "fill-slate-900" : "fill-slate-400"} />
+                      <circle cx={x} cy={y} r={active ? 4.5 : 2.4} className={active ? "fill-slate-900" : "fill-slate-400"} />
                       {active && (
-                        <text x={x + 7} y={y + 3} fontSize="9" className="fill-slate-900 font-bold font-mono">{s.label}</text>
+                        <text x={x + 6} y={y - 6} fontSize="10" className="fill-slate-900 font-bold font-mono">{s.label}</text>
                       )}
                     </g>
                   );
                 })}
-
-                {/* Active marker ring */}
-                <circle cx={craigX} cy={craigY} r="8" fill="none" stroke="currentColor" className="text-slate-900" strokeWidth="1.2" />
               </svg>
+              <p className="px-1 text-xs text-slate-600">The line is the σ = 0 slice. Points include each substituent&apos;s σ.</p>
             </div>
           </div>
         </div>
@@ -462,7 +497,7 @@ export default function QsarModelingPage() {
           <h3 className="font-bold text-base text-slate-900">Interactive Playground: Decision Tree Descriptor Classification</h3>
         </div>
         <p className="text-sm text-slate-800 leading-normal">
-          Adjust the sliders to change the chemical descriptors of your test molecule. Watch how the molecule traverses the decision tree splits based on threshold rules to reach an &quot;Active&quot; or &quot;Inactive&quot; classification.
+          Move logP across 4, then molecular weight across 450, then donors across 3. The highlighted path is the leaf this tree was trained to return. A flip here is a threshold in the training set, not a physical rule that extra donors rescue a greasy molecule.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center bg-white p-5 rounded-lg border border-slate-200">
@@ -520,14 +555,20 @@ export default function QsarModelingPage() {
               />
             </div>
 
-            <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-0.5">
-              <span className="text-xs text-slate-800 font-bold block uppercase">Predicted Class</span>
+            <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-1">
+              <span className="text-xs text-slate-800 font-bold block uppercase">Leaf reached</span>
               <p className="text-lg font-black">
                 {resultActive ? (
-                  <span className="text-emerald-700">Active Compound</span>
+                  <span className="text-emerald-700">Active in this tree</span>
                 ) : (
-                  <span className="text-red-700">Inactive / Toxic</span>
+                  <span className="text-red-700">Inactive in this tree</span>
                 )}
+              </p>
+              <p className="text-sm leading-relaxed text-slate-700">
+                {step1Passed && step2Passed && "logP ≤ 4 and MW ≤ 450. This is the leaf labeled active."}
+                {step1Passed && !step2Passed && "logP ≤ 4, but MW is above 450, so the tree sends the compound to an inactive leaf."}
+                {!step1Passed && !step2Passed && "logP > 4 and HBD < 3. The tree calls this active. That split rewards a greasy molecule with few donors because the training labels did, not because lipophilicity is generally good."}
+                {!step1Passed && step2Passed && "logP > 4 and HBD ≥ 3. The tree calls this inactive. Raising the donor count flipped the leaf; it did not prove a change in mechanism."}
               </p>
             </div>
           </div>
