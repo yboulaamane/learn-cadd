@@ -265,8 +265,28 @@ export default function InSilicoToxicologyPage() {
     tpsa > 140
       ? "TPSA > 140 Å² — poor passive intestinal absorption expected."
       : tpsa < 90
-      ? "TPSA < 90 Å² — good oral absorption; may also cross the blood-brain barrier."
-      : "TPSA 90–140 Å² — adequate oral absorption, unlikely to be CNS-penetrant.";
+      ? "TPSA < 90 Å² — passive absorption is plausible, and CNS exposure is harder to rule out."
+      : "TPSA 90–140 Å² — passive absorption is plausible; CNS exposure is less likely from polarity alone.";
+  const propertyNotes = [
+    dlLogP > 5
+      ? "LogP above 5 marks poor solubility and a higher chance of promiscuous binding, including hERG. Terfenadine lived in this region and was withdrawn for QT prolongation. The rule flagged the property; it did not predict the channel."
+      : null,
+    mw > 500
+      ? "Molecular weight above 500 is an alert, not a veto. Atorvastatin is an oral drug above this line. Read weight together with polarity and flexibility."
+      : null,
+    hbd > 5
+      ? "More than five hydrogen-bond donors is the Lipinski alert most often tied to poor membrane permeability."
+      : null,
+    rotb > 10
+      ? "More than ten rotatable bonds tracked with lower oral bioavailability in Veber’s set."
+      : null,
+    tpsa > 140
+      ? "TPSA above 140 Å² usually means the compound will not cross a membrane by passive diffusion."
+      : null,
+    dlLogP <= 5 && mw <= 500 && hbd <= 5 && hba <= 10 && rotb <= 10 && tpsa <= 140
+      ? "No Lipinski or Veber alert is lit. That does not show the compound is absorbed, selective, or safe."
+      : null,
+  ].filter((note): note is string => note !== null);
 
   const stats = calculateDeLongComparison(comparisonSampleSize, biologicalSignal);
   const pValueLabel = stats.pValue < 0.0001 ? "< 0.0001" : stats.pValue.toFixed(4);
@@ -375,7 +395,7 @@ export default function InSilicoToxicologyPage() {
           <h3 className="font-bold text-base text-slate-900">Interactive Playground: Drug-Likeness Scorecard</h3>
         </div>
         <p className="text-sm text-slate-800 leading-normal">
-          Load a known drug or drag the sliders to profile a virtual molecule. Watch each Lipinski and Veber criterion flip pass/fail. Note that approved drugs (e.g. <strong>Atorvastatin</strong>) sometimes break a rule — the guidelines are alerts, not hard cutoffs.
+          Load aspirin, then terfenadine, then atorvastatin. The pass/fail lights are alerts. The notes underneath say which physical problem the alert is pointing at, and where an approved drug breaks a rule without being undruglike.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 bg-white p-5 rounded-lg border border-slate-200">
@@ -461,7 +481,12 @@ export default function InSilicoToxicologyPage() {
               </div>
             </div>
 
-            <p className="text-[11px] text-slate-700 font-semibold leading-snug px-1">{absorptionNote}</p>
+            <div className="space-y-2 px-1">
+              <p className="text-sm leading-snug text-slate-700">{absorptionNote}</p>
+              {propertyNotes.map((note) => (
+                <p key={note} className="text-sm leading-snug text-slate-800">{note}</p>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -482,7 +507,7 @@ export default function InSilicoToxicologyPage() {
       <section className="space-y-4 border-t border-border pt-8">
         <h2>3. Explainable AI: Demystifying Toxicophores with SHAP</h2>
         <p>
-          Historically, machine learning models in toxicology were viewed as black boxes. Modern regulatory bodies require model predictions to be interpretable. <strong>SHAP (SHapley Additive exPlanations)</strong>, derived from cooperative game theory, provides a solution by assigning each molecular descriptor a value that quantifies its contribution to the final prediction.
+          A toxicity model can be hard to read from its weights alone. The OECD principles for QSAR validation ask for a mechanistic interpretation when one is available. They do not require a SHAP analysis, and neither do current regulatory filings as a general rule. <strong>SHAP (SHapley Additive exPlanations)</strong>, from cooperative game theory, assigns each feature a share of <em>this model&apos;s</em> output.
         </p>
         <p>
           In cooperative game theory, Shapley values distribute a total payoff fairly among players based on their marginal contributions. In machine learning, the &quot;payoff&quot; is the model prediction, and the &quot;players&quot; are the individual molecular features. The Shapley value for a feature <span className="font-semibold">i</span> is defined as:
@@ -491,7 +516,7 @@ export default function InSilicoToxicologyPage() {
           {"φ_i = Σ [ (|S|! × (|F| - |S| - 1)!) / |F|! ] × [ f(S ∪ {i}) - f(S) ]"}
         </div>
         <p className="text-sm text-slate-800 leading-relaxed font-medium">
-          Where <span className="font-semibold">F</span> is the set of all features, <span className="font-semibold">S</span> is a subset of features excluding feature <span className="font-semibold">i</span>, and <span className="font-semibold">f(S)</span> is the prediction function. This checks every possible permutation of features to isolate the independent effect of a single chemical bit. In chemoinformatics, SHAP analysis maps these values back onto a molecule&apos;s 2D structure, highlighting exactly which chemical bits increase the probability of toxicity (toxicophores) and which structural fragments lower the risk.
+          <span className="font-semibold">F</span> is the set of all features, <span className="font-semibold">S</span> is a subset that excludes feature <span className="font-semibold">i</span>, and <span className="font-semibold">f(S)</span> is the model&apos;s prediction from that subset. The sum gives feature <span className="font-semibold">i</span> its average marginal contribution across subsets. Mapped back onto a fingerprint, a positive value means that bit pushed <em>this prediction</em> toward the toxic class. The bit may be a real toxicophore, a correlate of one, or an artefact of the training set. Attribution is not the mechanism.
         </p>
       </section>
 
@@ -519,7 +544,7 @@ export default function InSilicoToxicologyPage() {
               <strong>Lines 25–29 (Model Explainer)</strong>: The tree-based explainer analyzes decision trees to compute Shapley values.
             </li>
             <li>
-              <strong>Lines 31–38 (SHAP Value Calculation)</strong>: Shapley values are calculated. A positive SHAP value indicates a fragment that increases toxicity risk, whereas a negative value indicates a protective or stabilizing fragment.
+              <strong>Lines 31–38 (SHAP Value Calculation)</strong>: A positive value means that bit pushed this model toward the toxic class. A negative value pushed it the other way. Either one can be a real structural effect or a pattern the training set happened to contain.
             </li>
           </ul>
         </div>

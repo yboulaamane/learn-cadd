@@ -224,7 +224,7 @@ export default function MolecularDynamicsPage() {
           <h3 className="font-bold text-sm">Interactive Playground: MD Trajectory Analysis Dashboard</h3>
         </div>
         <p className="text-sm text-slate-600 leading-normal">
-          Select a system and click "Play Trajectory" to run the 100 ns simulation. Move the frame slider to inspect real-time shifts in RMSD, RMSF, Hydrogen Bonds, and Solvent Exposure.
+          Step through each trace and switch systems. Read RMSD for a plateau and RMSF for which residues move. The MM/GBSA numbers are ranks: both are far more negative than a real binding free energy.
         </p>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 bg-white dark:bg-slate-950 p-5 rounded-lg border border-slate-100 dark:border-slate-900 not-prose">
@@ -344,7 +344,7 @@ export default function MolecularDynamicsPage() {
             {/* Quick metrics readouts */}
             <div className="grid grid-cols-2 gap-2 text-center text-xs">
               <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-lg">
-                <span className="text-[10px] text-slate-500 font-bold block uppercase mb-0.5">MM/GBSA ΔG</span>
+                <span className="text-[10px] text-slate-500 font-bold block uppercase mb-0.5">MM/GBSA ΔG, not Kd</span>
                 <span className="text-sm font-extrabold text-slate-900">{system.freeEnergy}</span>
               </div>
               <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-lg">
@@ -620,10 +620,13 @@ export default function MolecularDynamicsPage() {
 # -o: Output binary run file (.tpr)
 # -c: Input coordinate structure file (atoms coordinates)
 # -p: Input topology file (force field parameters and molecular structures)
-# -maxwarn 1: Allows compilation to proceed with one minor warning (e.g. charge mismatch)
+#
+# Do not pass -maxwarn to step past a charge warning. A non-integer total
+# charge means the protonation state or the ion count is wrong. Fix that,
+# then let grompp stop if the system is still inconsistent.
 
-gmx grompp -f md_300.mdp -o topol_300.tpr -c conf.gro -p topol.top -maxwarn 1
-gmx grompp -f md_310.mdp -o topol_310.tpr -c conf.gro -p topol.top -maxwarn 1
+gmx grompp -f md_300.mdp -o topol_300.tpr -c conf.gro -p topol.top
+gmx grompp -f md_310.mdp -o topol_310.tpr -c conf.gro -p topol.top
 
 # =====================================================================
 # STEP 2: LAUNCH PARALLEL SWAPPING SIMULATIONS (T-REMD)
@@ -704,7 +707,7 @@ mpirun -np 8 gmx_mpi mdrun -multi 8 -replex 1000 -s topol_.tpr -deffnm remd`}
             <ul className="list-disc pl-5 text-xs text-slate-800 space-y-1 font-semibold leading-relaxed">
               <li>It applies a continuous, harmonic boost potential to smooth the potential energy surface.</li>
               <li>The boost energy is automatically calculated from the statistics (variance and mean, following a Gaussian distribution) of the system's potential energy.</li>
-              <li>This lowers transition barriers, allowing the simulation to escape deep local energy wells and capture millisecond-scale conformational changes using standard nanosecond simulation times.</li>
+              <li>The boost lets one trajectory visit states separated by barriers that an unbiased nanosecond run would rarely cross. Equilibrium weights are recovered by reweighting with the boost potential. The saved frames are not a millisecond of physical time, and the raw sequence is not a kinetic pathway.</li>
             </ul>
           </div>
         </div>
@@ -776,10 +779,10 @@ mpirun -np 8 gmx_mpi mdrun -multi 8 -replex 1000 -s topol_.tpr -deffnm remd`}
               ΔΔG = ΔG<sub>B</sub> − ΔG<sub>A</sub>
             </div>
             <p className="text-sm text-slate-800 leading-relaxed">
-              Rather than computing binding directly, slowly mutate ligand A into ligand B — <em>through unphysical intermediate states</em> — both in the pocket and in water. Because free energy is a state function, the thermodynamic cycle returns the <strong>relative</strong> binding free energy exactly.
+              Rather than simulating binding and unbinding, mutate ligand A into ligand B through unphysical intermediate states, once in the pocket and once in water. Free energy is a state function, so the cycle equates ΔΔG of binding to the difference of those two legs. A finite simulation estimates that difference. The estimate holds when A and B are similar, sampling has converged, and the force field describes both end states.
             </p>
             <p className="text-xs text-slate-600 leading-relaxed pt-1">
-              <strong>The industry gold standard for lead optimization</strong>, routinely achieving ~1 kcal/mol accuracy — precise enough to prospectively decide which analogue to synthesise next. The cost: heavy compute and careful setup.
+              On well-behaved congeneric series, published prospective tests often land near 1 kcal/mol RMSE. That figure is a result for those series, not a guarantee for the next one. Large perturbations, protein motion, and buried water rearrangements are the usual places the estimate fails. The cost is hours per pair and careful setup.
             </p>
           </div>
         </div>
@@ -800,28 +803,28 @@ mpirun -np 8 gmx_mpi mdrun -multi 8 -replex 1000 -s topol_.tpr -deffnm remd`}
       <section className="space-y-4">
         <h2>10. Machine-Learned Force Fields (MLFFs)</h2>
         <p>
-          Module 4 ended with the fundamental bind: classical force fields are fast but assume a fixed functional form with hand-fitted parameters, while quantum mechanics is accurate but scales far too steeply for a solvated protein. <strong>Machine-learned force fields</strong> (MACE, ANI-2x, NequIP) attack that trade-off directly.
+          Module 4 ended with the practical bind: a classical force field is fast because its functional form and parameters are fixed in advance, while a quantum calculation is slower and, for a solvated protein, usually out of reach. A <strong>machine-learned force field</strong> fits energies and forces from quantum calculations, then evaluates that fit quickly. What it can represent is whatever the training set contained.
         </p>
         <p>
-          Instead of <em>assuming</em> bonds are harmonic springs and charges are fixed points, an MLFF trains a graph neural network on large databases of quantum (DFT) energies and forces, learning the potential energy surface from data. The functional form is not imposed — it is discovered.
+          ANI-2x is a neural-network potential for neutral organic molecules in near-equilibrium geometries. It is the wrong tool for a protein, a metal centre, or a bond that breaks. NequIP and MACE are equivariant architectures. Trained on a reactive dataset they can describe bond changes; trained near equilibrium they cannot. The architecture also imposes locality and symmetry. The potential is fit, not discovered.
         </p>
 
         <div className="p-4 border-l-4 border-slate-900 bg-blue-50/50 rounded-r-xl space-y-2 text-sm leading-relaxed text-slate-800">
-          <strong className="text-slate-950 block">Quantum accuracy at (nearly) classical speed</strong>
-          An MLFF reads the local chemical environment of each atom and predicts its forces directly, reaching near-DFT accuracy orders of magnitude faster than DFT itself. That makes tractable the systems classical force fields handle badly — polarized covalent inhibitors, metal centres, unusual chemotypes with poor GAFF parameters, and reactive intermediates.
+          <strong className="text-slate-950 block">Near-DFT energies, inside the training chemistry</strong>
+          The model reads the local environment of each atom and returns an energy and forces. On geometries and elements close to the reference calculations it can approach the error of those calculations, and it is much faster than running DFT on every frame. Outside that set the error is not bounded by the DFT method.
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 not-prose">
           <div className="p-4 rounded-xl border border-border bg-white space-y-1">
-            <h4 className="font-bold text-sm text-slate-900">What it fixes</h4>
+            <h4 className="font-bold text-sm text-slate-900">What a suitable training set can fix</h4>
             <p className="text-sm text-slate-800 leading-relaxed">
-              All three classical failure modes from Module 4 at once: no reactivity, fixed charges, and parameter quality by analogy. An MLFF learns polarization and bond-breaking implicitly, because the QM data it trained on contained them.
+              Polarization and unusual organic chemistry, if those environments are in the data. Bond breaking, if the data include stretched and dissociated bonds. A model does not acquire all three classical failure modes&apos; remedies merely by being an MLFF.
             </p>
           </div>
           <div className="p-4 rounded-xl border border-border bg-white space-y-1">
             <h4 className="font-bold text-sm text-slate-900">What it costs</h4>
             <p className="text-sm text-slate-800 leading-relaxed">
-              Still 10–100× slower than a classical force field, and — like every ML model in this course — it has an <strong>applicability domain</strong> (Module 9). Ask an MLFF about chemistry absent from its training set and it will answer confidently and wrongly, with no warning.
+              Often 10–100× slower than a classical force field, and it has an <strong>applicability domain</strong> (Module 9). Chemistry absent from the training set can produce a confident, wrong force. Check the elements, the charge and spin states, and whether the training set was reactive before you use the trajectory.
             </p>
           </div>
         </div>

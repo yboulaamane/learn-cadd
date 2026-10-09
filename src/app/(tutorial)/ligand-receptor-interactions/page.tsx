@@ -1,223 +1,71 @@
 "use client";
 
-import React, { useCallback, useState, useRef, useEffect } from "react";
+import React, { useState } from "react";
 import { 
   Activity, 
   Layers, 
-  Flame,
-  Zap
+  Flame
 } from "lucide-react";
 import { Quiz } from "@/components/Quiz";
 
+const RT_KCAL = 0.592;
+
+function formatConcentration(dg: number) {
+  if (dg >= 0) return "≥ 1 M";
+  const kdM = Math.exp(dg / RT_KCAL);
+  if (kdM < 1e-9) return `${(kdM * 1e12).toFixed(1)} pM`;
+  if (kdM < 1e-6) return `${(kdM * 1e9).toFixed(1)} nM`;
+  if (kdM < 1e-3) return `${(kdM * 1e6).toFixed(0)} µM`;
+  return `${(kdM * 1e3).toFixed(0)} mM`;
+}
+
 export default function LigandReceptorInteractionsPage() {
-  // Widget 1 state
-  const [distance, setDistance] = useState(3.5); 
-  const [desolvate, setDesolvate] = useState(false);
+  const [distance, setDistance] = useState(2.9);
+  const [angle, setAngle] = useState(180);
+  const [nonpolarArea, setNonpolarArea] = useState(60);
+  const [unmatchedPolar, setUnmatchedPolar] = useState(false);
 
-  // Widget 3: Supramolecular Sandbox state
-  const [ligandPos, setLigandPos] = useState({ x: 130, y: 100 });
-  const [isDragging, setIsDragging] = useState(false);
-  const dragStartOffset = useRef({ x: 0, y: 0 });
-  const svgRef = useRef<SVGSVGElement | null>(null);
+  // Benzamidine–trypsin S1 ledger. Magnitudes are teaching values chosen so the
+  // solvent-aware total lands near the measured Ki (~20 µM, about −6.4 kcal/mol).
+  const [saltOn, setSaltOn] = useState(true);
+  const [polarOn, setPolarOn] = useState(true);
+  const [countSolvent, setCountSolvent] = useState(true);
+  const [s1Area, setS1Area] = useState(72);
+  const [frozenRotors, setFrozenRotors] = useState(0);
 
-  // Fixed receptor partner atom coordinates
-  const aspPos = { x: 60, y: 50 };     // Asp189 carboxylate oxygen
-  const hisPos = { x: 140, y: 155 };   // His41 imidazole nitrogen
-  const phePos = { x: 230, y: 75 };    // Phe140 phenyl ring center
-
-  // Ligand branch tip offsets relative to ligand center (when centered at (130, 95))
-  // We offset them slightly so that they don't all align perfectly at a single point, 
-  // introducing "conformational fit strain" which represents true drug design challenges.
-  const amineOffset = { dx: -65, dy: -40 };  // Amine group
-  const hydroxylOffset = { dx: 15, dy: 50 };  // Hydroxyl group
-  const phenylOffset = { dx: 85, dy: -20 };   // Phenyl ring
-
-  const aminePos = { x: ligandPos.x + amineOffset.dx, y: ligandPos.y + amineOffset.dy };
-  const hydroxylPos = { x: ligandPos.x + hydroxylOffset.dx, y: ligandPos.y + hydroxylOffset.dy };
-  const phenylPos = { x: ligandPos.x + phenylOffset.dx, y: ligandPos.y + phenylOffset.dy };
-
-  // Scale: 20 pixels = 1 Ångstrom
-  const pxToAngstrom = 20;
-
-  // Contact distance = sum of the *drawn* residue-sphere and ligand-group radii (in Å).
-  // A steric clash fires only when these circles actually overlap — i.e. the ligand
-  // touches the residue atom itself, never when it merely passes over the residue's
-  // text label, which sits outside the sphere.
-  const RESIDUE_R = { asp: 20, his: 20, phe: 22 };
-  const GROUP_R = { amine: 12, hydroxyl: 12, phenyl: 14 };
-  const contactAmine = (RESIDUE_R.asp + GROUP_R.amine) / pxToAngstrom;      // 1.6 Å
-  const contactHydroxyl = (RESIDUE_R.his + GROUP_R.hydroxyl) / pxToAngstrom; // 1.6 Å
-  const contactPhenyl = (RESIDUE_R.phe + GROUP_R.phenyl) / pxToAngstrom;    // 1.8 Å
-
-  const dAmine = Math.sqrt(Math.pow(aminePos.x - aspPos.x, 2) + Math.pow(aminePos.y - aspPos.y, 2)) / pxToAngstrom;
-  const dHydroxyl = Math.sqrt(Math.pow(hydroxylPos.x - hisPos.x, 2) + Math.pow(hydroxylPos.y - hisPos.y, 2)) / pxToAngstrom;
-  const dPhenyl = Math.sqrt(Math.pow(phenylPos.x - phePos.x, 2) + Math.pow(phenylPos.y - phePos.y, 2)) / pxToAngstrom;
-
-  // Energy functions (kcal/mol)
-  // Salt bridge (Amine - Asp189)
-  const getSaltBridgeEnergy = (d: number) => {
-    if (d < contactAmine) return 15; // steric clash (spheres overlap)
-    if (d < 5.0) {
-      // Morse-like potential representing electrostatic + short-range repulsion
-      const val = -6.0 * Math.exp(-Math.pow(d - 2.8, 2) / 0.8);
-      return val;
-    }
-    return 0;
-  };
-
-  // Hydrogen bond (Hydroxyl - His41)
-  const getHbondEnergy = (d: number) => {
-    if (d < contactHydroxyl) return 12; // steric clash (spheres overlap)
-    if (d < 4.0) {
-      const val = -3.5 * Math.exp(-Math.pow(d - 2.9, 2) / 0.3);
-      return val;
-    }
-    return 0;
-  };
-
-  // pi-pi Stacking (Phenyl - Phe140)
-  const getPiStackingEnergy = (d: number) => {
-    if (d < contactPhenyl) return 10; // steric clash (spheres overlap)
-    if (d < 5.5) {
-      const val = -2.2 * Math.exp(-Math.pow(d - 3.8, 2) / 0.5);
-      return val;
-    }
-    return 0;
-  };
-
-  const eAmine = getSaltBridgeEnergy(dAmine);
-  const eHydroxyl = getHbondEnergy(dHydroxyl);
-  const ePhenyl = getPiStackingEnergy(dPhenyl);
-
-  // Steric Clashes check — only when the ligand group circle overlaps the residue sphere
-  const clashAmine = dAmine < contactAmine;
-  const clashHydroxyl = dHydroxyl < contactHydroxyl;
-  const clashPhenyl = dPhenyl < contactPhenyl;
-  const hasClash = clashAmine || clashHydroxyl || clashPhenyl;
-
-  // Total Enthalpy (dH)
-  const dH = eAmine + eHydroxyl + ePhenyl;
-
-  // Entropy calculations
-  // Fixed conformational penalty for freezing rotatable bonds
-  const dSconf = 2.5; // kcal/mol equivalent (+TdS penalty)
-  
-  // Hydrophobic desolvation boost (favorable entropy -TdS when phenyl interacts with Phe140 pocket)
-  const dSdesolv = dPhenyl < 4.5 ? -3.0 * Math.exp(-Math.pow(dPhenyl - 3.8, 2) / 1.5) : 0;
-
-  const totalTdS = dSconf + dSdesolv;
-
-  // Gibbs Free Energy: dG = dH - TdS (here totalTdS is positive for penalties, negative for boosts)
-  const dG = dH + totalTdS;
-
-  // Binding Affinity Kd calculation (RT = 0.593 kcal/mol at 298K)
-  const getKdText = (dgVal: number) => {
-    if (hasClash) return "No Binding (Steric Clash)";
-    if (dgVal >= 0) return "No Binding (ΔG ≥ 0)";
-    const kdM = Math.exp(dgVal / 0.593); // Kd in M
-    if (kdM < 1e-9) {
-      return `${(kdM * 1e12).toFixed(1)} pM (Picomolar)`;
-    } else if (kdM < 1e-6) {
-      return `${(kdM * 1e9).toFixed(1)} nM (Nanomolar)`;
-    } else if (kdM < 1e-3) {
-      return `${(kdM * 1e6).toFixed(1)} µM (Micromolar)`;
-    } else {
-      return `${(kdM * 1e3).toFixed(1)} mM (Millimolar)`;
-    }
-  };
-
-  // Drag and drop handlers
-  const handleMouseDown = (e: React.MouseEvent<SVGCircleElement | SVGElement>) => {
-    if (!svgRef.current) return;
-    const rect = svgRef.current.getBoundingClientRect();
-    // Calculate mouse position relative to SVG coordinates
-    const mouseX = ((e.clientX - rect.left) / rect.width) * 300;
-    const mouseY = ((e.clientY - rect.top) / rect.height) * 200;
-    
-    dragStartOffset.current = {
-      x: mouseX - ligandPos.x,
-      y: mouseY - ligandPos.y
-    };
-    setIsDragging(true);
-  };
-
-  const handleMouseMove = useCallback((e: React.MouseEvent<SVGSVGElement> | MouseEvent) => {
-    if (!isDragging || !svgRef.current) return;
-    const rect = svgRef.current.getBoundingClientRect();
-    const clientX = 'clientX' in e ? e.clientX : (e as MouseEvent).clientX;
-    const clientY = 'clientY' in e ? e.clientY : (e as MouseEvent).clientY;
-    
-    const mouseX = ((clientX - rect.left) / rect.width) * 300;
-    const mouseY = ((clientY - rect.top) / rect.height) * 200;
-
-    let newX = mouseX - dragStartOffset.current.x;
-    let newY = mouseY - dragStartOffset.current.y;
-
-    // Constrain within visible viewport boundaries
-    newX = Math.min(Math.max(newX, 70), 190);
-    newY = Math.min(Math.max(newY, 50), 150);
-
-    setLigandPos({ x: newX, y: newY });
-  }, [isDragging]);
-
-  const handleMouseUp = useCallback(() => {
-    setIsDragging(false);
-  }, []);
-
-  // Touch support for mobile devices
-  const handleTouchStart = (e: React.TouchEvent<SVGCircleElement | SVGElement>) => {
-    if (!svgRef.current || e.touches.length === 0) return;
-    const rect = svgRef.current.getBoundingClientRect();
-    const touch = e.touches[0];
-    const mouseX = ((touch.clientX - rect.left) / rect.width) * 300;
-    const mouseY = ((touch.clientY - rect.top) / rect.height) * 200;
-    
-    dragStartOffset.current = {
-      x: mouseX - ligandPos.x,
-      y: mouseY - ligandPos.y
-    };
-    setIsDragging(true);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent<SVGSVGElement>) => {
-    if (!isDragging || !svgRef.current || e.touches.length === 0) return;
-    const rect = svgRef.current.getBoundingClientRect();
-    const touch = e.touches[0];
-    const mouseX = ((touch.clientX - rect.left) / rect.width) * 300;
-    const mouseY = ((touch.clientY - rect.top) / rect.height) * 200;
-
-    let newX = mouseX - dragStartOffset.current.x;
-    let newY = mouseY - dragStartOffset.current.y;
-
-    newX = Math.min(Math.max(newX, 70), 190);
-    newY = Math.min(Math.max(newY, 50), 150);
-
-    setLigandPos({ x: newX, y: newY });
-  };
-
-  useEffect(() => {
-    if (isDragging) {
-      window.addEventListener("mouseup", handleMouseUp);
-      window.addEventListener("mousemove", handleMouseMove);
-    }
-    return () => {
-      window.removeEventListener("mouseup", handleMouseUp);
-      window.removeEventListener("mousemove", handleMouseMove);
-    };
-  }, [handleMouseMove, handleMouseUp, isDragging]);
+  const angularFactor = Math.cos(((180 - angle) * Math.PI) / 180) ** 2;
 
   const calculateEnergy = (r: number) => {
-    const r0 = 2.9;     // equilibrium donor–acceptor distance (Å)
-    const depth = 4.0;  // well depth ε (kcal/mol); attraction is negative
-    // Minimized 12-6 form: V(r0) = -ε at the minimum, → 0 at large r, → +∞ at short r
-    const term12 = Math.pow(r0 / r, 12);
-    const term6 = 2 * Math.pow(r0 / r, 6);
-    const energy = depth * (term12 - term6);
-    // Clamp the steep repulsive wall to +8 so it stays inside the chart viewBox
+    const r0 = 2.9;
+    const depth = 4.0;
+    const repulsion = depth * Math.pow(r0 / r, 12);
+    const attraction = depth * 2 * Math.pow(r0 / r, 6);
+    const energy = repulsion - attraction * angularFactor;
     return Math.min(Math.max(energy, -depth), 8);
   };
 
   const currentEnergy = calculateEnergy(distance);
+
+  const hydrophobicDg = -0.025 * nonpolarArea;
+  const polarPenalty = unmatchedPolar ? 4.5 : 0;
+  const solventDg = hydrophobicDg + polarPenalty;
+
+  const saltAttraction = saltOn ? -6 : 0;
+  const saltDesolv = saltOn && countSolvent ? 3 : 0;
+  const polarAttraction = polarOn ? -3.5 : 0;
+  const polarDesolv = polarOn && countSolvent ? 2 : 0;
+  const hydrophobicBind = -0.025 * s1Area;
+  const rotorPenalty = frozenRotors * 0.8;
+  const ledgerG = saltAttraction + saltDesolv + polarAttraction + polarDesolv + hydrophobicBind + rotorPenalty;
+  const naiveG = (saltOn ? -6 : 0) + (polarOn ? -3.5 : 0) + hydrophobicBind;
+
+  const loadBenzamidine = () => {
+    setSaltOn(true);
+    setPolarOn(true);
+    setCountSolvent(true);
+    setS1Area(72);
+    setFrozenRotors(0);
+  };
 
   const generateCurvePath = () => {
     let path = "M";
@@ -363,19 +211,36 @@ export default function LigandReceptorInteractionsPage() {
       <section className="p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-4">
         <div className="flex items-center gap-2">
           <Activity size={16} className="text-slate-900" />
-          <h3 className="font-bold text-sm text-slate-900">Interactive Playground: Distance-Dependent H-Bond Potential</h3>
+          <h3 className="font-bold text-sm text-slate-900">Interactive Playground: Hydrogen-Bond Distance and Angle</h3>
         </div>
         <p className="text-sm text-slate-800">
-          Adjust the distance slider to bring the Hydrogen Bond donor atom closer to the acceptor. Watch the energy shift along the potential curve.
+          Leave the donor–acceptor distance at 2.9 Å and bend the angle. A hydrogen bond that looks right in distance can still be weak, because the attraction is directional. The curve is a model potential, not a measured enthalpy.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center bg-white p-5 rounded-lg border border-slate-200">
           
           {/* Slider & Meter */}
           <div className="md:col-span-5 space-y-4">
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => { setDistance(2.9); setAngle(180); }}
+                className="rounded-md border border-slate-300 bg-white px-2.5 py-1 text-xs font-bold text-slate-800 hover:border-slate-500"
+              >
+                Linear, 2.9 Å
+              </button>
+              <button
+                type="button"
+                onClick={() => { setDistance(2.9); setAngle(120); }}
+                className="rounded-md border border-slate-300 bg-white px-2.5 py-1 text-xs font-bold text-slate-800 hover:border-slate-500"
+              >
+                Same distance, bent
+              </button>
+            </div>
+
             <div className="space-y-1">
               <div className="flex justify-between items-center text-sm text-slate-800 font-bold">
-                <label htmlFor="hbond-distance">Donor-acceptor distance (Å)</label>
+                <label htmlFor="hbond-distance">Donor–acceptor distance (Å)</label>
                 <output htmlFor="hbond-distance" className="font-bold text-slate-900">{distance.toFixed(2)} Å</output>
               </div>
               <input
@@ -391,19 +256,64 @@ export default function LigandReceptorInteractionsPage() {
               />
             </div>
 
+            <div className="space-y-1">
+              <div className="flex justify-between items-center text-sm text-slate-800 font-bold">
+                <label htmlFor="hbond-angle">D–H···A angle</label>
+                <output htmlFor="hbond-angle" className="font-bold text-slate-900">{angle.toFixed(0)}°</output>
+              </div>
+              <input
+                id="hbond-angle"
+                type="range"
+                min="90"
+                max="180"
+                step="1"
+                value={angle}
+                onChange={(e) => setAngle(parseFloat(e.target.value))}
+                aria-describedby="hbond-model-boundary"
+                className="w-full h-1.5 bg-slate-100 rounded appearance-none cursor-pointer accent-slate-900"
+              />
+              <p className="text-xs text-slate-600">180° is linear. The attractive term is scaled by cos² of the bend, now {(angularFactor * 100).toFixed(0)}% of a linear bond.</p>
+            </div>
+
+            <svg viewBox="0 0 180 90" role="img" aria-label={`Hydrogen-bond geometry at ${angle.toFixed(0)} degrees`} className="w-full max-w-[240px] rounded-lg border border-slate-200 bg-slate-50">
+              <line x1="28" y1="68" x2="78" y2="68" stroke="#334155" strokeWidth="2" />
+              <line
+                x1="78"
+                y1="68"
+                x2={78 + 48 * Math.cos(((180 - angle) * Math.PI) / 180)}
+                y2={68 - 48 * Math.sin(((180 - angle) * Math.PI) / 180)}
+                stroke="#0284c7"
+                strokeWidth="2"
+                strokeDasharray="4 3"
+              />
+              <circle cx="28" cy="68" r="7" fill="#0f172a" />
+              <circle cx="78" cy="68" r="5" fill="#e2e8f0" stroke="#334155" />
+              <circle
+                cx={78 + 48 * Math.cos(((180 - angle) * Math.PI) / 180)}
+                cy={68 - 48 * Math.sin(((180 - angle) * Math.PI) / 180)}
+                r="7"
+                fill="#0284c7"
+              />
+              <text x="28" y="86" textAnchor="middle" fontSize="9" fill="#334155">donor</text>
+              <text x="78" y="86" textAnchor="middle" fontSize="9" fill="#334155">H</text>
+              <text x="150" y="16" fontSize="9" fill="#0369a1">acceptor</text>
+            </svg>
+
             <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-lg space-y-1.5">
-              <span className="text-sm text-slate-800 font-bold uppercase tracking-wider block">Calculated Energy</span>
+              <span className="text-sm text-slate-800 font-bold uppercase tracking-wider block">Model potential</span>
               <p className="text-xl font-bold text-slate-950">
                 {currentEnergy.toFixed(2)}
                 <span className="text-sm text-slate-800 font-medium ml-1">kcal/mol</span>
               </p>
               <div className="text-sm leading-normal text-slate-800">
-                {distance < 2.3 ? (
-                  <span className="text-red-700 font-bold">Steric Clashes: Atoms are too close (repulsion)!</span>
-                ) : distance >= 2.7 && distance <= 3.2 ? (
-                  <span className="text-emerald-700 font-bold">Optimal Hydrogen Bond formed! (Stable Enthalpy)</span>
+                {distance < 2.4 ? (
+                  <span className="text-red-700 font-bold">The heavy atoms are inside van der Waals contact. Repulsion dominates.</span>
+                ) : distance >= 2.7 && distance <= 3.2 && angle >= 160 && currentEnergy < -1.5 ? (
+                  <span className="text-emerald-700 font-bold">Distance and angle are both in the usual hydrogen-bond range.</span>
+                ) : distance >= 2.7 && distance <= 3.2 && angle < 160 ? (
+                  <span className="text-amber-800 font-bold">The distance still looks like a hydrogen bond. The bend has removed most of the attraction.</span>
                 ) : (
-                  <span>Weak interaction. Atoms are too far apart.</span>
+                  <span>Outside the short hydrogen-bond well.</span>
                 )}
               </div>
             </div>
@@ -451,9 +361,9 @@ export default function LigandReceptorInteractionsPage() {
           </div>
         </div>
         <p id="hbond-model-boundary" className="text-xs leading-relaxed text-slate-600">
-          This 12-6 radial potential is a teaching approximation for short-range repulsion and an
-          attractive well. Real hydrogen-bond strength also depends on donor-acceptor angle,
-          protonation, solvent, and the surrounding electrostatic field.
+          The curve is a 12-6 well whose attraction is scaled by cos² of the bend away from 180°.
+          It omits protonation, the competing hydrogen bond to water, and the rest of the
+          electrostatic field. A negative value here is not an enthalpy.
         </p>
       </section>
 
@@ -582,366 +492,200 @@ export default function LigandReceptorInteractionsPage() {
         </div>
       </section>
 
-      {/* Interactive Widget 2: Desolvation Cage */}
+      {/* Interactive Widget 2: Desolvation */}
       <section className="p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-4">
         <div className="flex items-center gap-2">
           <Layers size={16} className="text-slate-900" />
-          <h3 className="font-bold text-sm text-slate-900">Interactive Playground: Hydrophobic Effect & Desolvation</h3>
+          <h3 className="font-bold text-sm text-slate-900">Interactive Playground: What Burial Is Worth</h3>
         </div>
         <p className="text-sm text-slate-800">
-          Toggle the &quot;Bind Ligand&quot; button to push a lipophilic compound into a hydrophobic pocket. The slate circles illustrate interfacial waters that can be released into bulk solution when nonpolar surfaces are buried.
+          Bury nonpolar surface, then add one polar group that has no partner. The hydrophobic estimate is the old rule of thumb, about −25 cal/mol per Å² (−0.025 kcal/mol/Å²). An unmatched polar group costs more than that gain. The readout is a free-energy estimate, not a measured −TΔS: at room temperature the hydrophobic effect is often discussed as entropy, while many protein–ligand ITC profiles are enthalpic.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center bg-white p-5 rounded-lg border border-slate-200">
-          
-          {/* Simulation Viewport */}
-          <div className="md:col-span-6 flex justify-center">
-            <div className="w-full max-w-[240px] aspect-square relative bg-slate-50 border border-slate-200 rounded-lg p-4 flex flex-col justify-center items-center">
-              <svg role="img" aria-label="Desolvation diagram: ordered water molecules released from a hydrophobic surface as the ligand binds." viewBox="0 0 100 100" className="w-full h-full">
-                <path d="M10,20 L30,20 C35,45 65,45 70,20 L90,20 L90,80 L10,80 Z" fill="currentColor" className="text-slate-200" stroke="currentColor" strokeWidth="1" />
-                <text x="50" y="70" textAnchor="middle" fill="currentColor" className="text-slate-800 font-bold" fontSize="5" fontWeight="semibold">HYDROPHOBIC POCKET</text>
-
-                {/* Structured Water molecules around pocket when NOT bound */}
-                {!desolvate && (
-                  <>
-                    <circle cx="35" cy="30" r="2" fill="currentColor" className="text-slate-400" />
-                    <circle cx="45" cy="35" r="2" fill="currentColor" className="text-slate-400" />
-                    <circle cx="55" cy="35" r="2" fill="currentColor" className="text-slate-400" />
-                    <circle cx="65" cy="30" r="2" fill="currentColor" className="text-slate-400" />
-                  </>
-                )}
-
-                {/* Ligand */}
-                <g className="transition-transform duration-500 ease-in-out" style={{ transform: desolvate ? 'translate(0px, 15px)' : 'translate(0px, -20px)' }}>
-                  <polygon points="50,22 55,30 45,30" fill="currentColor" className="text-slate-800" stroke="currentColor" strokeWidth="0.8" />
-                  <circle cx="50" cy="22" r="2" fill="currentColor" className="text-slate-900" />
-                  
-                  {/* Structured Water around Ligand when unbound */}
-                  {!desolvate && (
-                    <>
-                      <circle cx="42" cy="18" r="1.5" fill="currentColor" className="text-slate-400" />
-                      <circle cx="58" cy="18" r="1.5" fill="currentColor" className="text-slate-400" />
-                      <circle cx="50" cy="12" r="1.5" fill="currentColor" className="text-slate-400" />
-                    </>
-                  )}
-                </g>
-
-                {/* Disordered water molecules floating away when bound */}
-                {desolvate && (
-                  <>
-                    <circle cx="20" cy="15" r="2" fill="currentColor" className="text-slate-400" opacity="0.4" />
-                    <circle cx="80" cy="15" r="2" fill="currentColor" className="text-slate-400" opacity="0.4" />
-                    <circle cx="15" cy="35" r="2" fill="currentColor" className="text-slate-400" opacity="0.4" />
-                    <circle cx="85" cy="35" r="2" fill="currentColor" className="text-slate-400" opacity="0.4" />
-                  </>
-                )}
-              </svg>
-            </div>
-          </div>
-
-          <div className="md:col-span-6 space-y-4 not-prose">
-            <div className="space-y-2">
-              <h4 className="font-bold text-xs uppercase tracking-wider text-slate-800">Thermodynamic Analysis</h4>
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                <div className="p-2.5 bg-white border border-border rounded-lg">
-                  <span className="text-xs text-slate-800 font-bold block uppercase">Conformational Entropy</span>
-                  <span className="text-sm font-semibold text-slate-900">-TΔS (Unfavorable)</span>
-                </div>
-                <div className="p-2.5 bg-white border border-border rounded-lg">
-                  <span className="text-xs text-slate-800 font-bold block uppercase">Solvent Entropy</span>
-                  <span className={`text-sm font-bold ${desolvate ? "text-slate-900 animate-pulse" : "text-slate-800"}`}>
-                    {desolvate ? "+TΔS (Favorable!)" : "0 (Water Caged)"}
-                  </span>
-                </div>
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 bg-white p-5 rounded-lg border border-slate-200">
+          <div className="md:col-span-7 space-y-4">
+            <div className="space-y-1">
+              <div className="flex justify-between text-sm font-bold text-slate-800">
+                <label htmlFor="nonpolar-area">Nonpolar surface buried</label>
+                <output htmlFor="nonpolar-area">{nonpolarArea.toFixed(0)} Å²</output>
               </div>
+              <input
+                id="nonpolar-area"
+                type="range"
+                min="0"
+                max="120"
+                step="2"
+                value={nonpolarArea}
+                onChange={(e) => setNonpolarArea(parseFloat(e.target.value))}
+                className="w-full h-1.5 rounded appearance-none cursor-pointer accent-slate-900 bg-slate-100"
+              />
             </div>
-
-            <p className="text-sm text-slate-800 leading-relaxed">
-              {desolvate 
-                ? "The non-polar surfaces of both the pocket and the ligand associate. The rigid hydration shell collapses, and ordered water molecules are returned to the bulk solution. This gains considerable entropy, driving the binding process." 
-                : "Both the hydrophobic pocket and the lipophilic ligand are surrounded by highly organized, 'caged' water structures. This localized structure is translationally and rotationally restricted, resulting in low system entropy."}
+            <label className="flex items-start gap-2 text-sm text-slate-800">
+              <input
+                type="checkbox"
+                checked={unmatchedPolar}
+                onChange={(e) => setUnmatchedPolar(e.target.checked)}
+                className="mt-1 accent-slate-900"
+              />
+              <span>Also bury one carbonyl or hydroxyl with no hydrogen-bond partner (+4.5 kcal/mol).</span>
+            </label>
+            <svg viewBox="0 0 280 120" role="img" aria-label="Pocket cross-section showing buried nonpolar surface and an optional unmatched polar group" className="w-full rounded-lg border border-slate-200 bg-slate-50">
+              <path d="M30 20 H160 Q200 20 200 55 V100 H30 Z" fill="#e2e8f0" stroke="#64748b" />
+              <text x="40" y="112" fontSize="11" fill="#334155">pocket</text>
+              <rect x="70" y="48" width={Math.max(12, nonpolarArea * 0.7)} height="22" rx="4" fill="#334155" />
+              <text x="70" y="42" fontSize="11" fill="#334155">nonpolar contact</text>
+              {unmatchedPolar && (
+                <g>
+                  <circle cx="230" cy="62" r="14" fill="#fee2e2" stroke="#dc2626" />
+                  <text x="230" y="66" textAnchor="middle" fontSize="11" fontWeight="700" fill="#991b1b">C=O</text>
+                  <text x="214" y="92" fontSize="11" fill="#991b1b">no partner</text>
+                </g>
+              )}
+            </svg>
+          </div>
+          <div className="md:col-span-5 space-y-2 text-sm">
+            <div className="flex justify-between rounded border border-slate-200 bg-slate-50 px-3 py-2">
+              <span>Hydrophobic burial</span>
+              <span className="font-mono font-bold">{hydrophobicDg.toFixed(2)} kcal/mol</span>
+            </div>
+            <div className="flex justify-between rounded border border-slate-200 bg-slate-50 px-3 py-2">
+              <span>Unmatched polar group</span>
+              <span className="font-mono font-bold">{polarPenalty === 0 ? "0.00" : `+${polarPenalty.toFixed(2)}`} kcal/mol</span>
+            </div>
+            <div className="flex justify-between rounded border border-slate-900 bg-slate-900 px-3 py-2 text-white">
+              <span>Net estimate</span>
+              <span className="font-mono font-bold">{solventDg.toFixed(2)} kcal/mol</span>
+            </div>
+            <p className="text-sm leading-relaxed text-slate-700">
+              {unmatchedPolar
+                ? `The ${nonpolarArea.toFixed(0)} Å² of nonpolar burial is worth ${hydrophobicDg.toFixed(1)} kcal/mol. One unsatisfied polar contact (+4.5) outweighs it. This is why a hydrogen bond that looks good on a figure can still lose affinity: the desolvation was paid and the partner was not there.`
+                : `At ${nonpolarArea.toFixed(0)} Å² the rule of thumb gives ${hydrophobicDg.toFixed(1)} kcal/mol. Turn on the unmatched carbonyl and watch that gain disappear.`}
             </p>
-
-            <button
-              type="button"
-              onClick={() => setDesolvate(!desolvate)}
-              aria-pressed={desolvate}
-              className="px-4 py-2.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm transition-colors w-full text-center shadow-sm"
-            >
-              {desolvate ? "Unbind Ligand (Reset)" : "Bind Ligand (Release Caged Waters)"}
-            </button>
           </div>
         </div>
       </section>
 
-      {/* Interactive Widget 3: The Supramolecular Binding Sandbox */}
+      {/* Interactive Widget 3: Benzamidine ledger */}
       <section className="p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-4">
         <div className="flex items-center gap-2">
-          <Zap size={18} className="text-slate-900" />
-          <h3 className="font-bold text-base text-slate-900">Interactive Playground: The Supramolecular Binding Sandbox</h3>
+          <Flame size={18} className="text-slate-900" />
+          <h3 className="font-bold text-base text-slate-900">Interactive Playground: Benzamidine in Trypsin</h3>
         </div>
         <p className="text-sm text-slate-800">
-          In physical drug discovery, binding affinity depends on matching multiple functional groups simultaneously. 
-          <strong> Drag the central ligand core</strong> (or use the coordinates sliders) to align the three chemical arms with their target pocket residues. Watch the Gibbs Free Energy update live. 
-          <em> Note: Aligning all three perfectly is restricted by scaffold geometry; you must resolve the conformational strain trade-off to minimize ΔG!</em>
+          Benzamidine binds the S1 pocket of trypsin. The amidinium faces Asp189, the ring fills the hydrophobic well, and the measured Ki is about 20 µM (near −6.4 kcal/mol). Build the same complex as a ledger. Switch desolvation off to see the nanomolar answer a pairwise contact sum invents.
         </p>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 bg-white p-5 rounded-lg border border-slate-200">
-          
-          {/* Interactive SVG Sandbox */}
-          <div className="lg:col-span-7 flex flex-col items-center">
-            <div className="w-full relative bg-slate-100 border border-slate-200 rounded-lg p-2 overflow-hidden select-none">
-              <svg 
-                ref={svgRef}
-                role="img"
-                aria-label="Supramolecular binding sandbox: a draggable ligand core with amine, hydroxyl and phenyl groups positioned against aspartate, histidine and phenylalanine residues."
-                viewBox="0 0 300 200" 
-                className="w-full h-auto cursor-default touch-none"
-                onMouseMove={handleMouseMove}
-                onTouchMove={handleTouchMove}
+          <div className="lg:col-span-7 space-y-4">
+            <div className="flex flex-wrap gap-2">
+              <button type="button" onClick={loadBenzamidine} className="rounded-md border border-slate-900 bg-slate-900 px-2.5 py-1 text-xs font-bold text-white">
+                Measured-like balance
+              </button>
+              <button
+                type="button"
+                onClick={() => { loadBenzamidine(); setCountSolvent(false); }}
+                className="rounded-md border border-slate-300 bg-white px-2.5 py-1 text-xs font-bold text-slate-800"
               >
-                {/* Pocket Residues */}
-                {/* 1. Asp189 Carboxylate */}
-                <g transform={`translate(${aspPos.x}, ${aspPos.y})`}>
-                  <circle r="20" fill="#fee2e2" stroke="#ef4444" strokeWidth="1.5" />
-                  <circle r="4" fill="#ef4444" />
-                  <text y="-25" textAnchor="middle" className="fill-red-800 text-[7.5px] font-bold dark:fill-red-300">Asp189 (COO⁻)</text>
-                  <text y="3" textAnchor="middle" fill="#ef4444" className="text-[9px] font-extrabold font-mono">-</text>
-                </g>
-
-                {/* 2. His41 Nitrogen */}
-                <g transform={`translate(${hisPos.x}, ${hisPos.y})`}>
-                  <circle r="20" fill="#e0f2fe" stroke="#0284c7" strokeWidth="1.5" />
-                  <circle r="4" fill="#0284c7" />
-                  <text y="28" textAnchor="middle" className="fill-sky-700 text-[7.5px] font-bold dark:fill-sky-300">His41 (Imidazole-NH)</text>
-                </g>
-
-                {/* 3. Phe140 Stacking Pocket */}
-                <g transform={`translate(${phePos.x}, ${phePos.y})`}>
-                  <circle r="22" fill="#f1f5f9" stroke="#64748b" strokeWidth="1.5" strokeDasharray="3,2" />
-                  <polygon points="230,67 241,71 241,80 230,84 219,80 219,71" fill="#e2e8f0" stroke="#475569" strokeWidth="1" transform={`translate(-${phePos.x}, -${phePos.y})`} />
-                  <text y="-27" textAnchor="middle" className="fill-slate-700 text-[7.5px] font-bold dark:fill-slate-200">Phe140 (Benzene Pi)</text>
-                </g>
-
-                {/* Interaction Lines */}
-                {/* Amine - Asp189 interaction (dashed electrostatic) */}
-                {dAmine < 5.0 && !clashAmine && (
-                  <line 
-                    x1={aminePos.x} y1={aminePos.y} 
-                    x2={aspPos.x} y2={aspPos.y} 
-                    stroke="#ef4444" 
-                    strokeWidth="1.5" 
-                    strokeDasharray="3,3" 
-                  />
-                )}
-                {/* Hydroxyl - His41 interaction (dashed H-bond) */}
-                {dHydroxyl < 4.0 && !clashHydroxyl && (
-                  <line 
-                    x1={hydroxylPos.x} y1={hydroxylPos.y} 
-                    x2={hisPos.x} y2={hisPos.y} 
-                    stroke="#0284c7" 
-                    strokeWidth="1.5" 
-                    strokeDasharray="4,2" 
-                  />
-                )}
-                {/* Phenyl - Phe140 interaction (parallel stacking lines) */}
-                {dPhenyl < 5.5 && !clashPhenyl && (
-                  <g>
-                    <line 
-                      x1={phenylPos.x - 6} y1={phenylPos.y + 4} 
-                      x2={phePos.x - 6} y2={phePos.y + 4} 
-                      stroke="#10b981" 
-                      strokeWidth="1" 
-                    />
-                    <line 
-                      x1={phenylPos.x + 6} y1={phenylPos.y - 4} 
-                      x2={phePos.x + 6} y2={phePos.y - 4} 
-                      stroke="#10b981" 
-                      strokeWidth="1" 
-                    />
-                  </g>
-                )}
-
-                {/* Ligand Drawing */}
-                {/* Center connector lines */}
-                <line x1={ligandPos.x} y1={ligandPos.y} x2={aminePos.x} y2={aminePos.y} className="stroke-slate-800 dark:stroke-slate-100" strokeWidth="2.5" />
-                <line x1={ligandPos.x} y1={ligandPos.y} x2={hydroxylPos.x} y2={hydroxylPos.y} className="stroke-slate-800 dark:stroke-slate-100" strokeWidth="2.5" />
-                <line x1={ligandPos.x} y1={ligandPos.y} x2={phenylPos.x} y2={phenylPos.y} className="stroke-slate-800 dark:stroke-slate-100" strokeWidth="2.5" />
-
-                {/* 1. Amine tip (-NH3+) */}
-                <g transform={`translate(${aminePos.x}, ${aminePos.y})`}>
-                  <circle r="12" fill="#dbeafe" stroke="#2563eb" strokeWidth="1.5" />
-                  <text y="3.5" textAnchor="middle" fill="#1d4ed8" className="text-[7px] font-extrabold font-mono">NH₃⁺</text>
-                  {clashAmine && <circle r="12" fill="none" stroke="#ef4444" strokeWidth="2" className="animate-ping" />}
-                </g>
-
-                {/* 2. Hydroxyl tip (-OH) */}
-                <g transform={`translate(${hydroxylPos.x}, ${hydroxylPos.y})`}>
-                  <circle r="12" fill="#ffe4e6" stroke="#e11d48" strokeWidth="1.5" />
-                  <text y="3" textAnchor="middle" fill="#be123c" className="text-[8px] font-extrabold font-mono">OH</text>
-                  {clashHydroxyl && <circle r="12" fill="none" stroke="#ef4444" strokeWidth="2" className="animate-ping" />}
-                </g>
-
-                {/* 3. Phenyl tip */}
-                <g transform={`translate(${phenylPos.x}, ${phenylPos.y})`}>
-                  <circle r="14" fill="#ecfdf5" stroke="#059669" strokeWidth="1.5" />
-                  {/* Hexagon icon */}
-                  <polygon points="0,-8 7,-4 7,4 0,8 -7,4 -7,-4" fill="none" stroke="#059669" strokeWidth="1" />
-                  <circle r="3" fill="none" stroke="#059669" strokeWidth="0.5" />
-                  {clashPhenyl && <circle r="14" fill="none" stroke="#ef4444" strokeWidth="2" className="animate-ping" />}
-                </g>
-
-                {/* Core drag handle */}
-                <circle 
-                  cx={ligandPos.x} 
-                  cy={ligandPos.y} 
-                  r="12" 
-                  className="cursor-grab fill-slate-900 stroke-slate-700 active:cursor-grabbing hover:fill-slate-800 dark:fill-slate-100 dark:stroke-white dark:hover:fill-slate-300"
-                  strokeWidth="2" 
-                  onMouseDown={handleMouseDown}
-                  onTouchStart={handleTouchStart}
-                />
-                <circle 
-                  cx={ligandPos.x} 
-                  cy={ligandPos.y} 
-                  r="5" 
-                  opacity="0.7"
-                  className="pointer-events-none fill-white dark:fill-slate-900"
-                />
-                <text x={ligandPos.x} y={ligandPos.y - 16} textAnchor="middle" className="pointer-events-none fill-slate-900 text-[7px] font-extrabold dark:fill-white">DRAG CORE</text>
-              </svg>
-              
-              <div className="absolute bottom-2 left-2 right-2 flex justify-between bg-white/90 px-3 py-1.5 rounded border border-slate-200/50 text-[10px] text-slate-800 font-bold select-none backdrop-blur-sm">
-                <span>Amine-Asp: <strong>{dAmine.toFixed(2)} Å</strong></span>
-                <span>Hydroxyl-His: <strong>{dHydroxyl.toFixed(2)} Å</strong></span>
-                <span>Phenyl-Phe: <strong>{dPhenyl.toFixed(2)} Å</strong></span>
-              </div>
+                Contacts only
+              </button>
+              <button
+                type="button"
+                onClick={() => { loadBenzamidine(); setFrozenRotors(4); }}
+                className="rounded-md border border-slate-300 bg-white px-2.5 py-1 text-xs font-bold text-slate-800"
+              >
+                Grow four rotors
+              </button>
             </div>
 
-            {/* Fallback Position Sliders for fine-tuning & accessibility */}
-            <div className="w-full mt-4 grid grid-cols-2 gap-4">
+            <svg viewBox="0 0 360 170" role="img" aria-label="Schematic of benzamidine in the trypsin S1 pocket, with the amidinium next to Asp189" className="w-full rounded-lg border border-slate-200 bg-slate-50">
+              <text x="16" y="22" fontSize="13" fontWeight="700" fill="#0f172a">Trypsin S1</text>
+              <path d="M24 40 H210 Q250 40 250 78 V150 H24 Z" fill="#f8fafc" stroke="#94a3b8" />
+              <g opacity={saltOn ? 1 : 0.35}>
+                <circle cx="58" cy="92" r="18" fill="#fee2e2" stroke="#dc2626" />
+                <text x="58" y="96" textAnchor="middle" fontSize="12" fontWeight="700" fill="#991b1b">Asp</text>
+                <text x="58" y="128" textAnchor="middle" fontSize="11" fill="#7f1d1d">Asp189</text>
+              </g>
+              {countSolvent && saltOn && (
+                <g>
+                  <circle cx="92" cy="58" r="6" fill="#bae6fd" stroke="#0284c7" />
+                  <text x="104" y="62" fontSize="11" fill="#0369a1">water</text>
+                </g>
+              )}
+              <polygon points="168,78 184,88 184,106 168,116 152,106 152,88" fill="#e2e8f0" stroke="#334155" strokeWidth="1.5" />
+              <text x="168" y="140" textAnchor="middle" fontSize="11" fill="#334155">phenyl</text>
+              <line x1="152" y1="97" x2="112" y2="92" stroke="#334155" strokeWidth="2" />
+              <circle cx="104" cy="90" r="12" fill="#dbeafe" stroke="#1d4ed8" />
+              <text x="104" y="94" textAnchor="middle" fontSize="10" fontWeight="700" fill="#1e3a8a">C⁺</text>
+              {polarOn && (
+                <g>
+                  <line x1="184" y1="90" x2="230" y2="70" stroke="#0284c7" strokeDasharray="4 3" />
+                  <text x="214" y="60" fontSize="11" fill="#0369a1">Ser190 / Gly219</text>
+                </g>
+              )}
+            </svg>
+
+            <div className="space-y-3">
+              <label className="flex items-center gap-2 text-sm text-slate-800">
+                <input type="checkbox" checked={saltOn} onChange={(e) => setSaltOn(e.target.checked)} className="accent-slate-900" />
+                Amidinium–Asp189 salt bridge
+              </label>
+              <label className="flex items-center gap-2 text-sm text-slate-800">
+                <input type="checkbox" checked={polarOn} onChange={(e) => setPolarOn(e.target.checked)} className="accent-slate-900" />
+                Polar contacts to Ser190 / Gly219
+              </label>
+              <label className="flex items-center gap-2 text-sm text-slate-800">
+                <input type="checkbox" checked={countSolvent} onChange={(e) => setCountSolvent(e.target.checked)} className="accent-slate-900" />
+                Count desolvation of those polar groups
+              </label>
               <div className="space-y-1">
-                <div className="flex justify-between text-xs font-bold text-slate-800">
-                  <label htmlFor="ligand-core-x">Ligand Core X Offset</label>
-                  <output htmlFor="ligand-core-x">{ligandPos.x.toFixed(0)}</output>
+                <div className="flex justify-between text-sm font-bold text-slate-800">
+                  <label htmlFor="s1-area">Nonpolar surface buried in S1</label>
+                  <output htmlFor="s1-area">{s1Area.toFixed(0)} Å²</output>
                 </div>
-                <input 
-                  id="ligand-core-x"
-                  type="range"
-                  min="70"
-                  max="190"
-                  value={ligandPos.x}
-                  onChange={(e) => setLigandPos({ ...ligandPos, x: parseInt(e.target.value) })}
-                  className="w-full h-1 bg-slate-200 rounded appearance-none cursor-pointer accent-slate-900"
-                />
+                <input id="s1-area" type="range" min="0" max="120" step="2" value={s1Area} onChange={(e) => setS1Area(parseFloat(e.target.value))} className="w-full accent-slate-900" />
               </div>
               <div className="space-y-1">
-                <div className="flex justify-between text-xs font-bold text-slate-800">
-                  <label htmlFor="ligand-core-y">Ligand Core Y Offset</label>
-                  <output htmlFor="ligand-core-y">{ligandPos.y.toFixed(0)}</output>
+                <div className="flex justify-between text-sm font-bold text-slate-800">
+                  <label htmlFor="frozen-rotors">Extra rotatable bonds frozen on binding</label>
+                  <output htmlFor="frozen-rotors">{frozenRotors}</output>
                 </div>
-                <input 
-                  id="ligand-core-y"
-                  type="range"
-                  min="50"
-                  max="150"
-                  value={ligandPos.y}
-                  onChange={(e) => setLigandPos({ ...ligandPos, y: parseInt(e.target.value) })}
-                  className="w-full h-1 bg-slate-200 rounded appearance-none cursor-pointer accent-slate-900"
-                />
+                <input id="frozen-rotors" type="range" min="0" max="8" step="1" value={frozenRotors} onChange={(e) => setFrozenRotors(parseInt(e.target.value, 10))} className="w-full accent-slate-900" />
+                <p className="text-xs text-slate-600">Benzamidine itself is rigid. Each extra rotor is charged 0.8 kcal/mol, a scoring-function estimate, not an ITC entropy.</p>
               </div>
             </div>
           </div>
 
-          {/* Thermodynamic Calculations Panel */}
-          <div className="lg:col-span-5 flex flex-col justify-between space-y-4">
-            
-            {/* Thermodynamic Parameters List */}
-            <div className="space-y-3.5">
-              <h4 className="font-extrabold text-sm uppercase tracking-wider text-slate-900 border-b pb-1.5 border-slate-200">
-                Thermodynamic Calculations
-              </h4>
-              
-              <div className="space-y-2.5 text-xs">
-                {/* Salt Bridge readout */}
-                <div className="flex justify-between items-center py-0.5">
-                  <span className="font-semibold text-slate-800">1. Salt Bridge (Amine ⋯ Asp189)</span>
-                  <span className={`font-mono font-bold ${clashAmine ? "text-red-700" : eAmine < -2.0 ? "text-emerald-700" : "text-slate-800"}`}>
-                    {clashAmine ? "Steric Clash! (+15.0)" : `${eAmine.toFixed(2)} kcal/mol`}
-                  </span>
-                </div>
-
-                {/* H-Bond readout */}
-                <div className="flex justify-between items-center py-0.5">
-                  <span className="font-semibold text-slate-800">2. Hydrogen Bond (OH ⋯ His41)</span>
-                  <span className={`font-mono font-bold ${clashHydroxyl ? "text-red-700" : eHydroxyl < -1.5 ? "text-emerald-700" : "text-slate-800"}`}>
-                    {clashHydroxyl ? "Steric Clash! (+12.0)" : `${eHydroxyl.toFixed(2)} kcal/mol`}
-                  </span>
-                </div>
-
-                {/* Stacking readout */}
-                <div className="flex justify-between items-center py-0.5">
-                  <span className="font-semibold text-slate-800">3. π-π Stacking (Phenyl ⋯ Phe140)</span>
-                  <span className={`font-mono font-bold ${clashPhenyl ? "text-red-700" : ePhenyl < -0.8 ? "text-emerald-700" : "text-slate-800"}`}>
-                    {clashPhenyl ? "Steric Clash! (+10.0)" : `${ePhenyl.toFixed(2)} kcal/mol`}
-                  </span>
-                </div>
-
-                {/* Enthalpy dH sum */}
-                <div className="flex justify-between items-center bg-slate-50 p-2 rounded border border-slate-200 font-bold text-slate-900">
-                  <span>Net Enthalpy Change (ΔH)</span>
-                  <span className="font-mono">{clashAmine || clashHydroxyl || clashPhenyl ? "Steric Strain (High)" : `${dH.toFixed(2)} kcal/mol`}</span>
-                </div>
-
-                {/* Conformational Entropy cost */}
-                <div className="flex justify-between items-center py-0.5">
-                  <span className="font-semibold text-slate-800">4. Conformational Entropy Cost (-TΔS_conf)</span>
-                  <span className="font-mono font-bold text-red-600">+{dSconf.toFixed(2)} kcal/mol</span>
-                </div>
-
-                {/* Desolvation entropy boost */}
-                <div className="flex justify-between items-center py-0.5">
-                  <span className="font-semibold text-slate-800">5. Hydrophobic Desolvation (-TΔS_desolv)</span>
-                  <span className={`font-mono font-bold ${dSdesolv < -0.5 ? "text-emerald-700" : "text-slate-800"}`}>
-                    {dSdesolv.toFixed(2)} kcal/mol
-                  </span>
-                </div>
-
-                {/* Net Entropy Change */}
-                <div className="flex justify-between items-center bg-slate-50 p-2 rounded border border-slate-200 font-bold text-slate-900">
-                  <span>Net Entropy Contribution (-TΔS)</span>
-                  <span className="font-mono">{totalTdS.toFixed(2)} kcal/mol</span>
-                </div>
+          <div className="lg:col-span-5 space-y-2 text-sm">
+            {[
+              ["Salt bridge, interaction", saltAttraction],
+              ["Desolvation of the ion pair", saltDesolv],
+              ["Polar contacts, interaction", polarAttraction],
+              ["Desolvation of those contacts", polarDesolv],
+              ["Nonpolar burial", hydrophobicBind],
+              ["Frozen rotors", rotorPenalty],
+            ].map(([label, value]) => (
+              <div key={label as string} className="flex items-center justify-between gap-3 border-b border-slate-100 py-1">
+                <span className="text-slate-700">{label}</span>
+                <span className="font-mono font-bold text-slate-950">{(value as number) > 0 ? "+" : ""}{(value as number).toFixed(1)}</span>
               </div>
+            ))}
+            <div className="rounded-lg bg-slate-900 p-3 text-white">
+              <div className="flex items-center justify-between">
+                <span>Ledger total</span>
+                <span className="font-mono text-lg font-bold">{ledgerG.toFixed(1)} kcal/mol</span>
+              </div>
+              <p className="mt-1 text-sm text-slate-200">
+                Equivalent Kd if this ledger were a real standard free energy: {formatConcentration(ledgerG)}.
+              </p>
             </div>
-
-            {/* Final Outcome Panel */}
-            <div className="bg-slate-900 text-white p-4 rounded-xl space-y-2">
-              <div className="flex justify-between items-center">
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Gibbs Free Energy</span>
-                <span className={`text-base font-black tracking-wide font-mono ${hasClash ? "text-red-400" : dG < -3.0 ? "text-emerald-400" : "text-slate-200"}`}>
-                  {hasClash ? "STERIC CLASH" : `${dG.toFixed(2)} kcal/mol`}
-                </span>
-              </div>
-              <div className="flex justify-between items-center border-t border-slate-800 pt-2">
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Binding Constant (K_d)</span>
-                <span className={`text-base font-black font-mono ${hasClash ? "text-red-400" : dG < -4.0 ? "text-emerald-400" : "text-slate-200"}`}>
-                  {getKdText(dG)}
-                </span>
-              </div>
-              
-              <div className="text-[11px] leading-relaxed text-slate-300 font-medium pt-1.5 border-t border-slate-800">
-                {hasClash ? (
-                  <span className="text-red-400 font-bold">WARNING: Steric strain prevents complex formation. Pull ligand core away from the clashing residues.</span>
-                ) : dG < -6.0 ? (
-                  <span className="text-emerald-400 font-bold">SUCCESS: Excellent complementarity! High affinity binding (nM/pM). You have formed robust ionic, hydrogen, and aromatic interactions!</span>
-                ) : dG < -2.0 ? (
-                  <span className="text-amber-400 font-semibold">MODERATE BINDING: The interactions compensate for the rotational entropy penalty, but adjusting core position could optimize the fit.</span>
-                ) : (
-                  <span>NO BINDING: The chemical groups are too far to form robust contacts or have not overcome the entropy barrier.</span>
-                )}
-              </div>
-            </div>
+            <p className="leading-relaxed text-slate-700">
+              {countSolvent
+                ? `With desolvation included, the same contacts give ${ledgerG.toFixed(1)} kcal/mol (${formatConcentration(ledgerG)}). The contact-only sum is ${naiveG.toFixed(1)} kcal/mol (${formatConcentration(naiveG)}). Benzamidine’s measured Ki is about 20 µM, close to the solvent-aware ledger and far from the contact-only number.`
+                : `Desolvation is off, so the ledger is just the contact sum: ${naiveG.toFixed(1)} kcal/mol, equivalent to ${formatConcentration(naiveG)}. Turn desolvation back on. The measured Ki is about 20 µM.`}
+            </p>
+            <p className="text-xs leading-relaxed text-slate-500">
+              Interaction magnitudes are teaching numbers, chosen so the solvent-aware benzamidine case lands near experiment. They are not a force-field result, and the equivalent Kd is only a translation of the ledger through ΔG = RT ln(Kd).
+            </p>
           </div>
         </div>
       </section>
@@ -950,7 +694,7 @@ export default function LigandReceptorInteractionsPage() {
       <section className="space-y-4">
         <h2>5. Where This Picture Breaks Down</h2>
         <p>
-          Everything above treats binding as a sum of pairwise contacts between a ligand and a rigid pocket. That picture is useful enough to design drugs with, and wrong in four specific ways that resurface throughout the course.
+          The ledger you just moved is a sum of pairwise contacts, with solvent written in or left out. That picture is useful enough to design against, and wrong in four specific ways that resurface throughout the course.
         </p>
 
         <div className="space-y-3 not-prose">

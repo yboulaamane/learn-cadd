@@ -607,7 +607,7 @@ export default function MolecularDockingPage() {
       <section className="space-y-4">
         <h2>4. Ligand Coordinate Preparation: Electrostatic Charge Selection</h2>
         <p>
-          To compute electrostatic interactions (like hydrogen bonds, salt bridges, and dipole-dipole contacts), docking scoring functions rely on ligand partial atomic charges. The choice of charge model propagates directly into the final binding scores.
+          Force-field and AutoDock 4 scores use ligand partial charges in a Coulomb term, so the charge model changes the number those programs report. AutoDock Vina does not. Its score has no electrostatic term, and the charge column in a PDBQT file is kept for format compatibility. Atom type still matters in Vina, because hydrogen-bond donors and acceptors are typed atoms.
         </p>
 
         <p>
@@ -629,7 +629,7 @@ export default function MolecularDockingPage() {
                 <td className="px-4 py-2 font-mono font-bold text-blue-700">AM1-BCC</td>
                 <td className="px-4 py-2">Very High (errors &lt; 0.1 e)</td>
                 <td className="px-4 py-2 text-emerald-700 font-semibold">Fast</td>
-                <td className="px-4 py-2"><strong>Default choice</strong> for general protein-ligand docking pipelines.</td>
+                <td className="px-4 py-2">Charge-using scores and explicit solvent, where a Coulomb term is evaluated. A Vina score does not use it.</td>
               </tr>
               <tr>
                 <td className="px-4 py-2 font-mono font-bold text-indigo-700">PM6</td>
@@ -657,13 +657,13 @@ export default function MolecularDockingPage() {
         <div className="border-t border-slate-200 pt-6 mt-6 space-y-3">
           <h4 className="font-bold text-sm text-slate-900">The PDBQT Format: Charges and Atom Types</h4>
           <p className="text-xs text-slate-700 leading-relaxed">
-            Standard PDB files from the Protein Data Bank contain only element symbols and Cartesian coordinates. For docking engines like AutoDock Vina to parse steric and electrostatic interactions, files must be pre-processed into the <strong>PDBQT</strong> format:
+            A PDB file stores element symbols and Cartesian coordinates. AutoDock 4 and Vina read <strong>PDBQT</strong>, which adds a charge column, an AutoDock atom type, and a torsion tree. AutoDock 4 uses the charge. Vina uses the atom types and the torsion tree.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-1">
               <h5 className="font-bold text-[11px] text-slate-800">Partial Charge (Q)</h5>
               <p className="text-[11px] text-slate-600 leading-normal">
-                Appends a column representing the partial atomic charge (e.g., in electrons, calculated using AM1-BCC or Gasteiger models) to compute electrostatic potentials.
+                Stores a partial charge, often Gasteiger or AM1-BCC. AutoDock 4 uses it in the Coulomb term. Vina does not read it into the score.
               </p>
             </div>
             <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-1">
@@ -721,24 +721,30 @@ export default function MolecularDockingPage() {
         {/* Empirical Scoring Equation Box */}
         <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 mt-4 space-y-3">
           <h4 className="font-bold text-sm text-slate-900 flex items-center gap-1.5">
-            <Info className="h-4 w-4 text-blue-600" /> Empirical Scoring Function Formulation:
+            <Info className="h-4 w-4 text-blue-600" /> AutoDock 4 and AutoDock Vina use different scores
           </h4>
           <p className="text-xs text-slate-700 leading-relaxed">
-            Empirical scoring models (like the one used in AutoDock Vina) estimate the free energy of binding by summing distinct, weighted interaction contributions:
+            AutoDock 4 (Huey et al.) estimates affinity as a weighted sum of physical terms, including a Coulomb term and a desolvation term:
           </p>
           <div className="my-3 font-mono text-center text-xs bg-slate-100 py-3 px-4 rounded text-slate-800 font-bold border border-slate-200 overflow-x-auto leading-relaxed">
-            {"ΔG_score = w_vdW × Σ vdW(r_ij) + w_hbond × Σ hbond(r_ij) + w_electro × Σ electro(r_ij) + w_desolv × Σ desolv(r_ij) + w_rotor × N_rot"}
+            {"ΔG_AD4 = w_vdW × Σ vdW + w_hbond × Σ hbond + w_elec × Σ elec + w_desolv × Σ desolv + w_rot × N_rot"}
+          </div>
+          <ul className="list-disc pl-5 text-xs text-slate-700 space-y-1">
+            <li><strong>vdW:</strong> a Lennard-Jones contact between atoms i and j.</li>
+            <li><strong>hbond:</strong> a directional donor–acceptor term.</li>
+            <li><strong>elec:</strong> Coulomb interaction of the partial charges, with a distance-dependent dielectric.</li>
+            <li><strong>desolv:</strong> a penalty for burying polar groups, estimated from the volume of atoms around each pair.</li>
+            <li><strong>N_rot:</strong> a penalty proportional to rotatable bonds frozen on binding.</li>
+          </ul>
+          <p className="text-xs text-slate-700 leading-relaxed">
+            Vina (Trott and Olson, 2010) is a different function. It sums two attractive steric Gaussians, a repulsion, a hydrophobic contact, a hydrogen-bond term, and the same kind of torsion count:
+          </p>
+          <div className="my-3 font-mono text-center text-xs bg-slate-100 py-3 px-4 rounded text-slate-800 font-bold border border-slate-200 overflow-x-auto leading-relaxed">
+            {"score_Vina = gauss₁ + gauss₂ + repulsion + hydrophobic + hbond + w_rot × N_rot"}
           </div>
           <p className="text-xs text-slate-700 leading-relaxed">
-            Where each contribution corresponds to a specific physical force:
+            There is no Coulomb term and no desolvation term. Polar recognition enters through the typed hydrogen-bond term. A strong Vina score is therefore not evidence that the electrostatics were evaluated.
           </p>
-          <ul className="list-disc pl-5 text-xs text-slate-700 space-y-1">
-            <li><strong>vdW (van der Waals):</strong> Steric contacts modeled by attractive/repulsive Lennard-Jones terms based on interatomic distance (<em>r_ij</em>).</li>
-            <li><strong>hbond (Hydrogen Bonding):</strong> Directional and distance-dependent interaction scoring for donor-acceptor atom pairs.</li>
-            <li><strong>electro (Electrostatics):</strong> Coulombic attraction or repulsion calculated using partial charges and distance-dependent dielectric shielding.</li>
-            <li><strong>desolv (Desolvation):</strong> Energy penalty for stripping away water molecules from polar groups as they enter hydrophobic pockets.</li>
-            <li><strong>w_rotor × N_rot:</strong> Entropic penalty proportional to the number of rotatable bonds (<em>N_rot</em>) frozen upon binding, weighted by <em>w_rotor</em>.</li>
-          </ul>
         </div>
       </section>
 
@@ -779,7 +785,7 @@ export default function MolecularDockingPage() {
                 <td className="px-4 py-2 font-mono font-bold text-purple-700">GOLD</td>
                 <td className="px-4 py-2">Genetic Algorithm</td>
                 <td className="px-4 py-2">ChemScore, GoldScore</td>
-                <td className="px-4 py-2 text-amber-700 font-semibold">Commercial (academic free)</td>
+                <td className="px-4 py-2 text-amber-700 font-semibold">Commercial</td>
                 <td className="px-4 py-2">Metalloenzymes, flexible</td>
               </tr>
               <tr>
@@ -1071,15 +1077,15 @@ export default function MolecularDockingPage() {
           moduleTitle="Module 6: Molecular Docking"
           questions={[
             {
-              question: "Why is the AM1-BCC charge model preferred over Gasteiger charges for final docking scoring?",
+              question: "When a score actually evaluates a Coulomb term, why is AM1-BCC preferred over Gasteiger charges?",
               options: [
                 "AM1-BCC runs fully in ab initio HF/6-31G* quantum chemistry, which is faster.",
-                "AM1-BCC applies bond charge corrections that accurately reproduce expensive RESP-quality electrostatic potentials at a low semi-empirical computational cost.",
+                "AM1-BCC adds bond charge corrections so a fast AM1 calculation approximates HF/6-31G* RESP charges.",
                 "Gasteiger charges are historically more accurate but take too long to compute.",
                 "AM1-BCC ignores polarization effects, which makes the scoring function less complex."
               ],
               correctIndex: 1,
-              explanation: "AM1-BCC runs a very fast semi-empirical AM1 quantum calculation and applies bond charge corrections to mimic ab initio RESP (fit to HF/6-31G*) charges. Gasteiger charges are extremely fast but lack the electrostatic fidelity needed for precise scoring."
+              explanation: "AM1-BCC is a fast AM1 calculation plus bond charge corrections aimed at HF/6-31G* RESP charges. Gasteiger charges are faster and coarser. The choice matters for AutoDock 4 and for explicit-solvent force fields. It does not matter for Vina, which has no Coulomb term."
             },
             {
               question: "What is a major risk of using a protein monomer extracted from an asymmetric unit instead of the biological assembly for molecular dynamics or docking?",
