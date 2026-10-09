@@ -264,7 +264,7 @@ export default function TargetIdentificationPage() {
           </div>
         </div>
         <p className="text-sm text-slate-800 leading-relaxed">
-          Where <strong>n</strong> is the number of site points (pocket size), <strong>e</strong> is <strong>enclosure</strong> (how buried the pocket is, 0–1), and <strong>p</strong> is <strong>hydrophilic character</strong>. Read the signs: size and enclosure <em>help</em>, polarity <em>hurts</em>. That single equation explains the entire druggable proteome — and why protein-protein interfaces are so brutally hard.
+          <strong>n</strong> is the number of site points, capped at 100 in the published function. <strong>e</strong> is enclosure, from 0 to 1. <strong>p</strong> is hydrophilic character. Size and enclosure raise the score; polarity lowers it. Halgren fit the three coefficients to a set of known sites, so the equation describes that fit. A flat, polar protein–protein interface scores badly for the same algebraic reason. A low Dscore does not, by itself, decide that the protein is undruggable: hot spots, pocket motion, and whether a small molecule can compete with the partner are outside the regression.
         </p>
       </section>
 
@@ -275,7 +275,7 @@ export default function TargetIdentificationPage() {
           <h3 className="font-bold text-base text-slate-900">Interactive Playground: Druggability Scorecard</h3>
         </div>
         <p className="text-sm text-slate-800 leading-normal">
-          Load a real pocket type or shape your own, and watch the actual <strong>SiteMap</strong> equations classify it. Try the key experiment: load the <strong>Flat PPI interface</strong>, then drag <em>enclosure</em> upward while changing nothing else — and watch an "undruggable" target become druggable. That single slider is the difference between a kinase and a protein-protein interface.
+          Load a pocket type and move one descriptor at a time. Start from the flat protein–protein interface and raise enclosure: SiteMap’s Dscore can cross its druggable cut-off from that change alone. Enclosure is one fitted descriptor. Hot spots, pocket adaptability, and competition with the partner protein are outside this equation.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 bg-white p-5 rounded-lg border border-slate-200">
