@@ -2,14 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Activity, ChevronDown, RotateCcw } from "lucide-react";
-
-interface PkInputs {
-  dose: number;
-  bioavailability: number;
-  absorptionRate: number;
-  clearance: number;
-  volume: number;
-}
+import { concentrationAt, summarizePk as summarize, describePkChange, type PkInputs } from "@/lib/scientific-models";
 
 type Prediction = "decrease" | "similar" | "increase";
 
@@ -23,7 +16,7 @@ const DEFAULT_INPUTS: PkInputs = {
 
 const PRESETS: Record<string, PkInputs> = {
   Baseline: DEFAULT_INPUTS,
-  "Fast clearance": { dose: 100, bioavailability: 70, absorptionRate: 1.2, clearance: 12, volume: 35 },
+  "Fast clearance": { dose: 100, bioavailability: 70, absorptionRate: 1.2, clearance: 12, volume: 40 },
   "Slow absorption": { dose: 100, bioavailability: 70, absorptionRate: 0.3, clearance: 5, volume: 40 },
   "Low bioavailability": { dose: 100, bioavailability: 25, absorptionRate: 1.2, clearance: 5, volume: 40 },
 };
@@ -53,40 +46,6 @@ const GUIDED_TASKS: Array<{
     key: "absorptionRate",
   },
 ];
-
-function concentrationAt(time: number, inputs: PkInputs) {
-  const fractionAvailable = inputs.bioavailability / 100;
-  const eliminationRate = inputs.clearance / inputs.volume;
-  const scale = (fractionAvailable * inputs.dose) / inputs.volume;
-
-  if (Math.abs(inputs.absorptionRate - eliminationRate) < 0.0001) {
-    return scale * inputs.absorptionRate * time * Math.exp(-eliminationRate * time);
-  }
-
-  return (
-    scale *
-    (inputs.absorptionRate / (inputs.absorptionRate - eliminationRate)) *
-    (Math.exp(-eliminationRate * time) - Math.exp(-inputs.absorptionRate * time))
-  );
-}
-
-function summarize(inputs: PkInputs) {
-  const eliminationRate = inputs.clearance / inputs.volume;
-  const halfLife = Math.log(2) / eliminationRate;
-  const tMax =
-    Math.abs(inputs.absorptionRate - eliminationRate) < 0.0001
-      ? 1 / eliminationRate
-      : Math.log(inputs.absorptionRate / eliminationRate) /
-        (inputs.absorptionRate - eliminationRate);
-
-  return {
-    halfLife,
-    tMax,
-    cMax: concentrationAt(tMax, inputs),
-    auc: ((inputs.bioavailability / 100) * inputs.dose) / inputs.clearance,
-    suggestedHours: Math.max(12, Math.min(72, Math.ceil(Math.max(5 * halfLife, 2 * tMax)))),
-  };
-}
 
 function sameInputs(a: PkInputs, b: PkInputs) {
   return (Object.keys(a) as Array<keyof PkInputs>).every((key) => a[key] === b[key]);
@@ -224,16 +183,7 @@ export function PharmacokineticsPlayground() {
     setExploreFurther(false);
   };
 
-  const feedback = (() => {
-    const predictionLead = prediction ? `You predicted “${prediction}.” ` : "";
-    if (guidedTask === 0) {
-      return `${predictionLead}In this linear model, AUC is inversely proportional to clearance. Doubling clearance from 5 to 10 L/h halves AUC from ${model.baseline.auc.toFixed(1)} to ${(model.baseline.auc / 2).toFixed(1)} mg·h/L and shortens half-life.`;
-    }
-    if (guidedTask === 1) {
-      return `${predictionLead}AUC and Cmax scale with bioavailability here. Halving F from 70% to 35% halves exposure, while Tmax and elimination half-life remain unchanged.`;
-    }
-    return `${predictionLead}Slower absorption lowers and delays the peak, but AUC stays ${model.current.auc.toFixed(1)} mg·h/L because dose, bioavailability, and clearance did not change.`;
-  })();
+  const feedback = `${prediction ? `You predicted “${prediction}.” ` : ""}${describePkChange(inputs, DEFAULT_INPUTS)}`;
 
   const fields: Array<{
     key: keyof PkInputs;
@@ -256,7 +206,7 @@ export function PharmacokineticsPlayground() {
     { label: "Cmax", current: model.current.cMax, baseline: model.baseline.cMax, unit: "mg/L", digits: 2 },
     { label: "Tmax", current: model.current.tMax, baseline: model.baseline.tMax, unit: "h", digits: 1 },
     { label: "AUC₀–∞", current: model.current.auc, baseline: model.baseline.auc, unit: "mg·h/L", digits: 1 },
-    { label: "Half-life", current: model.current.halfLife, baseline: model.baseline.halfLife, unit: "h", digits: 1 },
+    { label: "Elimination half-life", current: model.current.halfLife, baseline: model.baseline.halfLife, unit: "h", digits: 1 },
   ];
 
   return (

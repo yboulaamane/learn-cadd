@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { ScientificPractice } from "@/components/ScientificPractice";
 import { CollapsibleCode } from "@/components/CollapsibleCode";
 import { Quiz, type Question } from "@/components/Quiz";
 
@@ -181,6 +182,8 @@ export function ExtensionLesson({
           )}
         </section>
       ))}
+
+      <ScientificPractice moduleNumber={moduleNumber} />
 
       <section className="space-y-5">
         <h2>Knowledge check</h2>

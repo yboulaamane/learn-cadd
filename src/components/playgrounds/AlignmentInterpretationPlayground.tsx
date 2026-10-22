@@ -141,20 +141,23 @@ const RECOMMENDATIONS: Record<AnalysisTask, string> = {
 
 export function AlignmentInterpretationPlayground() {
   const [task, setTask] = useState<AnalysisTask>("structure");
-  const [selectedHitId, setSelectedHitId] = useState("B");
+  const [selectedHitId, setSelectedHitId] = useState<string | null>(null);
 
   const rankedHits = useMemo(() => rankHits(task), [task]);
   const selectedRank = rankedHits.findIndex(({ hit }) => hit.id === selectedHitId);
-  const selected = rankedHits[selectedRank] ?? rankedHits[0];
+  const selected = selectedRank >= 0 ? rankedHits[selectedRank] : null;
+  const displayedHits = selectedHitId === null
+    ? HITS.map((hit) => rankedHits.find((candidate) => candidate.hit.id === hit.id)!)
+    : rankedHits;
 
   const chooseTask = (nextTask: AnalysisTask) => {
-    const bestHit = rankHits(nextTask)[0].hit;
     setTask(nextTask);
-    setSelectedHitId(bestHit.id);
+    setSelectedHitId(null);
   };
 
   const observations = useMemo(() => {
     const notes: string[] = [];
+    if (!selected) return ["Choose a hit and explain your reasoning before revealing the ranking."];
     const hit = selected.hit;
 
     if (hit.coverage < 50) notes.push(`Only ${hit.coverage}% of the query aligns, so the high identity describes a short region.`);
@@ -202,7 +205,7 @@ export function AlignmentInterpretationPlayground() {
       </div>
 
       <div className="grid gap-3 lg:grid-cols-2" aria-label="Candidate sequence hits">
-        {rankedHits.map(({ hit, score }, index) => (
+        {displayedHits.map(({ hit, score }, index) => (
           <button
             key={hit.id}
             type="button"
@@ -219,11 +222,11 @@ export function AlignmentInterpretationPlayground() {
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-900 font-mono text-xs font-black text-white">{hit.id}</span>
                   <h3 className="text-sm font-extrabold text-slate-950">{hit.name}</h3>
-                  {index === 0 && <span className="rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-extrabold uppercase tracking-wide text-emerald-700">Best for task</span>}
+                  {selectedHitId !== null && index === 0 && <span className="rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-extrabold uppercase tracking-wide text-emerald-700">Best for task</span>}
                 </div>
                 <p className="mt-2 text-xs leading-relaxed text-slate-600">{hit.relationship}</p>
               </div>
-              <span className="rounded-lg bg-blue-50 px-2.5 py-1 font-mono text-sm font-black text-blue-800">{score}</span>
+              <span className="rounded-lg bg-blue-50 px-2.5 py-1 font-mono text-sm font-black text-blue-800">{selectedHitId === null ? "Choose first" : score}</span>
             </div>
 
             <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 text-xs sm:grid-cols-4">
@@ -239,11 +242,11 @@ export function AlignmentInterpretationPlayground() {
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]" aria-live="polite">
         <div className="rounded-xl bg-slate-950 p-5 text-white">
           <p className="text-xs font-extrabold uppercase tracking-wider text-slate-400">Recommended interpretation</p>
-          <p className="mt-2 text-sm leading-relaxed text-slate-100">{RECOMMENDATIONS[task]}</p>
+          <p className="mt-2 text-sm leading-relaxed text-slate-100">{selectedHitId === null ? "Choose a candidate first. The task-specific recommendation will appear after your selection." : RECOMMENDATIONS[task]}</p>
         </div>
         <div className="rounded-xl border border-slate-200 bg-white p-4">
           <h3 className="text-sm font-extrabold text-slate-950">
-            Hit {selected.hit.id}: rank {selectedRank + 1} for this task
+            {selected ? `Hit ${selected.hit.id}: rank ${selectedRank + 1} for this task` : "Your interpretation"}
           </h3>
           <ul className="mt-3 space-y-2 text-sm leading-relaxed text-slate-700">
             {observations.map((note) => <li key={note} className="flex gap-2"><span aria-hidden="true" className="text-blue-600">•</span><span>{note}</span></li>)}

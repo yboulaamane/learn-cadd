@@ -1,20 +1,9 @@
 "use client";
 
+import { ScientificPractice } from "@/components/ScientificPractice";
+
 import React, { useState, useEffect } from "react";
-import { 
-  Activity, 
-  Layers, 
-  Play, 
-  Pause, 
-  RotateCcw, 
-  Flame, 
-  Compass, 
-  CheckCircle,
-  HelpCircle,
-  TrendingUp,
-  Cpu,
-  Info
-} from "lucide-react";
+import { Activity, Play, Pause, RotateCcw, Info } from "lucide-react";
 import { Quiz } from "@/components/Quiz";
 import { CollapsibleCode } from "@/components/CollapsibleCode";
 
@@ -39,7 +28,7 @@ const systems: Record<string, SystemData> = {
     ligand: "Erlotinib",
     target: "Epidermal Growth Factor Receptor",
     freeEnergy: "-42.5 kcal/mol",
-    desc: "Simulating EGFR kinase bound to Erlotinib. Notice how the activation loop stabilizes and the hydrogen bond with Met793 is maintained.",
+    desc: "Synthetic EGFR–erlotinib teaching traces. These arrays are not measurements or a computed trajectory.",
     rmsd: [0.5, 0.9, 1.2, 1.4, 1.7, 1.9, 2.1, 2.0, 2.1, 2.2, 2.1, 2.2, 2.3, 2.2, 2.1, 2.2, 2.2, 2.3, 2.2, 2.3],
     rmsf: [0.8, 1.1, 2.4, 3.2, 1.5, 0.9, 0.6, 0.5, 0.6, 0.8, 2.2, 3.5, 1.8, 1.0, 0.7, 0.6, 0.8, 1.5, 2.6, 1.2],
     hBonds: [2, 2, 3, 2, 3, 3, 2, 3, 3, 2, 2, 3, 3, 3, 3, 2, 3, 2, 3, 3],
@@ -52,7 +41,7 @@ const systems: Record<string, SystemData> = {
     ligand: "Nirmatrelvir",
     target: "Main Protease (Mpro)",
     freeEnergy: "-49.8 kcal/mol",
-    desc: "Simulating SARS-CoV-2 main protease bound to Nirmatrelvir. The system reaches equilibration quickly, showing a rigid catalytic pocket.",
+    desc: "Synthetic Mpro–nirmatrelvir teaching traces. A real model must specify the covalent adduct and its parameters; these arrays do not establish equilibration.",
     rmsd: [0.4, 0.7, 1.0, 1.2, 1.3, 1.4, 1.4, 1.5, 1.5, 1.6, 1.5, 1.6, 1.6, 1.5, 1.6, 1.6, 1.5, 1.6, 1.6, 1.5],
     rmsf: [0.6, 0.8, 1.5, 1.9, 0.9, 0.7, 0.5, 0.4, 0.5, 0.6, 1.3, 2.1, 1.1, 0.7, 0.5, 0.4, 0.5, 1.0, 1.8, 0.9],
     hBonds: [3, 4, 4, 3, 4, 4, 4, 3, 4, 4, 4, 4, 3, 4, 4, 4, 4, 3, 4, 4],
@@ -140,10 +129,10 @@ export default function MolecularDynamicsPage() {
       <section className="space-y-4">
         <h2>1. Why Simulate Motion?</h2>
         <p>
-          While experimental methods like X-ray crystallography or NMR yield high-resolution static 3D structures, they represent frozen states. In reality, biological systems are highly dynamic: proteins "breathe," side chains rotate, and ligands undergo conformational changes to enter active site cavities.
+          Experimental structures constrain molecular models, but crystallography, cryo-EM, and NMR report different aspects of structure and dynamics. NMR can directly probe motion and exchange. MD explores time-dependent configurations under a chosen physical model.
         </p>
         <p>
-          <strong>Molecular Dynamics (MD)</strong> simulations solve Newton's classical equations of motion step-by-step for thousands of atoms over time, turning structural snapshots into interactive molecular trajectories.
+          <strong>Molecular Dynamics (MD)</strong> simulations solve Newton&apos;s classical equations of motion step-by-step for thousands of atoms over time, turning structural snapshots into interactive molecular trajectories.
         </p>
       </section>
 
@@ -187,7 +176,7 @@ export default function MolecularDynamicsPage() {
             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Stage 5</span>
             <h4 className="font-bold text-sm text-foreground">Production</h4>
             <p className="text-xs text-slate-600 leading-relaxed">
-              The system runs unconstrained. Snapshots are recorded at intervals (e.g. every 10 ps) to form a trajectory file.
+              Production uses the selected ensemble, thermostat/barostat, and bond constraints. Remove positional restraints only when justified. Save snapshots frequently enough for the intended analysis and record the timestep and output interval.
             </p>
           </div>
         </div>
@@ -204,7 +193,7 @@ export default function MolecularDynamicsPage() {
             <div className="p-3 bg-white border border-slate-200 rounded-lg space-y-1">
               <h5 className="font-bold text-xs text-slate-800">Explicit Solvation (e.g. TIP3P, TIP4P, OPC)</h5>
               <p className="text-[11px] text-slate-600 leading-relaxed">
-                Surrounds the solute with thousands of individual, rigid physical water molecules. It accurately models hydrogen bond networks, solvent shells, and hydrophobic effects, but increases the calculation time exponentially because water-water interactions must be calculated.
+                Surrounds the solute with thousands of individual, rigid physical water molecules. It represents solvent contacts and reorganization explicitly, with accuracy limited by the water and solute models. More particles increase computational cost; neighbor lists and long-range algorithms avoid an exponential increase merely from adding water.
               </p>
             </div>
             <div className="p-3 bg-white border border-slate-200 rounded-lg space-y-1">
@@ -224,7 +213,7 @@ export default function MolecularDynamicsPage() {
           <h3 className="font-bold text-sm">Interactive Playground: MD Trajectory Analysis Dashboard</h3>
         </div>
         <p className="text-sm text-slate-600 leading-normal">
-          Step through each trace and switch systems. Read RMSD for a plateau and RMSF for which residues move. The MM/GBSA numbers are ranks: both are far more negative than a real binding free energy.
+          Step through synthetic traces to practice reading observables. The animation follows a prescribed path; it does not integrate equations of motion. The example MM/GBSA values are illustrative endpoint scores and cannot rank affinity across these different targets.
         </p>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 bg-white dark:bg-slate-950 p-5 rounded-lg border border-slate-100 dark:border-slate-900 not-prose">
@@ -344,7 +333,7 @@ export default function MolecularDynamicsPage() {
             {/* Quick metrics readouts */}
             <div className="grid grid-cols-2 gap-2 text-center text-xs">
               <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-lg">
-                <span className="text-[10px] text-slate-500 font-bold block uppercase mb-0.5">MM/GBSA ΔG, not Kd</span>
+                <span className="text-[10px] text-slate-500 font-bold block uppercase mb-0.5">Illustrative MM/GBSA score</span>
                 <span className="text-sm font-extrabold text-slate-900">{system.freeEnergy}</span>
               </div>
               <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-lg">
@@ -459,13 +448,13 @@ export default function MolecularDynamicsPage() {
             {/* Text description explaining the selected metric tab */}
             <div className="text-xs text-slate-600 bg-slate-50 border border-slate-200 rounded-lg p-3 leading-relaxed">
               {activeTab === "rmsd" ? (
-                <span><strong>Root-Mean-Square Deviation (RMSD):</strong> Measures structural changes compared to the starting frame. A stable EGFR system plateaus around <strong>2.0–2.3 Å</strong> (at ~50 ns), indicating complete structural equilibration.</span>
+                <span><strong>Root-Mean-Square Deviation (RMSD):</strong> Measures deviation for a stated atom selection after alignment and PBC correction. A plateau suggests little change in this observable over this window; it does not establish equilibration, adequate sampling, or binding.</span>
               ) : activeTab === "rmsf" ? (
-                <span><strong>Root-Mean-Square Fluctuation (RMSF):</strong> Measures per-residue dynamic displacements over the entire trajectory. High peaks represent highly flexible loops, while sharp valleys indicate the rigid binding pocket.</span>
+                <span><strong>Root-Mean-Square Fluctuation (RMSF):</strong> Measures displacement around aligned mean coordinates over a defined analysis window. Peaks can reflect loops, domain motion, or alignment choices; low RMSF alone does not identify a binding pocket.</span>
               ) : activeTab === "hBonds" ? (
-                <span><strong>Hydrogen Bond Analysis:</strong> Counts intermolecular H-bond counts between Erlotinib and Met793. High occupancy (active in {Math.round(system.hBonds.filter(b=>b>=3).length/20*100)}% of frames) validates robust thermodynamic stability.</span>
+                <span><strong>Hydrogen Bond Analysis:</strong> At least three illustrative contacts occur in {Math.round(system.hBonds.filter(b=>b>=3).length/20*100)}% of frames. This count-threshold frequency is not occupancy of a named hydrogen bond. Real occupancy requires atom identities and distance/angle criteria; neither quantity alone establishes thermodynamic stability.</span>
               ) : (
-                <span><strong>Solvent Accessible Surface Area (SASA):</strong> Quantifies pocket exposure to bulk solvent. The drop from 245 to 220 Å² as Erlotinib docks reveals hydrophobic desolvation, displacing water to gain favorable solvent entropy (+TΔS).</span>
+                <span><strong>Solvent Accessible Surface Area (SASA):</strong> Measures accessible area for a stated atom selection and probe radius. This synthetic decrease illustrates exposure changes; area alone cannot determine water displacement, entropy, or binding free energy. State the selection and area units.</span>
               )}
             </div>
 
@@ -483,19 +472,19 @@ export default function MolecularDynamicsPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-2 not-prose">
           <div className="p-4 rounded-xl border border-border bg-white space-y-1">
-            <h4 className="font-bold text-sm text-slate-900">Key Convergence Observables</h4>
+            <h4 className="font-bold text-sm text-slate-900">Sampling and uncertainty checks</h4>
             <ul className="list-disc pl-5 text-xs text-slate-800 space-y-1.5 leading-relaxed font-semibold">
-              <li><strong>Backbone RMSD:</strong> Tracks coordinate deviation relative to the starting frame. A flat plateau (typically &lt; 2.5 Å) signifies that the structure has successfully equilibrated.</li>
+              <li><strong>Backbone RMSD:</strong> A plateau is a diagnostic, with no universal angstrom cutoff for equilibration. Inspect alternate references, pairwise RMSD, and relevant slow coordinates.</li>
               <li><strong>Secondary Structure Content:</strong> Tracks persistence of alpha-helices and beta-sheets. Rapid shifts signal structural denaturation.</li>
               <li><strong>Interaction Fingerprints:</strong> Tracks the persistence (occupancy percentage) of key hydrogen bonds, salt bridges, or pi-pi stacking contacts.</li>
             </ul>
           </div>
           <div className="p-4 rounded-xl border border-border bg-white space-y-1">
-            <h4 className="font-bold text-sm text-slate-900">Standard Simulation Timeframes</h4>
+            <h4 className="font-bold text-sm text-slate-900">Choose length from the question</h4>
             <ul className="list-disc pl-5 text-xs text-slate-800 space-y-1.5 leading-relaxed font-semibold">
-              <li><strong>50–100 ns:</strong> Standard for evaluating initial ligand pose stability in relatively rigid binding pockets.</li>
-              <li><strong>100–200 ns:</strong> Standard for analyzing loop reorganizations, induced fit transitions, and side-chain rotamers.</li>
-              <li><strong>200–500 ns:</strong> Necessary to observe slower events, such as domain-level hinge shifts and partial unbinding.</li>
+              <li><strong>Pose inspection:</strong> A short run can reveal obvious instability; persistence over a fixed duration does not prove a pose is correct.</li>
+              <li><strong>Sampling:</strong> Compare independent runs, state populations, time blocks, autocorrelation, and uncertainty in the observable of interest.</li>
+              <li><strong>Stopping criterion:</strong> Choose length using sampling evidence. Domain movement or unbinding may require much longer or enhanced sampling.</li>
             </ul>
           </div>
         </div>
@@ -601,9 +590,9 @@ export default function MolecularDynamicsPage() {
         <blockquote>
           <strong>Metropolis Acceptance Probability:</strong>
           <div className="my-3 font-mono text-center text-xs bg-slate-50 py-2 rounded text-slate-900 font-bold">
-            {"P = min(1, exp[( (1/Ti) - (1/Tj) ) * (Ej - Ei)])"}
+            {"P = min(1, exp[(βi − βj) × (Ui − Uj)]),  β = 1/(kB T)"}
           </div>
-          Where <span className="font-semibold">Ti, Tj</span> represent the temperatures and <span className="font-semibold">Ei, Ej</span> are the potential energies of the respective replicas. High-temperature replicas cross boundaries readily, and swapping coordinates transfers this broad sampling back to the physiological replica (e.g. 300 K).
+          Ti and Tj are temperatures; Ui and Uj are instantaneous potential energies. With molar energy units, use β = 1/(RT), making the exponent dimensionless. High-temperature replicas cross boundaries readily, and swapping coordinates transfers this broad sampling back to the physiological replica (e.g. 300 K).
         </blockquote>
 
         <div className="my-4">
@@ -625,8 +614,10 @@ export default function MolecularDynamicsPage() {
 # charge means the protonation state or the ion count is wrong. Fix that,
 # then let grompp stop if the system is still inconsistent.
 
-gmx grompp -f md_300.mdp -o topol_300.tpr -c conf.gro -p topol.top
-gmx grompp -f md_310.mdp -o topol_310.tpr -c conf.gro -p topol.top
+# Template: supply an equilibrated system and temperature file per directory.
+# Two replicas illustrate invocation, not an adequate temperature ladder.
+gmx grompp -f replica_300/md.mdp -o replica_300/topol.tpr -c replica_300/conf.gro -p replica_300/topol.top
+gmx grompp -f replica_310/md.mdp -o replica_310/topol.tpr -c replica_310/conf.gro -p replica_310/topol.top
 
 # =====================================================================
 # STEP 2: LAUNCH PARALLEL SWAPPING SIMULATIONS (T-REMD)
@@ -634,13 +625,13 @@ gmx grompp -f md_310.mdp -o topol_310.tpr -c conf.gro -p topol.top
 # mpirun launches parallel processes using Message Passing Interface (MPI).
 #
 # Flags:
-# -np 8: Spawns 8 parallel processes (cores)
-# mdrun -multi 8: Run 8 separate replicas (one process/core per replica)
+# -np 2: Two MPI ranks, one for each directory in this example
+# -multidir: Run each replica in its own directory
 # -replex 1000: Attempt coordinate swapping between adjacent temperatures every 1000 steps
-# -s topol_.tpr: Base name of the input files (GROMACS automatically appends indices 0 to 7)
+# -s topol.tpr: Input filename present in EACH replica directory
 # -deffnm remd: Default prefix for output logs, trajectories, and energies (remd.log, remd.xtc)
 
-mpirun -np 8 gmx_mpi mdrun -multi 8 -replex 1000 -s topol_.tpr -deffnm remd`}
+mpirun -np 2 gmx_mpi mdrun -multidir replica_300 replica_310 -replex 1000 -s topol.tpr -deffnm remd`}
           />
         </div>
       </section>
@@ -668,7 +659,7 @@ mpirun -np 8 gmx_mpi mdrun -multi 8 -replex 1000 -s topol_.tpr -deffnm remd`}
           <div className="p-4 rounded-xl border border-border bg-white space-y-1">
             <h4 className="font-bold text-sm text-foreground">Desmond</h4>
             <p className="text-xs text-slate-800 leading-relaxed font-semibold">
-              Developed by DE Shaw Research. Known for extreme parallel scaling speed. Integrated natively within Schrödinger's Maestro GUI for drug discovery workflows.
+              Developed by DE Shaw Research. Known for extreme parallel scaling speed. Integrated natively within Schrödinger&apos;s Maestro GUI for drug discovery workflows.
             </p>
           </div>
           <div className="p-4 rounded-xl border border-border bg-white space-y-1">
@@ -684,7 +675,7 @@ mpirun -np 8 gmx_mpi mdrun -multi 8 -replex 1000 -s topol_.tpr -deffnm remd`}
       <section className="space-y-4">
         <h2>7. Advanced Multiscale Simulations: QM/MM & Gaussian Accelerated MD</h2>
         <p>
-          Classical force fields (Molecular Mechanics, MM) treat bonds as harmonic springs, meaning bond connectivity is fixed. Consequently, classical MD cannot simulate chemical reactions, such as the formation of covalent bonds during catalytic steps or the binding of covalent inhibitors. To study these dynamic electronic processes, advanced simulation techniques are utilized:
+          The fixed-topology harmonic force fields introduced here cannot change bond connectivity. This limitation is not shared by every classical model: reactive empirical force fields also exist. Such fixed-topology MD cannot directly simulate chemical reactions, such as the formation of covalent bonds during catalytic steps or the binding of covalent inhibitors. To study these dynamic electronic processes, advanced simulation techniques are utilized:
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 not-prose">
@@ -694,7 +685,7 @@ mpirun -np 8 gmx_mpi mdrun -multi 8 -replex 1000 -s topol_.tpr -deffnm remd`}
               QM/MM is a multiscale approach that divides the system into two distinct regions:
             </p>
             <ul className="list-disc pl-5 text-xs text-slate-800 space-y-1 font-semibold leading-relaxed">
-              <li><strong>QM Region (Active Site):</strong> The catalytic residues, reacting atoms, and covalent ligand head are modeled using quantum mechanics (DFT or semi-empirical methods), solving Schrödinger's equation to capture bond breaking, formation, and electronic polarization.</li>
+              <li><strong>QM Region (Active Site):</strong> The catalytic residues, reacting atoms, and covalent ligand head are modeled using quantum mechanics (DFT or semi-empirical methods), solving Schrödinger&apos;s equation to capture bond breaking, formation, and electronic polarization.</li>
               <li><strong>MM Region (Bulk Environment):</strong> The rest of the protein and the surrounding solvent water box are modeled using fast classical force fields (like AMBER or CHARMM) to compute electrostatic and steric boundary forces.</li>
             </ul>
           </div>
@@ -706,7 +697,7 @@ mpirun -np 8 gmx_mpi mdrun -multi 8 -replex 1000 -s topol_.tpr -deffnm remd`}
             </p>
             <ul className="list-disc pl-5 text-xs text-slate-800 space-y-1 font-semibold leading-relaxed">
               <li>It applies a continuous, harmonic boost potential to smooth the potential energy surface.</li>
-              <li>The boost energy is automatically calculated from the statistics (variance and mean, following a Gaussian distribution) of the system's potential energy.</li>
+              <li>The boost energy is automatically calculated from the statistics (variance and mean, following a Gaussian distribution) of the system&apos;s potential energy.</li>
               <li>The boost lets one trajectory visit states separated by barriers that an unbiased nanosecond run would rarely cross. Equilibrium weights are recovered by reweighting with the boost potential. The saved frames are not a millisecond of physical time, and the raw sequence is not a kinetic pathway.</li>
             </ul>
           </div>
@@ -737,7 +728,7 @@ mpirun -np 8 gmx_mpi mdrun -multi 8 -replex 1000 -s topol_.tpr -deffnm remd`}
               Metadynamics
             </h4>
             <p className="text-xs text-slate-800 leading-relaxed font-medium">
-              Adds a history-dependent biasing potential to a few collective variables (CVs). At regular steps, the simulation deposits small "Gaussian energy hills" at the currently visited coordinate. This "fills up" the local free energy wells, preventing the system from backtracking and forcing it to explore new conformations.
+              Adds a history-dependent biasing potential to a few collective variables (CVs). At regular steps, the simulation deposits small &quot;Gaussian energy hills&quot; at the currently visited coordinate. This &quot;fills up&quot; the local free energy wells, preventing the system from backtracking and forcing it to explore new conformations.
             </p>
           </div>
 
@@ -747,7 +738,7 @@ mpirun -np 8 gmx_mpi mdrun -multi 8 -replex 1000 -s topol_.tpr -deffnm remd`}
               Steered MD (SMD)
             </h4>
             <p className="text-xs text-slate-800 leading-relaxed font-medium">
-              Mimics atomic force microscopy (AFM). An external force (a virtual moving spring) pulls the ligand out of the binding pocket along a vector. By recording the force and displacement over time, researchers calculate the non-equilibrium work and estimate equilibrium free energy using <strong>Jarzynski's Equality</strong>.
+              Mimics atomic force microscopy (AFM). An external force (a virtual moving spring) pulls the ligand out of the binding pocket along a vector. By recording the force and displacement over time, researchers calculate the non-equilibrium work and estimate equilibrium free energy using <strong>Jarzynski&apos;s Equality</strong>.
             </p>
           </div>
         </div>
@@ -770,7 +761,7 @@ mpirun -np 8 gmx_mpi mdrun -multi 8 -replex 1000 -s topol_.tpr -deffnm remd`}
               Take snapshots from a trajectory, compute the molecular-mechanics energy of each state, and add an implicit-solvent term (Generalized Born or Poisson-Boltzmann). Only the two <em>endpoints</em> matter — bound and free.
             </p>
             <p className="text-xs text-slate-600 leading-relaxed pt-1">
-              <strong>Fast and popular</strong>, but the absolute numbers are notoriously overestimated (you saw −42.5 and −49.8 kcal/mol in the dashboard above — real affinities are nearer −8 to −14). Entropy is usually neglected. Treat MM/GBSA as a <em>ranking</em> tool, never as a predictor of absolute affinity.
+              <strong>An approximate endpoint estimate.</strong> Entropy, reorganization, and solvent choices materially affect results. The dashboard values are invented examples, not measurements. Test ranking within a comparable target/series and protocol; cross-target score comparisons do not establish affinity.
             </p>
           </div>
           <div className="p-4 rounded-xl border border-border bg-white space-y-1.5">
@@ -795,7 +786,7 @@ mpirun -np 8 gmx_mpi mdrun -multi 8 -replex 1000 -s topol_.tpr -deffnm remd`}
         </div>
 
         <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm text-slate-800 font-medium">
-          <span className="font-bold text-slate-900">The accuracy/cost ladder.</span> Docking (~seconds, ~2–3 kcal/mol error, ranks millions) → MM/GBSA (~minutes, ~1.5–2 kcal/mol, ranks hundreds) → FEP (~hours per pair, ~1 kcal/mol, ranks tens). You descend this ladder as the compound count falls and the cost of a wrong answer rises.
+          <span className="font-bold text-slate-900">Choose the method for the decision.</span> Docking supports pose hypotheses and broad triage; endpoint methods may support ranking after target-specific validation; alchemical methods address defined free-energy differences. Error and cost depend on chemistry, setup, sampling, hardware, and reference data.
         </div>
       </section>
 
@@ -834,6 +825,7 @@ mpirun -np 8 gmx_mpi mdrun -multi 8 -replex 1000 -s topol_.tpr -deffnm remd`}
       <hr className="border-slate-200 my-8" />
       <section className="space-y-5">
         <h2>Knowledge check</h2>
+        <ScientificPractice moduleNumber={10} />
         <Quiz
           moduleTitle="Module 10: Molecular Dynamics & Free Energy Methods"
           questions={[
@@ -843,7 +835,7 @@ mpirun -np 8 gmx_mpi mdrun -multi 8 -replex 1000 -s topol_.tpr -deffnm remd`}
                 "Because force field parameters are encrypted during the simulation run.",
                 "To remove water molecules that would otherwise crash the plotting library.",
                 "To correct Periodic Boundary Condition (PBC) wrapping artifacts that split molecules across box boundaries, which would yield artificially inflated deviations.",
-                "To accelerate the GPU-rendering pipeline in Next.js."
+                "To remove genuine conformational changes before analysis."
               ],
               correctIndex: 2,
               explanation: "In PBC simulations, atoms that exit one side of the box re-enter from the opposite side. This can mathematically split a molecular chain across box boundaries. Calculating RMSD or Rg on wrapped coordinates yields massive errors; trajectories must be post-processed (unwrapped/re-centered using tools like `gmx trjconv`) beforehand."
@@ -864,11 +856,11 @@ mpirun -np 8 gmx_mpi mdrun -multi 8 -replex 1000 -s topol_.tpr -deffnm remd`}
               options: [
                 "MD runs are deterministic and running duplicates is redundant.",
                 "Single trajectories fail to output the concordance correlation coefficients.",
-                "Molecular dynamics is inherently stochastic; a single trajectory represents a single probabilistic pathway. Standard practice requires 3–5 replicates with different velocity seeds to confirm trends.",
+                "Molecular dynamics is inherently stochastic; a single trajectory represents a single probabilistic pathway. Independent replicas help assess reproducibility; choose their number and length using observable-specific uncertainty rather than a universal count.",
                 "Single runs are restricted to tip3p water models."
               ],
               correctIndex: 2,
-              explanation: "Since molecular dynamics calculations contain stochastic elements (e.g. random starting velocity distributions), a single run might capture a rare, unrepresentative event. To establish statistical significance, researchers must conduct duplicate runs (typically 3–5 replicates) with different starting seeds."
+              explanation: "Since molecular dynamics calculations contain stochastic elements (e.g. random starting velocity distributions), a single run might capture a rare, unrepresentative event. Compare independent runs, time blocks, autocorrelation, effective sample size, and uncertainty. A fixed replicate count alone does not establish statistical significance."
             }
           ]}
         />

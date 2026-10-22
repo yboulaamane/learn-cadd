@@ -1,5 +1,7 @@
 "use client";
 
+import { ScientificPractice } from "@/components/ScientificPractice";
+
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { 
   Cpu,
@@ -66,19 +68,10 @@ export default function QsarModelingPage() {
   const a = 2.0;
   const b = 1.2;
 
-  // Hotelling T2 metric equivalent: distance = (pc1/a)^2 + (pc2/b)^2
+  // Illustrative projected distance, not fitted leverage or a statistical confidence region.
   const distanceSq = Math.pow(pc1 / a, 2) + Math.pow(pc2 / b, 2);
-  
-  // Calculate Leverage h
-  // Leverage formula: h = (1 / n) + d_sq / sum(d_sq)
-  // For training set size n=20, let's map leverage to a clean educational value:
-  const n = 20;
-  const h = (1 / n) + 0.15 * distanceSq;
-  
-  // Critical leverage threshold h* (boundary of the ellipse)
-  // When distanceSq = 1.0 (on ellipse boundary), h = 0.05 + 0.15 = 0.20
-  const hStar = 0.20;
-  const insideDomain = h <= hStar;
+  const insideDomain = distanceSq <= 1;
+  const [domainDecision, setDomainDecision] = useState<"trust" | "check" | null>(null);
 
   // Mouse / Touch handlers for dragging the Test Compound
   const updatePosition = useCallback((clientX: number, clientY: number) => {
@@ -186,9 +179,9 @@ export default function QsarModelingPage() {
         <h2 className="!mt-0 !text-base font-bold">Learning outcomes</h2>
         <ul className="list-disc pl-5 text-sm text-slate-800 space-y-1 leading-relaxed">
           <li>Build a classical Hansch model and interpret pi, sigma, and Es substituent constants.</li>
-          <li>Select descriptors and algorithms appropriate to a dataset's size and endpoint.</li>
+          <li>Select descriptors and algorithms appropriate to a dataset&apos;s size and endpoint.</li>
           <li>Apply the three-tier validation framework and the five OECD principles.</li>
-          <li>Define an applicability domain by leverage and by model confidence.</li>
+          <li>Compare model-appropriate domain checks and validate uncertainty against held-out errors.</li>
           <li>Interpret a model with SHAP without mistaking attribution for mechanism.</li>
         </ul>
       </section>
@@ -425,7 +418,7 @@ export default function QsarModelingPage() {
             <div>
               <h4 className="font-bold text-sm text-slate-900">Data Collection & Curation</h4>
               <p className="text-sm text-slate-900 mt-1 leading-relaxed">
-                Bioactivity measurements are pulled from public databases (ChEMBL, PubChem). Structures are standardized by stripping salts, resolving stereocenters, and neutralizing molecules to match physiological pH.
+                Bioactivity measurements are pulled from public databases (ChEMBL, PubChem). Structures are standardized by stripping salts, resolving stereocenters, and applying a documented identity-standardization policy. Assign pH-dependent protonation states separately; a neutral parent is not necessarily the dominant species at physiological pH.
               </p>
             </div>
           </div>
@@ -470,7 +463,7 @@ export default function QsarModelingPage() {
             <span className="inline-block px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 font-semibold text-[10px] uppercase">Gradient Boosting</span>
             <h4 className="font-bold text-sm text-slate-900">XGBoost</h4>
             <p className="text-sm text-slate-800 leading-relaxed font-medium">
-              Optimized gradient boosting with second-order Taylor expansion of the loss function. Features L1/L2 regularization, column subsampling, and learning rate shrinkage. Consistently wins cheminformatics benchmarks due to its ability to handle sparse fingerprint matrices and missing descriptors.
+              Optimized gradient boosting with second-order Taylor expansion of the loss function. Features L1/L2 regularization, column subsampling, and learning rate shrinkage. A useful baseline for many tabular datasets, but performance depends on endpoint, split, tuning, and representation; compare against simple baselines.
             </p>
           </div>
           <div className="p-4 rounded-xl border border-border bg-white space-y-1">
@@ -484,7 +477,7 @@ export default function QsarModelingPage() {
             <span className="inline-block px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 font-semibold text-[10px] uppercase">Probabilistic</span>
             <h4 className="font-bold text-sm text-slate-900">Gaussian Naive Bayes (GNB)</h4>
             <p className="text-sm text-slate-800 leading-relaxed font-medium">
-              Probabilistic classifier using Bayes&apos; theorem with a feature independence assumption. Works surprisingly well with high-dimensional fingerprints where the independence assumption approximately holds. Provides calibrated probability estimates useful for ranking and applicability domain assessment.
+              Probabilistic classifier using Bayes&apos; theorem with a feature independence assumption. Works surprisingly well with high-dimensional fingerprints where the independence assumption approximately holds. Returns probability estimates that may be poorly calibrated when features are correlated. Check calibration on held-out data before interpreting them as probabilities.
             </p>
           </div>
         </div>
@@ -635,7 +628,7 @@ export default function QsarModelingPage() {
               <tr>
                 <th className="px-4 py-2.5 text-left">Validation Tier</th>
                 <th className="px-4 py-2.5 text-left">Key Metric & Symbol</th>
-                <th className="px-4 py-2.5 text-left">Ideal Threshold</th>
+                <th className="px-4 py-2.5 text-left">Acceptance criterion</th>
                 <th className="px-4 py-2.5 text-left">Scientific Rationale</th>
               </tr>
             </thead>
@@ -643,19 +636,19 @@ export default function QsarModelingPage() {
               <tr>
                 <td className="px-4 py-2 font-bold text-emerald-800 bg-emerald-50/20">1. Internal Validation</td>
                 <td className="px-4 py-2 font-mono">R²_tr, R²_adj, CCC_tr</td>
-                <td className="px-4 py-2 font-semibold">R²_tr ≥ 0.600, CCC_tr &gt; 0.800</td>
+                <td className="px-4 py-2 font-semibold">Compare fit with baseline and held-out error</td>
                 <td className="px-4 py-2">Measures precision & accuracy fit. A large gap between R² and Adjusted R² indicates descriptor noise.</td>
               </tr>
               <tr>
                 <td className="px-4 py-2 font-bold text-blue-800 bg-blue-50/20">2. Cross-Validation</td>
                 <td className="px-4 py-2 font-mono">Q²_loo, Q²_lmo, Y-Scrambling</td>
-                <td className="px-4 py-2 font-semibold">Q² &gt; 0.500, R²_Yscr / Q²_Yscr → 0</td>
-                <td className="px-4 py-2">Leave-Many-Out verifies generalizability. <strong>Y-Scrambling</strong> shuffles bio-activity relative to descriptors; metrics must collapse to 0 to verify structural integrity.</td>
+                <td className="px-4 py-2 font-semibold">Use deployment-matched folds and permutation controls</td>
+                <td className="px-4 py-2">Cross-validation estimates performance under the chosen split. Repeat the full fitting pipeline with shuffled labels; held-out results should resemble chance, which can include negative prediction R².</td>
               </tr>
               <tr>
                 <td className="px-4 py-2 font-bold text-amber-800 bg-amber-50/20">3. External Validation</td>
                 <td className="px-4 py-2 font-mono">R²_ex, CCC_ex, RMSE_ex</td>
-                <td className="px-4 py-2 font-semibold">R²_ex &gt; 0.600, CCC_ex &gt; 0.850</td>
+                <td className="px-4 py-2 font-semibold">Predefine useful error relative to assay noise and the decision</td>
                 <td className="px-4 py-2">The gold standard. Evaluates model performance against a completely unseen test dataset.</td>
               </tr>
             </tbody>
@@ -666,7 +659,7 @@ export default function QsarModelingPage() {
           <div className="p-4 rounded-xl border border-border bg-white space-y-1">
             <h4 className="font-bold text-sm text-slate-900">Concordance Correlation Coefficient (CCC)</h4>
             <p className="text-sm text-slate-800 leading-relaxed font-medium">
-              Unlike normal R² which only measures regression slope correlation, CCC penalizes models that exhibit systematic vertical/horizontal prediction offsets, jointly assessing correlation precision and absolute accuracy.
+              Prediction R² = 1 − SSE/SST measures residual error relative to predicting the observed mean, so offsets lower it and it can be negative. Squared Pearson correlation measures association and can remain 1 under an offset. CCC summarizes concordance with the identity line; report RMSE or MAE alongside it.
             </p>
           </div>
           <div className="p-4 rounded-xl border border-border bg-white space-y-1">
@@ -709,7 +702,7 @@ export default function QsarModelingPage() {
         <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl space-y-2">
           <h4 className="font-bold text-sm text-slate-900">OECD Regulatory Framework: 5 Principles for QSAR Validation</h4>
           <p className="text-sm text-slate-800 leading-relaxed font-medium">
-            The Organisation for Economic Co-operation and Development (OECD) has established five mandatory principles for the regulatory acceptance of QSAR predictions:
+            The Organisation for Economic Co-operation and Development (OECD) describes five principles for assessing QSAR model validity:
           </p>
           <ol className="list-decimal pl-5 text-sm text-slate-800 space-y-1.5 font-medium leading-relaxed">
             <li><strong>A defined endpoint</strong>: the biological effect being predicted must be clearly specified (e.g., IC50 against hERG, LD50 in rats).</li>
@@ -719,7 +712,7 @@ export default function QsarModelingPage() {
             <li><strong>A mechanistic interpretation, if possible</strong>: descriptors should relate to known physicochemical or biological mechanisms driving the activity.</li>
           </ol>
           <p className="text-xs text-amber-800 font-semibold mt-2">
-            These principles are mandatory for regulatory acceptance of QSAR predictions in EU REACH chemical safety assessments and FDA submissions for pharmaceutical candidates.
+            These principles guide assessment; acceptance depends on the endpoint, prediction, regulatory framework, and intended use. They are not a blanket guarantee of acceptance for every REACH assessment or pharmaceutical submission.
           </p>
         </div>
 
@@ -851,7 +844,7 @@ export default function QsarModelingPage() {
               <tbody className="divide-y divide-slate-200 bg-white text-slate-800">
                 <tr>
                   <td className="px-4 py-2 font-bold">R-squared (R²)</td>
-                  <td className="px-4 py-2">Proportion of variance explained by the model</td>
+                  <td className="px-4 py-2">1 − SSE/SST relative to the observed mean; can be negative</td>
                   <td className="px-4 py-2 font-semibold">Approaches 1.0</td>
                 </tr>
                 <tr>
@@ -867,7 +860,7 @@ export default function QsarModelingPage() {
                 <tr>
                   <td className="px-4 py-2 font-bold">CCC</td>
                   <td className="px-4 py-2">Concordance Correlation Coefficient</td>
-                  <td className="px-4 py-2 font-semibold">CCC &gt; 0.85</td>
+                  <td className="px-4 py-2 font-semibold">Approaches 1; acceptance is task-specific</td>
                 </tr>
               </tbody>
             </table>
@@ -880,7 +873,7 @@ export default function QsarModelingPage() {
       <section className="space-y-4">
         <h2>8. Consensus Models and Confidence-Based Domains</h2>
         <p>
-          The Williams plot bounds the domain by <em>chemical space</em> — how far a compound sits from the training set. A second, complementary approach bounds it by <em>model confidence</em>: if several independently trained models disagree, or a single ensemble is unsure, treat the prediction as out of domain regardless of where the compound sits geometrically.
+          The Williams plot bounds the domain by <em>chemical space</em> — how far a compound sits from the training set. A second, complementary approach bounds it by <em>model confidence</em>: disagreement or uncertainty can motivate abstention, but must be validated against held-out errors. Ensemble agreement is not a guarantee of correctness inside or outside the supported chemistry.
         </p>
 
         {/* Consensus Modeling & Probability-Based AD */}
@@ -890,7 +883,7 @@ export default function QsarModelingPage() {
             Instead of relying on a single algorithm, consensus modeling combines predictions from multiple independently trained models (e.g., Random Forest, SVM, Gradient Boosting) on the same training data. For <strong>regression tasks</strong>, the final prediction is the average of individual model outputs. For <strong>classification tasks</strong>, majority voting determines the predicted class.
           </p>
           <p className="text-sm text-slate-800 leading-relaxed font-medium">
-            <strong>Probability-based AD:</strong> For ensemble classifiers like Random Forest, the <code className="text-xs bg-slate-100 px-1.5 py-0.5 rounded font-mono">predict_proba()</code> method returns class probabilities. If the maximum probability for any class falls below 0.80, the compound is considered outside the model&apos;s reliable prediction zone, an implicit applicability domain filter based on model confidence rather than chemical space distance.
+            <strong>Probability-based AD:</strong> For ensemble classifiers like Random Forest, the <code className="text-xs bg-slate-100 px-1.5 py-0.5 rounded font-mono">predict_proba()</code> method returns class probabilities. Choose any confidence or abstention threshold using held-out error and calibration for the intended decision. An arbitrary 0.80 cutoff is not a validated domain, and high confidence can persist outside supported chemistry.
           </p>
           <p className="text-sm text-slate-800 leading-relaxed font-medium">
             <strong>Feature importance:</strong> To interpret which descriptors drive predictions, <strong>permutation importance</strong> randomly shuffles each feature column and measures the resulting drop in model performance. Features causing the largest performance degradation are the most influential for the model&apos;s decisions.
@@ -905,8 +898,7 @@ export default function QsarModelingPage() {
           <h3 className="font-bold text-base text-slate-900">Interactive Playground: PCA Chemical Space & Applicability Domain</h3>
         </div>
         <p className="text-sm text-slate-800">
-          A machine learning model cannot make reliable predictions outside its training envelope. We compress multidimensional descriptors onto a 2D Principal Component Analysis (PCA) projection.
-          <strong> Drag the yellow star (Test Compound)</strong> on the plot (or use the sliders) to see how its position relative to the 95% confidence boundary (the green shaded ellipse) dictates leverage (h) and prediction reliability!
+          <strong>Move the yellow star</strong> with the plot or sliders to explore an illustrative two-dimensional projection. The points and ellipse are teaching coordinates; no PCA fit, activity prediction, statistical confidence region, or leverage calculation is performed here. Overlap in two dimensions can hide differences in omitted descriptors.
         </p>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 bg-white p-5 rounded-lg border border-slate-200">
@@ -958,7 +950,7 @@ export default function QsarModelingPage() {
                 <text x="270" y="108" textAnchor="end" className="fill-slate-600 text-[7px] font-black dark:fill-slate-200">PC1 (Lipophilicity & MW)</text>
                 <text x="156" y="27" textAnchor="start" className="fill-slate-600 text-[7px] font-black dark:fill-slate-200">PC2 (Polarity & H-Bonds)</text>
 
-                {/* Shaded Applicability Domain Ellipse (95% CI Boundary) */}
+                {/* Hand-drawn projected region; not a confidence interval */}
                 {/* PC units: a = 2.0 (rx = 60px), b = 1.2 (ry = 30px) */}
                 <ellipse 
                   cx={centerX} 
@@ -973,7 +965,7 @@ export default function QsarModelingPage() {
                 />
                 
                 {/* Ellipse Limit Label */}
-                <text x={centerX + 1.2 * scaleX} y={centerY - 0.9 * scaleY} className="fill-emerald-700 text-[6.5px] font-extrabold dark:fill-emerald-300">95% Applicability Envelope</text>
+                <text x={centerX + 1.2 * scaleX} y={centerY - 0.9 * scaleY} className="fill-emerald-700 text-[6.5px] font-extrabold dark:fill-emerald-300">Illustrative projected region</text>
 
                 {/* Plot Static Training Compounds */}
                 {trainingPoints.map((pt, idx) => (
@@ -1012,11 +1004,12 @@ export default function QsarModelingPage() {
             <div className="w-full grid grid-cols-2 gap-4">
               <div className="space-y-1">
                 <div className="flex justify-between text-xs font-bold text-slate-800">
-                  <span>PC1 Coordinate</span>
+                  <label htmlFor="qsar-pc1">PC1 Coordinate</label>
                   <span className="font-mono">{pc1.toFixed(2)}</span>
                 </div>
                 <input 
                   type="range"
+                  id="qsar-pc1"
                   min="-3.5"
                   max="3.5"
                   step="0.05"
@@ -1027,11 +1020,12 @@ export default function QsarModelingPage() {
               </div>
               <div className="space-y-1">
                 <div className="flex justify-between text-xs font-bold text-slate-800">
-                  <span>PC2 Coordinate</span>
+                  <label htmlFor="qsar-pc2">PC2 Coordinate</label>
                   <span className="font-mono">{pc2.toFixed(2)}</span>
                 </div>
                 <input 
                   type="range"
+                  id="qsar-pc2"
                   min="-3.0"
                   max="3.0"
                   step="0.05"
@@ -1048,12 +1042,12 @@ export default function QsarModelingPage() {
             
             <div className="space-y-3.5">
               <h4 className="font-extrabold text-sm uppercase tracking-wider text-slate-900 border-b pb-1.5 border-slate-200">
-                Leverage & Domain Check
+                Projected Position Check
               </h4>
 
               <div className="space-y-2 text-xs font-bold text-slate-800">
                 <div className="flex justify-between py-0.5">
-                  <span>Calculated Mahalanobis Distance (d²):</span>
+                  <span>Normalized squared distance:</span>
                   <span className="font-mono text-slate-950">{distanceSq.toFixed(3)}</span>
                 </div>
                 <div className="flex justify-between py-0.5 border-t border-slate-100 pt-1.5">
@@ -1067,8 +1061,8 @@ export default function QsarModelingPage() {
               {/* Leverage Meter Visual */}
               <div className="space-y-1 pt-1.5">
                 <div className="flex justify-between text-xs font-bold text-slate-800">
-                  <span>Calculated Leverage (h) vs Limit (h*)</span>
-                  <span>{h.toFixed(3)} / {hStar.toFixed(3)}</span>
+                  <span>Projected distance vs illustrative boundary</span>
+                  <span>{distanceSq.toFixed(3)} / 1.000</span>
                 </div>
                 {/* Slider visual representing scale */}
                 <div className="w-full h-3.5 bg-slate-100 rounded border border-slate-200 relative overflow-hidden">
@@ -1081,18 +1075,31 @@ export default function QsarModelingPage() {
                   {/* Active Leverage marker pin */}
                   <div 
                     className="absolute top-0 bottom-0 w-2.5 bg-amber-500 border border-amber-600 rounded-sm z-20 transition-all duration-150"
-                    style={{ left: `${Math.min((h / 0.33) * 100, 96)}%` }}
+                    style={{ left: `${Math.min((distanceSq / (5 / 3)) * 100, 96)}%` }}
                   />
                 </div>
                 <div className="flex justify-between text-[9px] text-slate-800 font-extrabold pt-0.5">
                   <span>0.00 (Center)</span>
-                  <span className="text-red-600 font-bold">Limit h* = 0.20</span>
-                  <span>0.33+ (High Extrapol)</span>
+                  <span className="text-red-600 font-bold">Boundary = 1.00</span>
+                  <span>1.67+ (Farther away)</span>
                 </div>
               </div>
             </div>
 
-            {/* Reliability Status Box */}
+            <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 text-xs text-slate-800">
+              <p className="font-bold">Would you trust an activity prediction at this position?</p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <button type="button" aria-pressed={domainDecision === "trust"} onClick={() => setDomainDecision("trust")} className="rounded border border-blue-300 bg-white px-3 py-2">Trust the plot alone</button>
+                <button type="button" aria-pressed={domainDecision === "check"} onClick={() => setDomainDecision("check")} className="rounded border border-blue-300 bg-white px-3 py-2">Check supporting evidence</button>
+              </div>
+              {domainDecision ? <p role="status" className="mt-2 leading-relaxed">
+                {domainDecision === "trust" ? "The plot alone is insufficient. " : "That is the defensible next step. "}
+                {insideDomain ? "Even inside the ellipse, activity cliffs and omitted dimensions can matter." : "Outside the ellipse, first inspect full-space neighbors and validation errors."}
+                {" "}Request assay-matched external performance, domain evidence, and calibrated uncertainty.
+              </p> : null}
+            </div>
+
+            {/* Projected position interpretation */}
             <div className={`p-4 rounded-xl border space-y-2 ${insideDomain ? "bg-emerald-50 border-emerald-200 text-emerald-950" : "bg-red-50 border-red-200 text-red-950"}`}>
               <div className="flex items-center gap-2">
                 {insideDomain ? (
@@ -1101,14 +1108,14 @@ export default function QsarModelingPage() {
                   <AlertTriangle size={16} className="text-red-700 animate-bounce" />
                 )}
                 <span className="font-extrabold text-sm">
-                  {insideDomain ? "Prediction Confidence: HIGH" : "OUTLIER WARNING!"}
+                  {insideDomain ? "Inside the drawn region" : "Outside the drawn region"}
                 </span>
               </div>
               <p className="text-xs leading-relaxed font-semibold">
                 {insideDomain ? (
-                  "The test compound coordinates lie within the applicability envelope. The ML algorithm can interpolate predictions reliably based on training coordinates. Estimated bioactivity (e.g. pIC50 = 6.3) is highly precise."
+                  "The star overlaps the illustrative training region in two dimensions. This does not establish prediction accuracy: inspect the full representation, nearest neighbors, endpoint, and held-out errors before trusting a model."
                 ) : (
-                  "The compound's leverage exceeds the warning limit (h > h*). It represents a chemical structure fundamentally different from the training set. The model's regression output is highly speculative and prone to extreme prediction errors."
+                  "The star is outside the illustrative region. Investigate whether the full molecular representation is supported by training chemistry; this plot alone cannot quantify the error or establish structural novelty."
                 )}
               </p>
             </div>
@@ -1120,7 +1127,7 @@ export default function QsarModelingPage() {
       <section className="space-y-4">
         <h2>9. The Deep Learning Paradigm: Graph Neural Networks (GNNs)</h2>
         <p>
-          While classical QSAR maps molecules to fixed binary fingerprints, modern drug discovery has migrated to Graph Neural Networks (GNNs). A small molecule is naturally represented as a graph where atoms are nodes and chemical bonds are edges.
+          While classical QSAR maps molecules to fixed binary fingerprints, Graph Neural Networks (GNNs) offer learned representations alongside fingerprints and tabular baselines; compare them under the same validation design. A small molecule is naturally represented as a graph where atoms are nodes and chemical bonds are edges.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-2 not-prose">
@@ -1143,7 +1150,7 @@ export default function QsarModelingPage() {
         <div className="p-4 border-l-4 border-slate-900 bg-blue-50/50 rounded-r-xl space-y-1.5 text-sm">
           <strong className="text-slate-950 block">Ensemble Poses & Multiple Instance Learning (ABMIL):</strong>
           <p className="text-slate-800 leading-relaxed font-semibold">
-            Docking algorithms generate multiple pose conformers rather than a single static complex. To classify activity from this ensemble, advanced pipelines treat each docked pose as a distinct graph instance. An <strong>Attention-Based Multiple Instance Learning (ABMIL)</strong> layer then pools the pose embeddings, learning dynamically which pose conformation drives binding affinity and classifying the active pose automatically.
+            Docking algorithms generate multiple pose conformers rather than a single static complex. To classify activity from this ensemble, advanced pipelines treat each docked pose as a distinct graph instance. An <strong>Attention-Based Multiple Instance Learning (ABMIL)</strong> layer then pools the pose embeddings, learning weights over pose representations for a compound-level prediction. Attention weights alone do not identify an experimentally correct bound pose.
           </p>
         </div>
 
@@ -1236,7 +1243,8 @@ from rdkit.Chem import AllChem
 from rdkit import DataStructs
 import numpy as np
 
-def calculate_similarity_domain(test_smiles: str, training_smiles_list: list) -> dict:
+def calculate_similarity_domain(test_smiles: str, training_smiles_list: list,
+                                validated_cutoff: float) -> dict:
     # -----------------------------------------------------------------
     # STEP 1: CONVERT TEST SMILES AND COMPUTE BIT VECTOR FINGERPRINT
     # -----------------------------------------------------------------
@@ -1266,11 +1274,10 @@ def calculate_similarity_domain(test_smiles: str, training_smiles_list: list) ->
     mean_top3_sim = np.mean(sorted(similarities, reverse=True)[:3])
     
     # -----------------------------------------------------------------
-    # STEP 4: CHECK BOUNDARY CONDITIONS (THRESHOLD Tc >= 0.70)
+    # STEP 4: APPLY A CUTOFF CHOSEN ON HELD-OUT VALIDATION DATA
     # -----------------------------------------------------------------
-    # If the test compound is sufficiently similar to the training set,
-    # it lies within the model's Applicability Domain (AD).
-    in_domain = max_sim >= 0.70
+    # Similarity is one support check, not a guarantee of prediction accuracy.
+    in_domain = max_sim >= validated_cutoff
     
     return {
         "max_similarity_to_train": max_sim,
@@ -1284,6 +1291,7 @@ def calculate_similarity_domain(test_smiles: str, training_smiles_list: list) ->
       <hr className="border-slate-200 my-8" />
       <section className="space-y-5">
         <h2>Knowledge check</h2>
+        <ScientificPractice moduleNumber={9} />
         <Quiz 
           moduleTitle="Module 9: QSAR Modeling & AI Interpretation"
           questions={[
@@ -1292,33 +1300,33 @@ def calculate_similarity_domain(test_smiles: str, training_smiles_list: list) ->
               options: [
                 "To verify that the descriptors are normalized according to physical scaling laws.",
                 "To randomly shuffle descriptor values to check for feature scaling errors.",
-                "To randomly shuffle target bioactivity values against structural descriptors, confirming the model collapses to R² / Q² ≈ 0 and is not memorizing structural noise.",
+                "To randomly shuffle target bioactivity values against structural descriptors, testing whether held-out performance is distinguishable from chance under a correctly repeated validation procedure.",
                 "To check whether the test dataset matches the applicability domain envelope."
               ],
               correctIndex: 2,
               explanation: "Y-scrambling randomly shuffles target bioactivity values relative to structural descriptors and retrains the model. If a model still achieves high correlation statistics after scrambling target variables, it is a red flag indicating the model is capturing database artifacts or noise rather than a physical structure-activity correlation."
             },
             {
-              question: "Why is the Concordance Correlation Coefficient (CCC) considered a more diagnostic metric than R² for QSAR regression models?",
+              question: "Observed values are [1, 2, 3] and predictions are [3, 4, 5]. Which interpretation is correct?",
               options: [
                 "CCC operates on a logarithmic scale, which stabilizes extreme outliers.",
-                "R² only measures correlation slope, whereas CCC jointly measures precision and accuracy, penalizing models that are systematically offset or biased.",
+                "Squared Pearson correlation is 1, but prediction R² is −5 because residual errors penalize the offset; CCC also detects imperfect concordance.",
                 "CCC defines the multidimensional applicability domain boundaries.",
                 "CCC requires leaving out large fractions of the dataset during training."
               ],
               correctIndex: 1,
-              explanation: "The coefficient of determination (R²) only checks for linear correlation (regression slope). A model can be systematically biased (predicting everything 2 units too high) and still have a high R². The Concordance Correlation Coefficient (CCC) penalizes these offsets by jointly measuring both precision and absolute translation accuracy."
+              explanation: "Prediction R² = 1 − SSE/SST. Here SSE = 12 and SST = 2, so R² = −5. Squared Pearson correlation remains 1 under this constant shift. State the metric definition and report absolute prediction error."
             },
             {
               question: "In modern graph neural networks, how does Multiple Instance Learning (ABMIL) solve the multi-pose docking challenge?",
               options: [
                 "It runs molecular dynamics on all poses simultaneously and calculates the averaged RMSD.",
                 "It filters out any poses with an RMSD > 2.0 Å before the graph model starts.",
-                "It treats each docked pose as a separate graph instance, using learned attention weights to pool pose embeddings and identify the active binding conformation.",
+                "It treats docked poses as graph instances and pools their embeddings for a compound-level prediction; the weights do not prove which pose binds.",
                 "It translates the 3D coordinates into 1D SMILES strings to run sequence transformers."
               ],
               correctIndex: 2,
-              explanation: "Docking yields multiple pose hypotheses. Rather than picking one pose by arbitrary score, ABMIL represents each pose as a graph instance and passes them into the GNN. The attention mechanism dynamically weights each pose, learning which conformation matches the active footprint and aggregating them into a single compound-level prediction."
+              explanation: "Docking yields multiple pose hypotheses. Rather than picking one pose by arbitrary score, ABMIL represents each pose as a graph instance and passes them into the GNN. The attention mechanism pools pose embeddings for a compound-level prediction. Learned weights do not establish the experimental pose or a causal binding mechanism."
             },
             {
               question: "Why can accuracy be misleading for a QSAR classifier with very few active compounds?",

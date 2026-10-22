@@ -1,5 +1,7 @@
 "use client";
 
+import { ScientificPractice } from "@/components/ScientificPractice";
+
 import React, { useState } from "react";
 import { 
   GitBranch, 
@@ -203,7 +205,7 @@ export default function CheminformaticsPage() {
         <h2 className="!mt-0 !text-base font-bold">Learning outcomes</h2>
         <ul className="list-disc pl-5 text-sm text-slate-800 space-y-1 leading-relaxed">
           <li>Convert between SMILES, InChI, SMARTS, and SDF, and state what each format preserves.</li>
-          <li>Explain why InChIKey — not SMILES — is the basis for chemical identity and deduplication.</li>
+          <li>Define a chemical-identity policy and compare InChIKey with standardized canonical isomeric SMILES for deduplication.</li>
           <li>Describe the isomerism landscape and identify what standard fingerprints cannot see.</li>
           <li>Compute Tanimoto and Tversky similarity and choose between them appropriately.</li>
           <li>Design a curation pipeline that makes a public bioactivity dataset trainable.</li>
@@ -284,7 +286,7 @@ export default function CheminformaticsPage() {
       <section className="space-y-4">
         <h2>3. Chemical Identity: InChI, InChIKey &amp; What SMILES Loses</h2>
         <p>
-          The formats above <em>describe</em> a molecule. This section is about a harder problem: deciding whether two descriptions refer to the <strong>same</strong> molecule. That question underlies every deduplication step, every database join, and every train/test split you will make for the rest of the course — and SMILES alone cannot answer it, because one molecule has many valid SMILES.
+          The formats above <em>describe</em> a molecule. This section is about a harder problem: deciding whether two descriptions refer to the <strong>same</strong> molecule. That question underlies every deduplication step, every database join, and every train/test split you will make for the rest of the course — and comparing raw SMILES strings cannot answer it, because one molecule has many valid SMILES. Standardized canonical isomeric SMILES can support identity matching within a documented toolkit and policy.
         </p>
 
         {/* InChI & InChIKey Subsection */}
@@ -294,7 +296,7 @@ export default function CheminformaticsPage() {
             <div className="p-4 rounded-xl border border-border bg-white space-y-1.5">
               <h4 className="font-bold text-sm text-slate-900">InChI (International Chemical Identifier)</h4>
               <p className="text-sm text-slate-800 leading-relaxed">
-                A machine-readable canonical string developed by IUPAC and NIST. Unlike SMILES, which can have multiple valid representations for the same molecule, InChI provides a <strong>single unique canonical representation</strong>. It uses a layered format encoding: formula, connectivity, hydrogen, charge, and stereochemistry.
+                A machine-readable canonical string developed by IUPAC and NIST. Unlike SMILES, which can have multiple valid representations for the same molecule, InChI provides a <strong>standardized layered representation under defined normalization rules</strong>. It uses a layered format encoding: formula, connectivity, hydrogen, charge, and stereochemistry.
               </p>
               <div className="mt-2 p-2.5 bg-slate-50 rounded-lg border border-slate-100">
                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Caffeine InChI</span>
@@ -305,7 +307,7 @@ export default function CheminformaticsPage() {
             <div className="p-4 rounded-xl border border-border bg-white space-y-1.5">
               <h4 className="font-bold text-sm text-slate-900">InChIKey</h4>
               <p className="text-sm text-slate-800 leading-relaxed">
-                A fixed-length <strong>27-character hash</strong> derived from an InChI string. Its format follows the pattern <code>XXXXXXXXXXXXXX-YYYYYYYYYY-Z</code> (14 characters encoding connectivity, 10 characters for other layers, and 1 version character). InChIKey enables exact-match database searching across ChEMBL, PubChem, and other chemical databases.
+                A fixed-length <strong>27-character hash</strong> derived from an InChI string. Its format follows the pattern <code>XXXXXXXXXXXXXX-YYYYYYYYYY-Z</code> (14 characters hashing the main connectivity layer, a 10-character block including remaining-layer hashing and standard/version flags, and a final protonation flag). InChIKey enables exact-match database searching across ChEMBL, PubChem, and other chemical databases.
               </p>
               <div className="mt-2 p-2.5 bg-slate-50 rounded-lg border border-slate-100">
                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">Caffeine InChIKey</span>
@@ -320,7 +322,7 @@ export default function CheminformaticsPage() {
               <h4 className="font-bold text-sm text-blue-900">Why InChIKey Matters for QSAR</h4>
             </div>
             <p className="text-sm text-slate-800 leading-relaxed">
-              During data curation, InChIKey serves as the <strong>unique compound identifier for deduplication</strong>. Two molecules with different SMILES strings but identical InChIKeys are the same compound; this is critical for removing duplicates before training machine learning models.
+              During data curation, InChIKey serves as the <strong>unique compound identifier for deduplication</strong>. Matching keys indicate identity under the chosen InChI normalization, not necessarily identical experimental material. Define salt, tautomer, stereochemistry, isotope, and protonation policies; canonical isomeric SMILES is another useful identifier. Keep compatible assay replicates rather than silently deleting them.
             </p>
           </div>
 
@@ -453,7 +455,7 @@ if mol:
                 <Info className="h-4 w-4 text-amber-600" /> Critical: standard fingerprints are stereo-blind
               </span>
               <p className="leading-relaxed font-medium">
-                ECFP4/Morgan fingerprints encode <strong>topology only</strong>. By default, two enantiomers hash to the <strong>identical</strong> bit vector — a Tanimoto of <strong>1.00</strong> — so a QSAR model literally cannot tell the eutomer from the distomer. Passing <code>useChirality=True</code> drops that pair to ≈<strong>0.71</strong> and lets the model separate them. Constitutional isomers, by contrast, are always distinguishable because the graph differs. If your endpoint depends on stereochemistry, a default 2D fingerprint will silently cap your model&apos;s accuracy.
+                ECFP4/Morgan fingerprints encode <strong>topology only</strong>. By default, two enantiomers hash to the <strong>identical</strong> bit vector — a Tanimoto of <strong>1.00</strong> — so a QSAR model literally cannot tell the eutomer from the distomer. Enabling chirality can distinguish such pairs, but the Tanimoto change depends on the molecule and fingerprint settings; no universal value applies. Different molecular graphs can also share a fingerprint through collisions or limited features. If your endpoint depends on stereochemistry, a default 2D fingerprint will silently cap your model&apos;s accuracy.
               </p>
             </div>
 
@@ -701,7 +703,7 @@ for idx, isomer in enumerate(isomers):
               {/* Atom Explorer controls */}
               <div className="w-full mt-2 border-t border-slate-100 pt-2.5 space-y-2">
                 <div className="flex justify-between items-center text-xs">
-                  <span className="font-bold text-slate-700">Circular Neighborhood (ECFP)</span>
+                  <span className="font-bold text-slate-700">Circular neighborhood (radius changes highlight only)</span>
                   {selectedAtom !== null ? (
                     <span className="text-accent font-semibold">Atom {molA.nodes.find(n => n.id === selectedAtom)?.label}#{selectedAtom} Selected</span>
                   ) : (
@@ -722,7 +724,7 @@ for idx, isomer in enumerate(isomers):
                           : "bg-white hover:bg-slate-50 text-slate-600 border-slate-200"
                       }`}
                     >
-                      Radius {r} ({r * 2} Bond Steps)
+                      Radius {r} ({r} bond steps; diameter {r * 2})
                     </button>
                   ))}
                 </div>
@@ -798,7 +800,7 @@ for idx, isomer in enumerate(isomers):
               {/* Bit vector visualization */}
               <div className="space-y-1">
                 <div className="flex justify-between items-center text-xs text-slate-600">
-                  <span className="font-semibold">Fingerprint Bits Grid (32-bit illustration)</span>
+                  <span className="font-semibold">Hand-authored bits (32-bit illustration; not calculated ECFP)</span>
                   <span>Union overlaps highlighted</span>
                 </div>
                 
@@ -917,7 +919,7 @@ for idx, isomer in enumerate(isomers):
           <div className="p-4 rounded-lg border border-amber-200 bg-amber-50/50">
             <h4 className="font-bold text-sm text-foreground mb-1">Why Fingerprints Also Power Fast Substructure Search</h4>
             <p className="text-sm text-slate-700 leading-relaxed">
-              Beyond similarity, fingerprints act as a cheap pre-filter for exact substructure matching in million-compound databases: <strong>if molecule B is a substructure of molecule A, then every bit set in FP(B) must also be set in FP(A)</strong>. A database engine can discard any candidate that fails this bit-containment test in microseconds, calling the slow, NP-complete subgraph-isomorphism algorithm only on the small surviving set — turning an intractable full-database scan into a practical query.
+              Beyond similarity, fingerprints act as a cheap pre-filter for exact substructure matching in million-compound databases: <strong>for a containment-safe screening fingerprint (for example, RDKit PatternFingerprint), a query-compatible bit-containment test can reject impossible matches</strong>. This guarantee does not apply to arbitrary Morgan/ECFP fingerprints. With a supported screening fingerprint, a database engine can discard candidates that fail the appropriate bit-containment test in microseconds, calling the slow, NP-complete subgraph-isomorphism algorithm only on the small surviving set — turning an intractable full-database scan into a practical query.
             </p>
           </div>
         </div>
@@ -1067,7 +1069,7 @@ def standardize_smiles(raw_smiles: str) -> str:
     # STEP 5: CANONICALIZE TAUTOMERS TO AN ENZYMATIC BASELINE
     # -----------------------------------------------------------------
     # TautomerEnumerator calculates all possible tautomers (e.g., keto vs. enol)
-    # and selects the single most energetically stable canonical isomer.
+    # and selects a canonical tautomer by RDKit scoring and tie-breaking rules, not a calculated energy minimum.
     te = rdMolStandardize.TautomerEnumerator()
     canonical_mol = te.Canonicalize(neutral)
     
@@ -1221,6 +1223,7 @@ print('BRICS fragment leaves: ' + str(brics_fragments))`}
       <hr className="border-slate-200 my-8" />
       <section className="space-y-5">
         <h2>Knowledge check</h2>
+        <ScientificPractice moduleNumber={5} />
         <Quiz 
           moduleTitle="Module 5: Cheminformatics & Molecular Representations"
           questions={[
@@ -1233,7 +1236,7 @@ print('BRICS fragment leaves: ' + str(brics_fragments))`}
                 "Because it is required to remove solvent water molecules from the connection table."
               ],
               correctIndex: 1,
-              explanation: "Tautomers are chemical isomers that interconvert rapidly in solution (like keto and enol forms). Although they are functionally the same drug, they have different bond connectivity and atom states. ECFP4 circular fingerprints encode local bond connectivity; hence, different tautomeric forms of the same molecule would generate different fingerprints. Canonicalizing them to a single standard form ensures consistent ML features."
+              explanation: "Tautomers differ in hydrogen and bond placement; their populations and interconversion depend on environment, and they can differ in recognition. A chosen normalization policy groups appropriate representations for a particular modeling purpose, not because all tautomer states are biologically equivalent. ECFP4 circular fingerprints encode local bond connectivity; hence, different tautomeric forms of the same molecule would generate different fingerprints. Canonicalizing them to a single standard form ensures consistent ML features."
             },
             {
               question: "When calculating Tanimoto Similarity between compound fingerprints, what does a score of Tc = 1.0 indicate?",

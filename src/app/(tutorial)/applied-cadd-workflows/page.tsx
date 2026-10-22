@@ -39,8 +39,9 @@ const sections: LessonSection[] = [
       "Use Python for explicit transformations that can be tested and version controlled. Pandas handles tabular assay data, while RDKit supplies chemical parsing, standardization, descriptors, fingerprints, and substructure operations.",
     ],
     code: {
-      title: "Minimal auditable compound-curation pipeline",
+      title: "Assay-aware aggregation template (requires compatible assay metadata)",
       value: `from pathlib import Path
+import numpy as np
 import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import Descriptors
@@ -49,7 +50,7 @@ INPUT = Path("data/raw/assays.csv")
 OUTPUT = Path("data/processed/curated_compounds.csv")
 
 df = pd.read_csv(INPUT)
-required = {"compound_id", "smiles", "activity_nm"}
+required = {"compound_id", "smiles", "activity_nm", "assay_id", "endpoint", "relation"}
 missing = required.difference(df.columns)
 if missing:
     raise ValueError(f"Missing columns: {sorted(missing)}")
@@ -64,10 +65,28 @@ curated["canonical_smiles"] = curated["mol"].map(Chem.MolToSmiles)
 curated["mw"] = curated["mol"].map(Descriptors.MolWt)
 curated["clogp"] = curated["mol"].map(Descriptors.MolLogP)
 
-# Keep one explicit policy for duplicate structure/activity records.
-curated = curated.sort_values("activity_nm").drop_duplicates("canonical_smiles")
+# Never select only the most potent replicate: that introduces selection bias.
+curated["activity_nm"] = pd.to_numeric(curated["activity_nm"], errors="coerce")
+context_present = curated[["assay_id", "endpoint"]].notna().all(axis=1)
+exact = (context_present & curated["relation"].eq("=")
+         & np.isfinite(curated["activity_nm"]) & curated["activity_nm"].gt(0))
+# Keep censored/invalid/context-missing records for review, not as exact values.
 OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-curated.drop(columns="mol").to_csv(OUTPUT, index=False)`,
+review = pd.concat([
+    df.loc[invalid].assign(review_reason="invalid_structure"),
+    curated.loc[~exact].assign(review_reason="censoring_value_or_context_requires_review")
+], ignore_index=True)
+review.drop(columns="mol").to_csv(OUTPUT.with_name("assays_for_review.csv"), index=False)
+curated = curated.loc[exact].copy()
+curated["p_activity"] = 9 - np.log10(curated["activity_nm"])
+# assay_id must identify compatible protocol, target, conditions, and units.
+summary = curated.groupby(["canonical_smiles", "assay_id", "endpoint"], as_index=False).agg(
+    p_activity=("p_activity", "median"), n_records=("p_activity", "size"),
+    min_p_activity=("p_activity", "min"), max_p_activity=("p_activity", "max"),
+    mw=("mw", "first"), clogp=("clogp", "first"))
+# Preserve the parsed source records so aggregation remains auditable.
+curated.drop(columns="mol").to_csv(OUTPUT.with_name("assay_records.csv"), index=False)
+summary.to_csv(OUTPUT, index=False)`,
     },
     note:
       "Canonical SMILES alone is not a complete standardization policy. Define how salts, mixtures, charges, isotopes, tautomers, stereochemistry, and duplicates are handled for the project.",
@@ -108,7 +127,7 @@ curated.drop(columns="mol").to_csv(OUTPUT, index=False)`,
   {
     title: "Command-line automation for docking and MD",
     paragraphs: [
-      "A production pipeline needs an entry point that runs stages in a defined order, captures the environment, reconciles record counts, and exits on failure. The example below is intentionally small: each scientific stage remains a testable script, while the shell wrapper owns orchestration and provenance.",
+      "A production pipeline needs an entry point that runs stages in a defined order, captures the environment, reconciles record counts, and exits on failure. The wrapper below is a template, not a runnable bundled lab: the referenced scripts, configurations, and example inputs are not included. Supply and test each scientific stage before running it; the wrapper only demonstrates orchestration and provenance.",
     ],
     table: {
       headers: ["Stage", "Automation pattern", "Essential guardrail"],

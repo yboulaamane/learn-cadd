@@ -1,5 +1,7 @@
 "use client";
 
+import { ScientificPractice } from "@/components/ScientificPractice";
+
 import { useState } from "react";
 import {
   Layers,
@@ -63,16 +65,16 @@ const questions: Question[] = [
       "Ligand-based methods (similarity, pharmacophores, QSAR) infer what the target wants from what its known ligands share, so they need actives rather than a receptor. A predicted model could later enable structure-based work, but the 40 measured compounds are the asset in hand.",
   },
   {
-    question: "Lack of efficacy causes roughly half of Phase II and III failures. What does this most often indicate?",
+    question: "A trial shows no efficacy. Which conclusion is justified before diagnosing the cause?",
     options: [
       "The compound was not potent enough against its intended target",
-      "The biological hypothesis was wrong — the target mattered less in humans than expected",
+      "Exposure, engagement, functional modulation, patient selection, and the biological hypothesis all need examination",
       "The formulation was unstable",
       "The clinical trial was too small to reach significance",
     ],
     correctIndex: 1,
     explanation:
-      "Efficacy failures are usually target failures rather than potency failures: the molecule engaged its target as designed, but modulating that target did not change the disease. This is why target validation precedes any modelling, and why no amount of downstream optimization can rescue a wrong target.",
+      "A negative efficacy result alone does not establish adequate target-site exposure or the intended functional effect. These links must be tested separately before rejecting target biology.",
   },
   {
     question: "What does an undruggable target usually mean in this context?",
@@ -357,7 +359,7 @@ export default function IntroToDrugDiscoveryPage() {
             <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">Stage A</div>
             <h3 className="font-bold text-sm text-foreground">Hit Compound</h3>
             <p className="text-sm text-slate-600 leading-relaxed">
-              A molecule that shows reproducible, verified activity in a bioassay. It must possess validated structure/purity, novelty, and chemical tractability.
+              A molecule that shows reproducible, verified activity in a bioassay. Confirm identity, purity, activity, and interference controls. Novelty and tractability are selection criteria, not universal requirements for the word hit.
             </p>
           </div>
 
@@ -365,7 +367,7 @@ export default function IntroToDrugDiscoveryPage() {
             <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">Stage B</div>
             <h3 className="font-bold text-sm text-foreground">Lead Compound</h3>
             <p className="text-sm text-slate-600 leading-relaxed">
-              An optimized hit showing activity <em>in vivo</em>, clear Structure-Activity Relationships (SAR), no reactive groups, and clean cardiotoxicity markers.
+              A series supported by SAR and a project-defined balance of activity, selectivity, exposure, and safety evidence. In-vivo efficacy is not a universal defining requirement, and a justified covalent warhead is not automatically disqualifying.
             </p>
           </div>
 
@@ -373,7 +375,7 @@ export default function IntroToDrugDiscoveryPage() {
             <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">Stage C</div>
             <h3 className="font-bold text-sm text-foreground">Drug Candidate</h3>
             <p className="text-sm text-slate-600 leading-relaxed">
-              A fully optimized lead structure with robust preclinical safety profiles, ready for Investigational New Drug application and clinical trials.
+              A compound nominated against predefined development criteria. Nomination does not mean safety is proven or that all IND-enabling studies are complete.
             </p>
           </div>
         </div>
@@ -397,7 +399,7 @@ export default function IntroToDrugDiscoveryPage() {
           <div className="p-4 rounded-xl border border-border bg-white space-y-1.5">
             <h3 className="font-bold text-sm text-foreground">Phenotypic</h3>
             <p className="text-sm text-slate-600 leading-relaxed">
-              Assay compounds against cells or an organism and call a hit anything that produces the desired biological outcome — regardless of how. You are guaranteed relevance in a living system, but you may not know what the compound hits, which makes optimization far harder and demands a separate effort to deconvolute the target.
+              Assay compounds against cells or an organism and call a hit anything that produces the desired biological outcome — regardless of how. The phenotype is observed in the chosen living model, but human disease relevance and mechanism remain hypotheses; you may not know what the compound hits, which makes optimization far harder and demands a separate effort to deconvolute the target.
             </p>
           </div>
         </div>
@@ -476,7 +478,7 @@ export default function IntroToDrugDiscoveryPage() {
       <section className="space-y-4">
         <h2>5. Why Compounds Fail</h2>
         <p>
-          The funnel says roughly one candidate in ten that enters Phase I reaches approval. The more useful question is <em>why</em> the other nine die — because each cause of death corresponds to something a computational method is trying to prevent.
+          Historical cohorts often show low Phase I-to-approval success, but rates vary with indication, modality, period, and inclusion criteria. The more useful question is <em>why</em> the other nine die — because each cause of death corresponds to something a computational method is trying to prevent.
         </p>
         <p>
           Of the Phase II and Phase III failures reported between 2013 and 2015 with a stated reason, <strong>52% failed for lack of efficacy and 24% for safety</strong>, with the remainder falling to commercial and strategic decisions (Harrison, <em>Nat Rev Drug Discov</em> 2016).
@@ -492,7 +494,7 @@ export default function IntroToDrugDiscoveryPage() {
           <div className="p-4 rounded-xl border border-border bg-white space-y-1.5">
             <h3 className="font-bold text-sm text-foreground">Safety and toxicity</h3>
             <p className="text-sm text-slate-600 leading-relaxed">
-              Off-target activity, reactive metabolites, cardiac liabilities such as hERG block, or liver injury. These are the failures computational toxicology attacks most directly, because many are predictable from structure — and because a liability caught at the design stage costs a chemist an afternoon, while the same liability caught in Phase II costs years. Modules 12 and 15 cover this ground.
+              Off-target activity, reactive metabolites, cardiac liabilities such as hERG block, or liver injury. Computational toxicology can flag selected hazards early, but cannot establish clinical safety from structure alone. Model scope, metabolites, exposure, species differences, and experimental follow-up matter. Modules 12 and 15 cover this ground.
             </p>
           </div>
           <div className="p-4 rounded-xl border border-border bg-white space-y-1.5">
@@ -534,7 +536,7 @@ export default function IntroToDrugDiscoveryPage() {
           <div className="p-4 rounded-xl border border-border bg-white space-y-1.5">
             <h3 className="font-bold text-sm text-foreground flex items-center gap-1.5"><Flame size={14} className="text-accent" /> Drug Repurposing</h3>
             <p className="text-xs text-slate-600 leading-relaxed">
-              Finding new clinical indications for FDA-approved drugs (e.g., sildenafil, aspirin). This bypasses phase I safety barriers, accounting for nearly one-third of recent approvals.
+              Finding new indications for existing drugs can reuse prior evidence, but does not automatically bypass safety or Phase I requirements. New dose, route, population, duration, and combinations can require additional studies.
             </p>
           </div>
         </div>
@@ -608,6 +610,7 @@ export default function IntroToDrugDiscoveryPage() {
 
       <section className="space-y-5">
         <h2>Knowledge check</h2>
+        <ScientificPractice moduleNumber={1} />
         <Quiz moduleTitle="Introduction to Drug Discovery" questions={questions} />
       </section>
     </div>

@@ -1,16 +1,9 @@
 "use client";
 
+import { ScientificPractice } from "@/components/ScientificPractice";
+
 import React, { useState } from "react";
-import { 
-  Layers,
-  CheckCircle,
-  XCircle,
-  HelpCircle,
-  Sliders,
-  ChevronRight,
-  Info,
-  Maximize2
-} from "lucide-react";
+import { Layers, CheckCircle, XCircle, Info } from "lucide-react";
 import { Quiz } from "@/components/Quiz";
 
 export default function PharmacophoreModelingPage() {
@@ -48,7 +41,7 @@ export default function PharmacophoreModelingPage() {
       },
       desc: "An organic compound built on a four-ring steroidal skeleton. The phenolic A-ring acts as the aromatic center and H-bond acceptor, while the cyclopentane D-ring hydroxyl acts as the H-bond donor. This is the reference ligand the pharmacophore was derived from, so every feature sits exactly on its query point.",
       chemicalFormula: "C₁₈H₂₄O₂",
-      bindingAffinity: "K_d = 0.2 nM",
+      bindingAffinity: "Illustrative high-affinity class (not measured Kd)",
     },
     {
       id: 1,
@@ -65,7 +58,7 @@ export default function PharmacophoreModelingPage() {
       },
       desc: "A synthetic, non-steroidal estrogen. Despite having no skeletal similarity to a steroid, its two phenolic hydroxyls span nearly the same distance as estradiol's, so it recovers the same pharmacophore on a completely different scaffold — the classic example of scaffold hopping. The overlay is good but not exact: the second phenol lands about 1 Å off the query point, so an over-strict tolerance will discard this true active.",
       chemicalFormula: "C₁₈H₂₀O₂",
-      bindingAffinity: "K_d = 0.5 nM",
+      bindingAffinity: "Illustrative high-affinity class (not measured Kd)",
     },
     {
       id: 2,
@@ -81,7 +74,7 @@ export default function PharmacophoreModelingPage() {
       },
       desc: "2-(4-Hydroxybutyl)phenol. It carries all three required feature types — an aromatic ring, a phenolic acceptor, and a hydroxyl donor — but the side chain branches ortho to the phenol rather than across the ring, so the donor vector points the wrong way and the hydroxyl falls about 2.1 Å short of the query point. It is a useful reminder that matching feature types is not the same as matching feature geometry: widen the tolerance far enough and this inactive compound passes.",
       chemicalFormula: "C₁₀H₁₄O₂",
-      bindingAffinity: "K_d > 10,000 nM (Inactive)",
+      bindingAffinity: "Illustrative low-affinity class (not measured Kd)",
     },
   ];
 
@@ -127,7 +120,7 @@ export default function PharmacophoreModelingPage() {
       <div>
         <h1>Module 7: Pharmacophore Modeling</h1>
         <p className="lead text-slate-600 max-w-3xl">
-          Learn how to extract the supramolecular electronic and steric footprint required for ligand binding. Explore ligand-based and structure-based techniques, and master the concept of scaffold hopping through an interactive alignment graph.
+          Learn how to propose a spatial arrangement of recognition features. Playground coordinates and activity classes are schematic, not measured structures or assay values. Explore ligand-based and structure-based techniques, and master the concept of scaffold hopping through an interactive alignment graph.
         </p>
       </div>
 
@@ -172,7 +165,7 @@ export default function PharmacophoreModelingPage() {
                 <span className="inline-block px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 font-semibold text-[10px] uppercase">Ligand-Based Models</span>
                 <p className="text-sm text-foreground font-bold">Generating consensus hypotheses from active molecules</p>
                 <p className="text-sm leading-relaxed text-slate-800">
-                  Used when the target receptor's 3D structure is unknown (e.g. orphan GPCRs). Multiple active ligands are aligned in 3D space to identify overlapping functional properties. The common points that match distance matrices across all active conformations form a consensus pharmacophore.
+                  Used when the target receptor&apos;s 3D structure is unknown (e.g. orphan GPCRs). Multiple active ligands are aligned in 3D space to identify overlapping functional properties. The common points that match distance matrices across all active conformations form a consensus pharmacophore.
                 </p>
               </div>
               <div className="border border-border rounded-xl p-5 bg-white shadow-sm space-y-2">
@@ -195,7 +188,7 @@ export default function PharmacophoreModelingPage() {
             </p>
             <div className="border-l-2 border-accent pl-4 italic bg-accent/5 p-4 rounded-r-xl my-2 text-sm">
               <strong className="text-foreground block not-italic mb-1">Biological Equivalence:</strong>
-              If Molecule A (steroidal core) and Molecule B (flexible alkyl core) present H-bond donor, acceptor, and aromatic groups at the same 3D spatial distances, they will trigger the same biological response at the receptor pocket, despite looking completely unrelated on paper.
+              Molecules with different scaffolds may share a compatible 3D feature arrangement. That supports a binding hypothesis, not identical affinity, efficacy, or biological response; stereochemistry, desolvation, conformational populations, and receptor state still matter.
             </div>
             <p className="text-sm text-slate-700">
               The playground below is exactly this experiment: Molecule A is a steroid, Molecule B is a stilbene, and they share no scaffold at all — yet both satisfy the same three feature points.
@@ -240,7 +233,7 @@ export default function PharmacophoreModelingPage() {
                 <div>
                   <h4 className="font-bold text-sm text-slate-900">Bond Correction & Feature Tagging (RDKit)</h4>
                   <p className="text-xs text-slate-800 mt-1 leading-relaxed">
-                    PDB files do not store bond orders. The pipeline matches co-crystallized coords to 2D SMILES templates to correct bond orders. RDKit's Feature Factory then tags features (HB donors/acceptors, aromatics, hydrophobes) with their exact 3D coordinates.
+                    PDB files do not store bond orders. The pipeline matches co-crystallized coords to 2D SMILES templates to correct bond orders. RDKit&apos;s Feature Factory then tags features (HB donors/acceptors, aromatics, hydrophobes) with their exact 3D coordinates.
                   </p>
                 </div>
               </div>
@@ -364,7 +357,7 @@ export default function PharmacophoreModelingPage() {
                 onClick={() => setScreened(true)}
                 className="w-full py-2.5 rounded-lg bg-accent text-white font-semibold text-sm transition-colors hover:bg-accent-dark shadow-sm flex items-center justify-center gap-1.5"
               >
-                Validate Pharmacophore Fit
+                Check illustrated feature fit
               </button>
 
               {screened && (
@@ -910,19 +903,20 @@ export default function PharmacophoreModelingPage() {
       <hr className="border-slate-200 my-8" />
       <section className="space-y-5">
         <h2>Knowledge check</h2>
+        <ScientificPractice moduleNumber={7} />
         <Quiz 
           moduleTitle="Module 7: Pharmacophore Modeling"
           questions={[
             {
-              question: "What is the scientific purpose of applying the DBSCAN clustering algorithm during 3D pocket extraction?",
+              question: "In the illustrated extraction pipeline, what can DBSCAN help organize?",
               options: [
                 "It calculates the binding free energy of co-crystallized complexes.",
                 "It resolves crystallographic steric clashes and missing loops.",
-                "It groups aligned ligand coordinates by spatial density to cleanly isolate orthosteric binding pockets from allosteric sites and noise.",
+                "It groups aligned coordinates by spatial density; assigning biological sites still requires metadata and inspection.",
                 "It assigns partial charges to raw PDB coordinates using semi-empirical Hamiltonians."
               ],
               correctIndex: 2,
-              explanation: "DBSCAN is a density-based spatial clustering algorithm. It is used to group co-crystallized ligand atoms overlaying in 3D space, which allows the pipeline to separate the orthosteric active site from allosteric binding pockets and filter out sparse water or buffer artifacts without knowing the number of clusters in advance."
+              explanation: "DBSCAN is a density-based spatial clustering algorithm. In this example it groups aligned coordinates without prescribing a cluster count. Epsilon, density, alignment, and input selection affect the result; a spatial cluster does not identify an orthosteric mechanism or remove every artifact."
             },
             {
               question: "Why can you NOT feed raw ligand coordinates extracted directly from PDB files straight into RDKit for feature extraction?",
@@ -936,7 +930,7 @@ export default function PharmacophoreModelingPage() {
               explanation: "PDB coordinates do not contain bond order metadata, resulting in all bonds returning as ambiguous single bonds. Downstream chemoinformatics libraries like RDKit need correct bond topologies to tag features accurately, which requires matching raw 3D coords against a 2D SMILES template to restore proper double bonds, aromatic rings, and carbonyls."
             },
             {
-              question: "How is the final consensus pharmacophore query compiled from the clustered ligand feature points?",
+              question: "Which describes one possible consensus-query procedure, rather than a universal pharmacophore rule?",
               options: [
                 "We select the single highest-resolution PDB structure and copy its ligand points exactly.",
                 "All features from all input ligands are combined, generating a dense map of thousands of points.",
@@ -944,7 +938,7 @@ export default function PharmacophoreModelingPage() {
                 "The consensus model is derived using standard Tanimoto fingerprint similarities."
               ],
               correctIndex: 2,
-              explanation: "To distill a clean geometric query from a cloud of thousands of points, features are grouped by class (e.g. all acceptors) and clustered using k-means. Centroids representing hotspots shared by a majority of active input ligands (>= 50%) are retained as the consensus pharmacophore query."
+              explanation: "Feature-specific clustering with a chosen occupancy threshold is one possible pipeline. K-means and a 50% cutoff are design choices, not scientific constants; tune them against held-out recovery and false positives."
             },
             {
               question: "A structure-based pharmacophore built from three required features retrieves a very large number of hits, many of them far bulkier than the co-crystallized ligand. What is the most likely omission?",

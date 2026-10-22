@@ -26,7 +26,7 @@ const sections: LessonSection[] = [
     table: {
       headers: ["Layer", "What is measured", "Drug-discovery use", "Common limitation"],
       rows: [
-        ["Genome", "DNA sequence and variation", "Causal variants, target direction, resistance, and pharmacogenomics.", "A variant association does not by itself identify the causal gene or mechanism."],
+        ["Genome", "DNA sequence and variation", "Causal variants, target direction, resistance, and pharmacogenomics.", "A nearby GWAS gene is not automatically causal. Fine-mapping, colocalization, functional follow-up, and direction-of-effect evidence are needed."],
         ["Transcriptome", "RNA abundance and isoforms", "Cell-state expression, response signatures, and compensatory pathways.", "RNA abundance may not predict protein amount or activity."],
         ["Proteome", "Protein abundance, interactions, and modifications", "Target presence, complex formation, signaling state, and target engagement.", "Coverage and dynamic range vary by protein class and method."],
         ["Metabolome", "Small-molecule products and intermediates", "Pathway consequences, mechanism, efficacy markers, and safety signals.", "Metabolites can have several biological and technical sources."],
@@ -43,7 +43,7 @@ const sections: LessonSection[] = [
       {
         title: "Design before statistics",
         description:
-          "Define the biological contrast, sample unit, replicates, covariates, and batch structure before testing differential expression.",
+          "Define the biological contrast, independent biological replicate, covariates, and batch structure before testing differential expression. State the tested-gene universe and the multiple-testing procedure; pathway background should reflect genes actually eligible for detection.",
         items: ["Avoid treating repeated measurements as independent samples.", "Balance batches across conditions whenever possible."],
       },
       {

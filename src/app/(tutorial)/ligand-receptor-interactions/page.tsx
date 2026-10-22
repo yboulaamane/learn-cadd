@@ -1,5 +1,7 @@
 "use client";
 
+import { ScientificPractice } from "@/components/ScientificPractice";
+
 import React, { useState } from "react";
 import { 
   Activity, 
@@ -106,7 +108,7 @@ export default function LigandReceptorInteractionsPage() {
       <section className="space-y-4">
         <h2>1. Molecular Recognition Models</h2>
         <p>
-          How do a drug molecule and its target protein recognize each other in a crowded biological environment? Two classical theories explain this process:
+          How do a drug molecule and its target protein recognize each other in a crowded biological environment? Lock-and-key and induced fit are useful cartoons. In conformational selection, a ligand binds a state already populated by the unbound receptor. Selection and induced rearrangement can both contribute; endpoint structures alone do not determine the kinetic route:
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 not-prose">
           <div className="p-4 rounded-xl border border-border bg-white space-y-1">
@@ -141,12 +143,12 @@ export default function LigandReceptorInteractionsPage() {
         </div>
 
         <p className="pt-2">
-          Gibbs Free Energy change is directly related to the binding dissociation constant (<em>K_d</em>) by the fundamental thermodynamic equilibrium equation:
+          The standard binding free energy is related to the equilibrium dissociation constant (<em>K_d</em>). The logarithm requires a dimensionless ratio to the standard concentration C°. Kd describes equilibrium affinity; Ki is a model-dependent inhibition constant and IC50 is an assay-dependent half-maximal concentration, so they are not interchangeable:
         </p>
 
         <div className="flex flex-col items-center justify-center p-5 bg-slate-50 border border-slate-200 rounded-xl select-none my-2 not-prose">
           <div className="text-2xl font-mono font-bold tracking-wider text-slate-900">
-            ΔG = R × T × ln(K_d)
+            ΔG° = R × T × ln(K_d / C°), C° = 1 mol/L
           </div>
           <div className="text-sm text-slate-800 font-bold uppercase tracking-widest mt-1">
              Relationship to Equilibrium Dissociation Constant
@@ -572,7 +574,7 @@ export default function LigandReceptorInteractionsPage() {
           <h3 className="font-bold text-base text-slate-900">Interactive Playground: Benzamidine in Trypsin</h3>
         </div>
         <p className="text-sm text-slate-800">
-          Benzamidine binds the S1 pocket of trypsin. The amidinium faces Asp189, the ring fills the hydrophobic well, and the measured Ki is about 20 µM (near −6.4 kcal/mol). Build the same complex as a ledger. Switch desolvation off to see the nanomolar answer a pairwise contact sum invents.
+          Benzamidine binds the S1 pocket of trypsin. The amidinium faces Asp189, the ring fills the hydrophobic well, and a reported Ki is about 20 µM. Converting it to roughly −6.4 kcal/mol assumes an equilibrium inhibition model in which Ki approximates Kd; this is not a directly measured binding free energy. Build the same complex as a ledger. Switch desolvation off to see the nanomolar answer a pairwise contact sum invents.
         </p>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 bg-white p-5 rounded-lg border border-slate-200">
@@ -733,6 +735,7 @@ export default function LigandReceptorInteractionsPage() {
       <hr className="border-slate-200 my-8" />
       <section className="space-y-5">
         <h2>Knowledge check</h2>
+        <ScientificPractice moduleNumber={3} />
         <Quiz 
           moduleTitle="Module 3: Fundamentals of Ligand-Receptor Interactions"
           questions={[

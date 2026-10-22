@@ -6,7 +6,7 @@ const sections: LessonSection[] = [
   {
     title: "PK, PD, and the ADME system",
     paragraphs: [
-      "Pharmacokinetics describes what the body does to a drug: absorption, distribution, metabolism, and excretion determine exposure over time. Pharmacodynamics describes what the drug does to the biological system. Potency matters only if adequate unbound concentration reaches the target for long enough.",
+      "Pharmacokinetics describes what the body does to a drug: absorption, distribution, metabolism, and excretion determine exposure over time. Pharmacodynamics describes what the drug does to the biological system. Exposure must be interpreted against mechanism, target-site concentration, and duration; plasma potency comparisons alone do not establish target coverage. The teaching model reports elimination half-life; with absorption slower than elimination, the terminal oral slope can instead reflect absorption (flip-flop kinetics).",
       "Module 12 uses drug-likeness rules and toxicity models for early triage. This module begins at the next decision layer: translating compound and modality properties into exposure, clearance, dose, and pharmacological effect.",
     ],
     cards: [

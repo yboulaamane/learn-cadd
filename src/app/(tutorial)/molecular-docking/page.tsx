@@ -1,5 +1,7 @@
 "use client";
 
+import { ScientificPractice } from "@/components/ScientificPractice";
+
 import React, { useState } from "react";
 import Link from "next/link";
 import {
@@ -39,7 +41,7 @@ export default function MolecularDockingPage() {
   // Ternary complex yield [Target-PROTAC-E3]: bell-shaped on a log-concentration
   // axis because of the hook effect (binary saturation at high concentration).
   const calculateTernaryYield = (logConc: number, linker: number, alpha: number) => {
-    const peakLogM = -7.0; // peak degradation typically around 100 nM
+    const peakLogM = -7.0; // arbitrarily imposed teaching peak, not a measured optimum
 
     // Linker length: too short -> steric clash; too long -> conformational entropy
     let linkerFactor = 1.0;
@@ -60,19 +62,22 @@ export default function MolecularDockingPage() {
   let statusText = "";
   if (linkerLength < 8) {
     stateStatus = "clash";
-    statusText = "Steric Clash: The linker is too short. The E3 ligase and the target protein surfaces repel each other, preventing cooperative binding.";
+    statusText = "Illustrative short-linker penalty: the toy geometry term is low. Actual clash assessment requires explicit structural models.";
   } else if (linkerLength > 13) {
     stateStatus = "entropy";
-    statusText = "High Conformational Entropy: The linker is too long and flexible. The high degrees of rotational freedom destabilize the ternary interface.";
+    statusText = "Illustrative long-linker penalty: flexibility is represented by a hand-set factor, not a calculated entropy.";
   } else if (protacConc > -5.5) {
     stateStatus = "hook";
-    statusText = "The Hook Effect (Binary Saturation): At high concentrations, PROTAC molecules saturate the target and E3 proteins independently, forming inactive binary complexes and dismantling active ternary assemblies.";
+    statusText = "Illustrative high-concentration decline: this imposed curve depicts a possible hook effect, not measured binary or ternary populations.";
   } else if (protacConc < -8.2) {
     stateStatus = "low";
-    statusText = "Under-Saturation: The PROTAC concentration is too low to engage both receptors, leading to insufficient target degradation.";
+    statusText = "Illustrative low-concentration region: the imposed curve is small; engagement and degradation are not calculated.";
+  } else if (cooperativity < 1) {
+    stateStatus = "weak";
+    statusText = "Negative cooperativity reduces the illustrative score. This does not by itself establish or exclude productive degradation.";
   } else {
     stateStatus = "optimal";
-    statusText = "Optimal Ternary Assembly: The linker distance and concentration are balanced, forming a stable Target-PROTAC-E3 complex that actively degrades target proteins.";
+    statusText = "Illustratively favorable region: The illustrative geometry and concentration terms are favorable. This toy model does not calculate binding, ubiquitination, or degradation.";
   }
 
   const generateTernaryCurve = () => {
@@ -252,7 +257,7 @@ export default function MolecularDockingPage() {
           <div className="p-4 rounded-xl border border-border bg-white space-y-1.5">
             <h3 className="font-bold text-sm text-slate-900">Systematic Search</h3>
             <p className="text-sm text-slate-800 leading-relaxed">
-              Exhaustively rotates every rotatable bond by increments (e.g. 60°). It guarantees finding global minima but suffers from a combinatorial explosion.
+              Samples a finite torsion grid (e.g. 60° increments). Exhausting that grid does not guarantee the continuous global minimum, the best receptor conformation, or the experimental bound pose; the grid also grows combinatorially.
             </p>
           </div>
           <div className="p-4 rounded-xl border border-border bg-white space-y-1.5">
@@ -811,7 +816,7 @@ export default function MolecularDockingPage() {
       <section className="space-y-4">
         <h3>Practical Docking Protocol</h3>
         <p>
-          A systematic end-to-end docking workflow. Each step builds upon the previous one to ensure reliable, reproducible binding predictions.
+          A systematic end-to-end docking workflow. Each step records assumptions and controls to support reproducible pose hypotheses, not guaranteed binding predictions.
         </p>
 
         <div className="space-y-3 not-prose">
@@ -871,7 +876,7 @@ export default function MolecularDockingPage() {
       <section className="space-y-4">
         <h2>6. Covalent Docking: Modeling Chemical Warheads</h2>
         <p>
-          Traditional small-molecule drugs bind via reversible, non-covalent interactions. However, a major class of modern therapeutics consists of <strong>covalent inhibitors</strong> (e.g. Sotorasib targeting KRAS G12C, or Ibrutinib targeting Bruton&apos;s Tyrosine Kinase). These molecules contain a mildly electrophilic &quot;warhead&quot; that forms a permanent chemical bond with a nucleophilic amino acid residue in the binding pocket.
+          Traditional small-molecule drugs bind via reversible, non-covalent interactions. However, a major class of modern therapeutics consists of <strong>covalent inhibitors</strong> (e.g. Sotorasib targeting KRAS G12C, or Ibrutinib targeting Bruton&apos;s Tyrosine Kinase). These molecules contain a mildly electrophilic &quot;warhead&quot; that forms a covalent bond (irreversible or reversible, depending on chemistry) with a nucleophilic amino acid residue in the binding pocket.
         </p>
         <p>
           Because standard docking scoring functions are parameterized only for non-covalent forces (electrostatics, van der Waals), simulating covalent binding requires specialized <strong>covalent docking protocols</strong>:
@@ -917,7 +922,7 @@ export default function MolecularDockingPage() {
           Covalent docking bent the rules by adding a bond. <strong>Targeted Protein Degradation (TPD)</strong> breaks a deeper assumption: that docking means fitting <em>one</em> ligand into <em>one</em> pocket. Here you must dock a <strong>three-body complex</strong>.
         </p>
         <p>
-          As Module 2 showed, most disease-driving proteins have no druggable pocket at all. TPD sidesteps the problem entirely: rather than <em>inhibiting</em> the target, it recruits the cell&apos;s own <strong>Ubiquitin-Proteasome System</strong> to destroy it. You no longer need a deep pocket — you only need a grip.
+          As Module 2 showed, most disease-driving proteins have no druggable pocket at all. TPD changes the mechanism, but not every target becomes tractable: rather than <em>inhibiting</em> the target, it recruits the cell&apos;s own <strong>Ubiquitin-Proteasome System</strong> to destroy it. A deep inhibitory pocket may not be needed, but target engagement, productive ligase geometry, cellular delivery, ubiquitination, and proteasome access still matter.
         </p>
 
         <div className="p-4 bg-slate-50 border border-slate-200 rounded-lg space-y-3 not-prose">
@@ -943,7 +948,7 @@ export default function MolecularDockingPage() {
             {"α = K_D(binary) / K_D(ternary)"}
           </div>
           <p className="text-sm text-slate-800 leading-relaxed">
-            <strong>α &gt; 1</strong> is positive cooperativity: favourable protein-protein contacts induced by the PROTAC make the ternary complex <em>more</em> stable than either binary interaction predicts. <strong>α &lt; 1</strong> is negative cooperativity — the two protein surfaces clash. This is why a PROTAC built from two excellent binders can still fail completely: <em>the complex, not the compound, is the drug.</em>
+            <strong>α &gt; 1</strong> is positive cooperativity: favourable protein-protein contacts induced by the PROTAC make the ternary complex <em>more</em> stable than either binary interaction predicts. <strong>α &lt; 1</strong> is negative cooperativity; unfavorable geometry or other energetic effects may contribute, not necessarily a direct steric clash. This is why a PROTAC built from two excellent binders can still fail completely: <em>the complex, not the compound, is the drug.</em>
           </p>
         </div>
 
@@ -962,7 +967,7 @@ export default function MolecularDockingPage() {
           <h3 className="font-bold text-base text-slate-900">Interactive Playground: PROTAC Ternary Assembly &amp; the Hook Effect</h3>
         </div>
         <p className="text-sm text-slate-800 leading-normal">
-          Tune the linker, the cooperativity, and the dose. Then run the experiment that breaks everyone&apos;s intuition: set a good linker, then <strong>keep raising the concentration</strong>. Degradation collapses. More drug makes it work <em>worse</em> — the hook effect.
+          Tune the linker, cooperativity, and concentration in an imposed bell-shaped teaching curve. It illustrates a possible hook effect, not a fitted equilibrium model or predicted degradation response. Real systems may not show a hook within the tested range.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 bg-white p-5 rounded-lg border border-slate-200">
@@ -1008,19 +1013,19 @@ export default function MolecularDockingPage() {
               : stateStatus === "hook" ? "bg-rose-50 border-rose-200"
               : "bg-amber-50 border-amber-200"}`}>
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-700">Ternary complex yield</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-700">Illustrative assembly score</span>
                 {stateStatus === "optimal"
                   ? <CheckCircle className="h-4 w-4 text-emerald-600" />
                   : <AlertTriangle className="h-4 w-4 text-amber-600" />}
               </div>
-              <p className="text-2xl font-bold font-mono text-slate-950">{ternaryYield.toFixed(1)}%</p>
+              <p className="text-2xl font-bold font-mono text-slate-950">{ternaryYield.toFixed(1)} / 100</p>
               <p className="text-[11px] text-slate-700 font-semibold leading-snug mt-1">{statusText}</p>
             </div>
           </div>
 
           {/* Curve */}
           <div className="md:col-span-7">
-            <svg role="img" aria-label="PROTAC ternary complex yield curve, showing the hook effect as the yield falls at high PROTAC concentration." viewBox="0 0 300 200" className="w-full">
+            <svg role="img" aria-label="Imposed PROTAC teaching-score curve illustrating a possible hook effect, not calculated ternary yield." viewBox="0 0 300 200" className="w-full">
               <line x1="30" y1="170" x2="285" y2="170" stroke="currentColor" className="text-slate-300" strokeWidth="1" />
               <line x1="30" y1="15" x2="30" y2="170" stroke="currentColor" className="text-slate-300" strokeWidth="1" />
               {[25, 50, 75, 100].map((v) => (
@@ -1033,7 +1038,7 @@ export default function MolecularDockingPage() {
                 <text key={c} x={30 + ((c - -10.5) / 6.5) * 240} y="182" textAnchor="middle" fontSize="7" className="fill-slate-500 font-mono">1e{c}</text>
               ))}
               <text x="157" y="196" textAnchor="middle" fontSize="7" className="fill-slate-600 font-bold">[PROTAC] (M, log scale)</text>
-              <text x="10" y="95" fontSize="7" className="fill-slate-600 font-bold" transform="rotate(-90 10 95)" textAnchor="middle">ternary yield %</text>
+              <text x="10" y="95" fontSize="7" className="fill-slate-600 font-bold" transform="rotate(-90 10 95)" textAnchor="middle">illustrative score / 100</text>
 
               <path d={generateTernaryCurve()} fill="none" stroke="currentColor" className="text-slate-900" strokeWidth="1.8" />
               <circle
@@ -1053,7 +1058,7 @@ export default function MolecularDockingPage() {
             <Info className="h-4 w-4 text-blue-600" /> Why the curve turns over
           </span>
           <p className="leading-relaxed font-medium">
-            At low dose there is too little PROTAC to bridge both proteins. At the optimum, each molecule links a target to an E3. But push the concentration high enough and <strong>every protein gets its own PROTAC molecule</strong> — target-PROTAC binaries and E3-PROTAC binaries — and none are bridged. The productive ternary complex is competed away by the drug itself. This is why a PROTAC dose-response is a <em>bell</em>, not a sigmoid, and why &quot;more drug&quot; is not a valid strategy for a degrader.
+            At low dose there is too little PROTAC to bridge both proteins. At the optimum, each molecule links a target to an E3. But push the concentration high enough and <strong>every protein gets its own PROTAC molecule</strong> — target-PROTAC binaries and E3-PROTAC binaries — and none are bridged. The productive ternary complex is competed away by the drug itself. A hook can arise when binary saturation competes with ternary assembly. Its presence and location depend on affinities, abundance, kinetics, and assay context; not every degradation curve is bell-shaped.
           </p>
         </div>
       </section>
@@ -1065,7 +1070,7 @@ export default function MolecularDockingPage() {
           Before trust is placed in docking scores, protocols must be validated. The standard validation method is <strong>self-docking</strong> (redocking):
         </p>
         <blockquote>
-          <strong>Root Mean Square Deviation (RMSD):</strong> The measure of spatial distance between atoms of the predicted docking pose and the actual co-crystallized native structure in the crystal. A docking protocol is considered valid if the redocked ligand reproduces the experimental structure with an <strong>RMSD &le; 2.0 Å</strong>.
+          <strong>Root Mean Square Deviation (RMSD):</strong> The measure of spatial distance between atoms of the predicted docking pose and the actual co-crystallized native structure in the crystal. A heavy-atom <strong>RMSD &le; 2.0 Å</strong> is a common pose-recovery heuristic, not general protocol validation. Define atom correspondence, symmetry handling, receptor alignment, and reference coordinates; test alternate receptor states, cross-docking, and held-out activity ranking where relevant.
         </blockquote>
       </section>
 
@@ -1073,6 +1078,7 @@ export default function MolecularDockingPage() {
       <hr className="border-slate-200 my-8" />
       <section className="space-y-5">
         <h2>Knowledge check</h2>
+        <ScientificPractice moduleNumber={6} />
         <Quiz 
           moduleTitle="Module 6: Molecular Docking"
           questions={[

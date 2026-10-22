@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { isPoseEligible } from "@/lib/scientific-models";
 
 type EvidenceKey = "restraints" | "clashes" | "ensemble" | "developability";
 type EvidenceSettings = Record<EvidenceKey, boolean>;
@@ -29,7 +30,7 @@ const EVIDENCE: { key: EvidenceKey; label: string; description: string }[] = [
   {
     key: "clashes",
     label: "Steric-clash rejection",
-    description: "Penalize buried overlaps that refinement cannot plausibly resolve.",
+    description: "Exclude poses with unresolved severe clashes before ranking; other scores cannot compensate.",
   },
   {
     key: "ensemble",
@@ -64,19 +65,20 @@ export function InterfaceEvidencePlayground() {
     return POSES.map((pose) => {
       const components = [pose.energyScore];
       if (settings.restraints) components.push(pose.restraintSatisfaction);
-      if (settings.clashes) components.push(Math.max(0, 100 - pose.clashes * 12));
+      const eligible = isPoseEligible(pose.clashes, settings.clashes);
       if (settings.ensemble) components.push(pose.ensembleSupport * 20);
       if (settings.developability) components.push(pose.developabilityScore);
 
       return {
         ...pose,
+        eligible,
         consensus: Math.round(components.reduce((sum, value) => sum + value, 0) / components.length),
       };
-    }).sort((first, second) => second.consensus - first.consensus);
+    }).sort((first, second) => Number(second.eligible) - Number(first.eligible) || second.consensus - first.consensus);
   }, [settings]);
 
   const activeEvidence = Object.values(settings).filter(Boolean).length;
-  const winner = rankedPoses[0];
+  const winner = rankedPoses.find((pose) => pose.eligible);
 
   return (
     <section className="not-prose mb-10 space-y-5 rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-white p-5 shadow-sm dark:from-neutral-950 dark:to-black sm:p-6">
@@ -137,8 +139,8 @@ export function InterfaceEvidencePlayground() {
           <div className="rounded-xl bg-slate-950 p-5 text-white">
             <p className="text-xs font-extrabold uppercase tracking-wider text-slate-400">Current decision</p>
             <div className="mt-2 flex flex-wrap items-end justify-between gap-3">
-              <p className="text-xl font-black">Advance {winner.id}</p>
-              <p className="font-mono text-3xl font-black text-blue-300">{winner.consensus}<span className="text-base">/100</span></p>
+              <p className="text-xl font-black">{winner ? `Review ${winner.id}` : "No eligible pose"}</p>
+              <p className="font-mono text-3xl font-black text-blue-300">{winner?.consensus ?? "—"}<span className="text-base">/100</span></p>
             </div>
             <p className="mt-3 text-sm leading-relaxed text-slate-200">
               {activeEvidence === 0
@@ -153,7 +155,7 @@ export function InterfaceEvidencePlayground() {
             {rankedPoses.map((pose, index) => (
               <article key={pose.id} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
                 <div className="flex items-center justify-between gap-3">
-                  <h3 className="text-sm font-extrabold text-slate-950">#{index + 1} {pose.id}</h3>
+                  <h3 className="text-sm font-extrabold text-slate-950">{pose.eligible ? `#${index + 1}` : "Excluded:"} {pose.id}</h3>
                   <span className="rounded-full bg-blue-50 px-2.5 py-1 font-mono text-xs font-extrabold text-blue-800">
                     consensus {pose.consensus}
                   </span>
@@ -161,7 +163,7 @@ export function InterfaceEvidencePlayground() {
                 <dl className="mt-3 grid grid-cols-2 gap-2 text-xs text-slate-600 sm:grid-cols-5">
                   <div><dt>Energy</dt><dd className="font-bold text-slate-950">{pose.energyScore}</dd></div>
                   <div><dt>Restraints</dt><dd className="font-bold text-slate-950">{pose.restraintSatisfaction}%</dd></div>
-                  <div><dt>Clashes</dt><dd className="font-bold text-slate-950">{pose.clashes}</dd></div>
+                  <div><dt>Severe clashes</dt><dd className="font-bold text-slate-950">{pose.clashes}</dd></div>
                   <div><dt>Ensemble</dt><dd className="font-bold text-slate-950">{pose.ensembleSupport}/5</dd></div>
                   <div><dt>Developability</dt><dd className="font-bold text-slate-950">{pose.developabilityScore}</dd></div>
                 </dl>

@@ -1,15 +1,9 @@
 "use client";
 
+import { ScientificPractice } from "@/components/ScientificPractice";
+
 import React, { useState } from "react";
-import {
-  Sparkles,
-  Info,
-  Sliders,
-  Compass,
-  Layers,
-  Cpu,
-  AlertTriangle,
-} from "lucide-react";
+import { Info, Sliders, Compass, Layers, Cpu, AlertTriangle } from "lucide-react";
 import { Quiz } from "@/components/Quiz";
 
 interface Candidate {
@@ -136,7 +130,7 @@ export default function GenerativeDesignPage() {
       <section className="space-y-4">
         <h2>3. Construction: The Control ↔ Synthesizability Spectrum</h2>
         <p>
-          The three construction strategies are not competing methods so much as points on a single trade-off. <strong>Every step you take toward control costs you synthesizability, and vice versa.</strong>
+          The three construction strategies are not competing methods so much as points on a single trade-off. <strong>Construction strategies offer different kinds of control; route plausibility must be assessed separately.</strong> Encoded reactions are proposals, not guaranteed yields, availability, or selectivity.
         </p>
 
         <div className="not-prose space-y-3">
@@ -221,7 +215,7 @@ export default function GenerativeDesignPage() {
           <h3 className="font-bold text-base text-slate-900">Interactive Playground: The Pareto Frontier</h3>
         </div>
         <p className="text-sm text-slate-800 leading-normal">
-          A batch of 16 designed molecules, scored on two objectives that genuinely fight each other: <strong>potency</strong> and <strong>synthesizability</strong>. Slide the weight to change what your project cares about, and watch which molecule wins. The lesson is in what <em>never</em> wins.
+          A synthetic batch of 16 candidates, with invented scores on two objectives: <strong>predicted potency</strong> and <strong>illustrative ease of synthesis</strong> (higher is easier; this is not the conventional SA score). Slide the weight to change what your project cares about, and watch which molecule wins. The lesson is in what <em>never</em> wins.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 bg-white p-5 rounded-lg border border-slate-200">
@@ -309,7 +303,7 @@ export default function GenerativeDesignPage() {
                 <span className="font-bold text-slate-900">{front.length} of {CANDIDATES.length}</span> molecules are non-dominated. Sweep the weight from 0 to 1 and you will find the winner is <strong>always</strong> one of them.
               </p>
               <p>
-                The other <span className="font-bold text-slate-900">{CANDIDATES.length - front.length}</span> are dominated — some other molecule is at least as potent <em>and</em> at least as makeable. <strong>No weighting will ever select them.</strong> Synthesising one is strictly wasted effort.
+                The other <span className="font-bold text-slate-900">{CANDIDATES.length - front.length}</span> are dominated — some other molecule is at least as potent <em>and</em> at least as makeable. <strong>They are inferior on these point estimates under strictly positive weights.</strong> Omitted objectives, uncertainty, and tie-breaking at zero weights can change the choice.
               </p>
             </div>
           </div>
@@ -321,7 +315,7 @@ export default function GenerativeDesignPage() {
           </span>
           <ul className="list-disc pl-5 space-y-1 font-medium leading-relaxed">
             <li><strong>Multi-objective optimization does not return an answer — it returns a menu.</strong> The frontier is the set of rational choices; picking a point on it is a <em>project decision</em> (how much potency will you trade for a route your chemists can actually run?), not a computation.</li>
-            <li><strong>Dominated molecules are the real output of a bad scoring function.</strong> They are not merely suboptimal, they are never optimal for any preference whatsoever.</li>
+            <li><strong>Dominated molecules are the real output of a bad scoring function.</strong> They are inferior under the displayed objectives and point estimates, not under every possible research objective.</li>
             <li><strong>Collapsing objectives into one weighted number hides the trade-off.</strong> Fix the weight at 0.5 and you would only ever see molecule <span className="font-mono">{CANDIDATES.reduce((a, b) => (0.5 * norm(b.pot, potMin, potMax) + 0.5 * norm(b.sa, saMin, saMax) > 0.5 * norm(a.pot, potMin, potMax) + 0.5 * norm(a.sa, saMin, saMax) ? b : a)).id}</span> — and never learn that a slightly different preference buys you a very different molecule.</li>
           </ul>
         </div>
@@ -369,7 +363,7 @@ export default function GenerativeDesignPage() {
       <section className="space-y-4">
         <h2>6. 3D Pocket-Conditioned Diffusion</h2>
         <p>
-          The most powerful structure-based generators do not build a SMILES string and dock it afterwards — they generate <strong>directly inside the pocket in 3D</strong>. Models such as Pocket2Mol and DiffSBDD treat the protein pocket coordinates as boundary conditions and iteratively denoise a random cloud of atoms into a molecule.
+          The most powerful structure-based generators do not build a SMILES string and dock it afterwards — they generate <strong>directly inside the pocket in 3D</strong>. Pocket2Mol generates atoms autoregressively using pocket-conditioned geometric predictions; DiffSBDD instead uses pocket-conditioned diffusion. These are distinct generation mechanisms, and neither pocket conditioning nor a plausible pose establishes synthesis feasibility or activity.
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 not-prose">
           <div className="p-4 rounded-xl border border-border bg-white space-y-1">
@@ -394,6 +388,7 @@ export default function GenerativeDesignPage() {
       {/* Quiz */}
       <section className="space-y-5">
         <h2>Knowledge check</h2>
+        <ScientificPractice moduleNumber={11} />
         <Quiz
           moduleTitle="Module 11: De Novo & Generative Molecular Design"
           questions={[
@@ -416,12 +411,12 @@ export default function GenerativeDesignPage() {
               options: [
                 "H is the second-best molecule and should be kept as a backup.",
                 "H would be selected if you weighted synthesizability highly enough.",
-                "At least one other molecule is as good or better on BOTH objectives, so no weighting of potency vs synthesizability could ever make H the optimal choice — synthesising it is strictly wasted effort.",
+                "Another candidate is at least as good on both displayed objectives and better on at least one. H is not preferred under strictly positive weights on these exact scores, but omitted objectives and uncertainty may change the research choice.",
                 "H is dominated only because the scoring function is inaccurate.",
               ],
               correctIndex: 2,
               explanation:
-                "Domination is absolute, not a matter of preference. Molecule C (6.5, 8.2) beats H on both axes — it is easier to make AND more potent. There is no set of weights, no project priority, no trade-off under which H is the right answer. That is what makes the Pareto frontier so useful: it discards options that are irrational under every preference, leaving only genuine trade-offs.",
+                "C dominates H on the two supplied point estimates. This conclusion is conditional on the objectives, direction, and accuracy of those estimates. Novelty, selectivity, uncertainty, or a different synthesis route may justify testing a candidate that appears dominated here.",
             },
             {
               question:
@@ -434,7 +429,7 @@ export default function GenerativeDesignPage() {
               ],
               correctIndex: 1,
               explanation:
-                "A diffusion model is an atom-based constructor wearing a neural network. It positions atoms wherever the denoiser wants them, which grants maximum control over the chemistry and — by the control/synthesizability spectrum — minimum guarantee that a chemist can make the result. Reaction-based methods avoid this by construction, since they can only ever apply transformations that real chemists actually run.",
+                "A diffusion model is an atom-based constructor wearing a neural network. It positions atoms wherever the denoiser wants them, which grants maximum control over the chemistry and — by the control/synthesizability spectrum — minimum guarantee that a chemist can make the result. Reaction-based methods propose encoded routes, but substrate compatibility, selectivity, yield, and practical availability still require chemical review.",
             },
           ]}
         />

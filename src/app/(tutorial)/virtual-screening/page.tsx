@@ -1,5 +1,8 @@
 "use client";
 
+import { ScientificPractice } from "@/components/ScientificPractice";
+import { passesLipinski } from "@/lib/scientific-models";
+
 import React, { useState, useEffect, useRef } from "react";
 import { 
   Zap, 
@@ -152,7 +155,7 @@ export default function VirtualScreeningPage() {
 
   // Evaluate single compound
   const evaluateCompound = (c: Compound) => {
-    const passLipinski = !filterLipinski || (c.mw <= 500 && c.logp <= 5.0 && c.hbd <= 5 && c.hba <= 10);
+    const passLipinski = !filterLipinski || passesLipinski(c);
     const passPains = !filterPains || (c.pains === null);
     const passDocking = !filterDocking || (c.score <= dockingThreshold);
     const passed = passLipinski && passPains && passDocking;
@@ -440,10 +443,10 @@ export default function VirtualScreeningPage() {
               Boltzmann-Enhanced Discrimination of ROC (BEDROC) resolves the early recognition problem by applying an exponential weighting function to ranks:
             </p>
             <div className="my-2 font-mono text-center text-[10px] bg-slate-50 py-2 px-1 rounded text-slate-800 font-bold border border-slate-200 overflow-x-auto">
-              {"BEDROC = Σ [ exp(-α × r_i / N) ] / Z"}
+              {"Early-recognition weight (schematic): Σ exp(-α × r_i / N)"}
             </div>
             <p className="text-[11px] text-slate-600 leading-relaxed">
-              Where <em>r_i</em> is the rank of the <em>i</em>-th active compound, <em>N</em> is total compounds, <em>α</em> is the exponential scaling parameter (usually set to 20 or 160.9 to prioritize the top 8% or 1%), and <em>Z</em> is a normalization factor.
+              Where <em>r_i</em> is the rank of the <em>i</em>-th active compound, <em>N</em> is total compounds, <em>α</em> is the exponential scaling parameter (for example 20 or 160.9 to emphasize early recovery). The expression above is only the weighting schematic, not the normalized BEDROC calculation. Full BEDROC includes active-fraction-dependent normalization and lower/upper limits; use a tested implementation for numerical reporting.
             </p>
           </div>
         </div>
@@ -519,7 +522,7 @@ export default function VirtualScreeningPage() {
         </p>
         <div className="p-5 rounded-xl border border-border bg-slate-50 font-medium">
           <ol className="space-y-2 leading-relaxed text-slate-800">
-            <li><strong>Physicochemical Pre-filtering:</strong> Eliminate structures violating Lipinski&apos;s or Veber&apos;s drug-likeness rules (Module 12).</li>
+            <li><strong>Physicochemical Pre-filtering:</strong> Apply project-appropriate property heuristics, documenting retained exceptions and actives lost (Module 12).</li>
             <li><strong>Ultra-fast Similarity Search:</strong> Apply 2D ECFP4 fingerprint similarity searching (Module 5) to reduce a database of 100M+ structures down to 100k.</li>
             <li><strong>Pharmacophore Query:</strong> Screen spatial configurations of the remaining 100k structures (Module 7) to keep only 5k matching candidates.</li>
             <li><strong>Molecular Docking:</strong> Perform detailed molecular docking simulations (Module 6) on the 5k candidates to rank them.</li>
@@ -532,7 +535,7 @@ export default function VirtualScreeningPage() {
 
         <h3 className="font-bold text-foreground text-base pt-2">Physicochemical Filters: Drug-Likeness Rules Beyond Lipinski</h3>
         <p>
-          While Lipinski&apos;s Rule of Five is the most famous historical filter, computational chemists rely on more comprehensive rules to assess oral bioavailability, membrane absorption, and synthetically targetable properties:
+          Lipinski and related rules are empirical enrichment heuristics, mainly for particular oral small-molecule contexts. They do not establish bioavailability or synthetic accessibility, and exceptions should be assessed against the project&apos;s route and modality:
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 not-prose">
@@ -648,7 +651,7 @@ export default function VirtualScreeningPage() {
                     disabled={isRunning}
                     className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900 cursor-pointer"
                   />
-                  <span>1. Lipinski&apos;s Rule of Five (MW ≤ 500)</span>
+                  <span>1. Lipinski heuristic (at most one violation)</span>
                 </label>
                 <label className="flex items-center gap-2.5 cursor-pointer">
                   <input 
@@ -1001,7 +1004,7 @@ export default function VirtualScreeningPage() {
           <div className="p-4 rounded-xl border border-border bg-white space-y-1">
             <h4 className="font-bold text-sm text-slate-900">AUC Confidence Intervals (CIs)</h4>
             <p className="text-sm text-slate-800 leading-relaxed font-medium">
-              DeLong&apos;s method calculates the mathematical variance of the Mann-Whitney U-statistic underlying the AUC. This allows us to construct a 95% Confidence Interval (e.g., AUC = 0.78 +/- 0.06). If the interval crosses 0.50, the model is not statistically better than random guessing.
+              DeLong&apos;s method calculates the mathematical variance of the Mann-Whitney U-statistic underlying the AUC. This allows us to construct a 95% Confidence Interval (e.g., AUC = 0.78 +/- 0.06). If an appropriate interval includes 0.50, these data do not establish AUC above chance at that confidence level; this is not proof that the model is random. Shared scaffolds or dependent observations may require a different uncertainty design.
             </p>
           </div>
           <div className="p-4 rounded-xl border border-border bg-white space-y-1">
@@ -1081,6 +1084,7 @@ def fast_delong_roc_variance(ground_truth, predictions):
       <hr className="border-slate-200 my-8" />
       <section className="space-y-5">
         <h2>Knowledge check</h2>
+        <ScientificPractice moduleNumber={8} />
         <Quiz 
           moduleTitle="Module 8: Virtual Screening Strategies"
           questions={[

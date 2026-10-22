@@ -1,16 +1,9 @@
 "use client";
 
+import { ScientificPractice } from "@/components/ScientificPractice";
+
 import React, { useState } from "react";
-import {
-  Crosshair,
-  Info,
-  Sliders,
-  CheckCircle,
-  AlertTriangle,
-  XCircle,
-  Dna,
-  Search,
-} from "lucide-react";
+import { Info, Sliders, CheckCircle, AlertTriangle, XCircle, Dna, Search } from "lucide-react";
 import { Quiz } from "@/components/Quiz";
 import { CollapsibleCode } from "@/components/CollapsibleCode";
 
@@ -47,10 +40,10 @@ export default function TargetIdentificationPage() {
 
   const verdict =
     dScore >= 0.98
-      ? { label: "Druggable", tone: "emerald", icon: CheckCircle, text: "A small molecule with drug-like properties should be able to bind here with high affinity." }
+      ? { label: "Higher fitted pocket score", tone: "emerald", icon: CheckCircle, text: "This descriptor combination resembles higher-scoring sites in the fitted scheme; high affinity and therapeutic tractability remain untested." }
       : dScore >= 0.83
-      ? { label: "Difficult", tone: "amber", icon: AlertTriangle, text: "Bindable, but expect to fight for affinity. Often needs fragment-based approaches or covalent strategies." }
-      : { label: "Undruggable", tone: "rose", icon: XCircle, text: "Too shallow, too polar, or too solvent-exposed for a conventional small molecule. Consider a different modality (PROTAC, molecular glue, biologic)." };
+      ? { label: "Intermediate fitted score", tone: "amber", icon: AlertTriangle, text: "This intermediate score suggests additional pocket and ligand evidence is needed; it does not establish that a site is bindable." }
+      : { label: "Lower fitted pocket score", tone: "rose", icon: XCircle, text: "A low score is not proof of undruggability. Explore local hot spots, dynamics, alternative sites, and modality-specific evidence." };
 
   const isRealSite = siteScore >= 0.8;
   const VerdictIcon = verdict.icon;
@@ -111,14 +104,14 @@ export default function TargetIdentificationPage() {
       <section className="space-y-4">
         <h2>2. Why Target Selection Dominates Everything Downstream</h2>
         <p>
-          The numbers are sobering. The human genome encodes roughly <strong>20,000 proteins</strong>, but only about <strong>4,500</strong> are considered druggable at all — and every drug ever approved acts on just <strong>716 distinct targets</strong>. The universe of proven targets is startlingly small.
+          The human genome encodes roughly <strong>20,000 proteins</strong>. Estimates of the druggable fraction and approved-drug target counts depend on database date, definitions, and modality. A pocket score is not a universal census of what can be therapeutically modulated.
         </p>
 
         <div className="not-prose grid grid-cols-1 sm:grid-cols-3 gap-3">
           {[
             { v: "~20,000", l: "protein-coding genes", s: "the whole proteome" },
-            { v: "~4,500", l: "considered druggable", s: "≈ 22% of the proteome" },
-            { v: "716", l: "targets of all approved drugs", s: "≈ 3.6% of the proteome" },
+            { v: "Context-dependent", l: "therapeutic tractability", s: "Depends on modality and evidence" },
+            { v: "Date-dependent", l: "approved-drug target counts", s: "Specify source, date, and definition" },
           ].map((k) => (
             <div key={k.l} className="p-4 rounded-xl border border-slate-200 bg-slate-50 text-center">
               <p className="text-2xl font-bold text-slate-950 font-mono">{k.v}</p>
@@ -131,7 +124,7 @@ export default function TargetIdentificationPage() {
         <div className="p-4 border-l-4 border-rose-500 bg-rose-50/50 rounded-r-xl space-y-1.5 text-sm">
           <strong className="text-slate-900 block">The uncomfortable truth about attrition</strong>
           <p className="text-slate-800 leading-relaxed">
-            The dominant cause of Phase II failure is <strong>lack of efficacy</strong> — not toxicity, not pharmacokinetics. A compound that fails for lack of efficacy usually did nothing wrong chemically: it bound its target beautifully. <em>The target was simply the wrong one.</em> No amount of docking, QSAR, or MD later in this course can rescue a badly chosen target. That is why this module comes before the methods.
+            Lack of efficacy is a major cause of clinical attrition, but it does not uniquely diagnose a wrong target. Inadequate tissue exposure, insufficient functional modulation, patient selection, compensatory biology, and endpoint choice can all contribute. Target validation should test these alternatives.
           </p>
         </div>
       </section>
@@ -147,7 +140,7 @@ export default function TargetIdentificationPage() {
             <thead className="bg-slate-50">
               <tr>
                 <th className="px-3 py-2 text-left font-bold text-slate-900">Class</th>
-                <th className="px-3 py-2 text-left font-bold text-slate-900">Why it's druggable</th>
+                <th className="px-3 py-2 text-left font-bold text-slate-900">Why it&apos;s druggable</th>
                 <th className="px-3 py-2 text-left font-bold text-slate-900">Typical approach</th>
               </tr>
             </thead>
@@ -218,7 +211,7 @@ export default function TargetIdentificationPage() {
         </div>
 
         <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm text-slate-800 font-medium">
-          <span className="font-bold text-slate-900">Target engagement vs. efficacy.</span> These are different claims and conflating them is a classic error. Proving your compound <em>binds the target in cells</em> (e.g. by a thermal shift/CETSA assay) is necessary but not sufficient. A compound can engage its target completely and still do nothing to the disease — which is, precisely, target invalidation.
+          <span className="font-bold text-slate-900">Target engagement vs. efficacy.</span> These are different claims and conflating them is a classic error. Evidence supporting engagement (for example, a controlled CETSA experiment) is not proof of functional modulation or efficacy. A negative phenotype prompts checks of exposure, occupancy, modulation, model relevance, and timing before invalidating the target.
         </div>
       </section>
 
@@ -226,7 +219,7 @@ export default function TargetIdentificationPage() {
       <section className="space-y-4">
         <h2>5. Druggability: Can a Small Molecule Actually Bind?</h2>
         <p>
-          A validated target is worthless if nothing drug-like can bind it. <strong>Druggability</strong> is a structural property of the pocket, and — unlike biological validation — it can be computed directly from a 3D structure before a single compound is made.
+          <strong>Tractability is modality-dependent.</strong> Pocket descriptors estimate one aspect of small-molecule ligandability, not therapeutic feasibility. Antibodies, degraders, oligonucleotides, and other modalities have different requirements, including accessibility, tissue delivery, and mechanism.
         </p>
         <p>
           The first step is finding the pocket at all. Tools fall into three families:
@@ -241,7 +234,7 @@ export default function TargetIdentificationPage() {
           <div className="p-4 rounded-xl border border-border bg-white space-y-1">
             <h4 className="font-bold text-sm text-slate-900">Energetic / probe-based</h4>
             <p className="text-sm text-slate-800 leading-relaxed">
-              Computationally flood the surface with small organic probes and find where they cluster — "hot spots" (<strong>FTMap</strong>, SiteMap). Captures chemistry, not just shape.
+              Computationally flood the surface with small organic probes and find where they cluster — &quot;hot spots&quot; (<strong>FTMap</strong>, SiteMap). Captures chemistry, not just shape.
             </p>
           </div>
           <div className="p-4 rounded-xl border border-border bg-white space-y-1">
@@ -339,7 +332,7 @@ export default function TargetIdentificationPage() {
               }`}
             >
               <div className="flex items-center justify-between">
-                <span className="text-sm font-bold text-slate-900">Verdict</span>
+                <span className="text-sm font-bold text-slate-900">Fitted-score interpretation</span>
                 <span
                   className={`flex items-center gap-1 text-xs font-bold ${
                     verdict.tone === "emerald" ? "text-emerald-700" : verdict.tone === "amber" ? "text-amber-700" : "text-rose-700"
@@ -360,17 +353,17 @@ export default function TargetIdentificationPage() {
               </div>
               <p className="text-[10px] text-slate-600 font-medium leading-snug">
                 {isRealSite
-                  ? "≥ 0.80 — this looks like a genuine ligand-binding site, not an incidental surface dent."
-                  : "< 0.80 — probably not a real binding site at all."}
+                  ? "≥ 0.80 — above this scheme’s reference threshold. Inspect local structure and ligand evidence; this is not proof of a binding site."
+                  : "< 0.80 — below this scheme’s reference threshold. This does not exclude ligand binding or other therapeutic modalities."}
               </p>
             </div>
 
             <div className="p-3 rounded-lg border border-slate-200 bg-white space-y-1">
               <span className="text-[10px] font-bold uppercase tracking-wider text-slate-600 block">Dscore thresholds</span>
               {[
-                { r: "≥ 0.98", l: "Druggable", active: dScore >= 0.98 },
-                { r: "0.83 – 0.98", l: "Difficult", active: dScore >= 0.83 && dScore < 0.98 },
-                { r: "< 0.83", l: "Undruggable", active: dScore < 0.83 },
+                { r: "≥ 0.98", l: "Higher fitted score", active: dScore >= 0.98 },
+                { r: "0.83 – 0.98", l: "Intermediate fitted score", active: dScore >= 0.83 && dScore < 0.98 },
+                { r: "< 0.83", l: "Lower fitted score", active: dScore < 0.83 },
               ].map((t) => (
                 <div key={t.l} className={`flex items-center justify-between text-xs font-mono ${t.active ? "font-bold text-slate-900" : "text-slate-400"}`}>
                   <span>{t.active ? "▶" : "  "} {t.l}</span>
@@ -386,7 +379,7 @@ export default function TargetIdentificationPage() {
             <Info className="h-4 w-4 text-blue-600" /> What the equation is telling you
           </span>
           <p className="leading-relaxed font-medium">
-            Because enclosure carries a <strong>+0.60</strong> coefficient and hydrophilicity a <strong>−0.324</strong> one, a pocket earns its druggability mainly by being <em>buried and greasy</em>. A PPI interface fails not because it is small — it is usually enormous — but because it is <strong>flat and wet</strong>. This is exactly why the field invented PROTACs and molecular glues (Modules 1 and 6): if you cannot win the binding-site argument, change the modality so you no longer need a deep pocket. Antibodies and other biologics take the same escape route from the opposite direction — they bind flat, polar epitopes precisely because they present a large complementary surface rather than filling a cavity; Module 16 covers modelling those interfaces.
+            Because enclosure carries a <strong>+0.60</strong> coefficient and hydrophilicity a <strong>−0.324</strong> one, a pocket earns its druggability mainly by being <em>buried and greasy</em>. A PPI interface fails not because it is small — it is usually enormous — but because it is <strong>flat and wet</strong>. This is exactly why the field invented PROTACs and molecular glues (Modules 1 and 6): alternative modalities change the requirements, but PROTACs still need target engagement, productive ligase geometry, ubiquitination, and suitable cellular exposure. Antibodies and other biologics take the same escape route from the opposite direction — they bind flat, polar epitopes precisely because they present a large complementary surface rather than filling a cavity; Module 16 covers modelling those interfaces.
           </p>
         </div>
       </section>
@@ -395,7 +388,7 @@ export default function TargetIdentificationPage() {
       <section className="space-y-4">
         <h2>6. The Inverse Problem: Target Fishing &amp; Polypharmacology</h2>
         <p>
-          So far we have gone <em>target → molecule</em>. The reverse question is just as important: given a molecule, <strong>what does it hit?</strong> This is <strong>target prediction</strong> (or "target fishing"), and it matters for three reasons:
+          So far we have gone <em>target → molecule</em>. The reverse question is just as important: given a molecule, <strong>what does it hit?</strong> This is <strong>target prediction</strong> (or &quot;target fishing&quot;), and it matters for three reasons:
         </p>
         <ul>
           <li><strong>Phenotypic hits need deconvolution.</strong> If a compound cures cells in a screen but you do not know its target, you cannot optimize it rationally.</li>
@@ -455,6 +448,7 @@ print(predict_targets("CC(C)Cc1ccc(C(C)C(=O)O)cc1"))
       {/* Quiz */}
       <section className="space-y-5">
         <h2>Knowledge check</h2>
+        <ScientificPractice moduleNumber={2} />
         <Quiz
           moduleTitle="Module 2: Target Identification, Validation & Druggability"
           questions={[
@@ -469,20 +463,20 @@ print(predict_targets("CC(C)Cc1ccc(C(C)C(=O)O)cc1"))
               ],
               correctIndex: 1,
               explanation:
-                "Size actually helps the Dscore — the +0.094·√n term is positive. PPI interfaces fail on the other two terms: they are flat (low enclosure e, which carries the large +0.60 weight) and solvent-exposed/polar (high p, penalized at −0.324). This is why the field turned to alternative modalities such as PROTACs and molecular glues for these targets, rather than trying harder to find a conventional inhibitor.",
+                "Size actually helps the Dscore — the +0.094·√n term is positive. PPI interfaces fail on the other two terms: they are flat (low enclosure e, which carries the large +0.60 weight) and solvent-exposed/polar (high p, penalized at −0.324). This is why alternative modalities can be worth investigating, but this score alone cannot choose one; PROTACs and glues have their own engagement and productive-degradation requirements.",
             },
             {
               question:
-                "A CETSA assay confirms your compound engages its target inside cells, but the compound shows no effect on disease phenotype in a validated animal model. What has most likely happened?",
+                "CETSA supports cellular engagement, but an animal disease phenotype is unchanged. What is the most defensible next conclusion?",
               options: [
                 "The compound has poor solubility.",
                 "The assay must be wrong, since target engagement guarantees efficacy.",
-                "The target has been invalidated: engagement was achieved, but modulating this target does not change the disease.",
+                "Investigate tissue exposure, functional modulation, model relevance, and timing before concluding that the target is invalid.",
                 "The compound is hitting too many off-targets.",
               ],
               correctIndex: 2,
               explanation:
-                "Target engagement and efficacy are different claims. Engagement proves the chemistry worked — the compound found and bound its target. If the phenotype is still unchanged, the failure is biological, not chemical: the target itself does not drive the disease. This is precisely the failure mode behind 'lack of efficacy' Phase II attrition, and no amount of downstream medicinal chemistry can rescue it.",
+                "Engagement, functional modulation, and disease efficacy are separate claims. A controlled cellular engagement result does not establish sustained tissue occupancy or the desired mechanism in an animal. A negative phenotype alone cannot identify which link failed.",
             },
             {
               question:

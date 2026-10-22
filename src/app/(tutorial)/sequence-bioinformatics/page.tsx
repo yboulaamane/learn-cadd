@@ -25,7 +25,7 @@ const sections: LessonSection[] = [
   {
     title: "Pairwise alignment answers a scoped question",
     paragraphs: [
-      "An alignment proposes which residues correspond between two sequences. The correct method depends on whether the whole sequences are comparable or only a local region, such as a catalytic domain, is expected to match.",
+      "An alignment proposes which residues correspond between two sequences. Before designing a mutation, map accession and isoform positions to the specific structure chain, author residue numbers, insertion codes, construct offsets, and missing residues. Preserve this map rather than assuming sequence position equals PDB residue number. The correct method depends on whether the whole sequences are comparable or only a local region, such as a catalytic domain, is expected to match.",
     ],
     cards: [
       {

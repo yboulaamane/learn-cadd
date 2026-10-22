@@ -6,7 +6,7 @@ const sections: LessonSection[] = [
   {
     title: "Why protein therapeutics need a different modeling stack",
     paragraphs: [
-      "Antibodies, nanobodies, engineered binders, enzymes, and multispecific proteins operate through large, flexible interfaces. Their models must represent sequence, fold, loop uncertainty, oligomerization, glycosylation, electrostatics, conformational change, and manufacturability.",
+      "Affinity describes a single binding interaction; avidity reflects combined multivalent engagement. For example, a bivalent IgG can dissociate more slowly on a dense antigen surface than its monovalent Fab without a change in intrinsic site affinity. Report antigen density, immobilization, and assay format. Antibodies, nanobodies, engineered binders, enzymes, and multispecific proteins operate through large, flexible interfaces. Their models must represent sequence, fold, loop uncertainty, oligomerization, glycosylation, electrostatics, conformational change, and manufacturability.",
     ],
     cards: [
       {

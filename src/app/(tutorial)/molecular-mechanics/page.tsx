@@ -1,6 +1,9 @@
 "use client";
 
+import { ScientificPractice } from "@/components/ScientificPractice";
+
 import React, { useState } from "react";
+import { angularDistanceDegrees } from "@/lib/scientific-models";
 import { Atom, Info, Sliders, TrendingDown, Zap, AlertTriangle } from "lucide-react";
 import { Quiz } from "@/components/Quiz";
 import { CollapsibleCode } from "@/components/CollapsibleCode";
@@ -35,7 +38,7 @@ export default function MolecularMechanicsPage() {
 
   // Conformer label for the current angle
   const norm = ((phi % 360) + 360) % 360;
-  const near = (target: number, tol: number) => Math.abs(((norm - target + 540) % 360) - 180) > 180 - tol;
+  const near = (target: number, tol: number) => angularDistanceDegrees(norm, target) <= tol;
   const conformer = near(180, 25)
     ? { name: "Anti (global minimum)", tone: "emerald" }
     : near(60, 25) || near(300, 25)
@@ -81,7 +84,7 @@ export default function MolecularMechanicsPage() {
       <div>
         <h1>Module 4: Molecular Mechanics &amp; Force Fields</h1>
         <p className="lead text-slate-800">
-          Every method that follows — docking scores, MD trajectories, conformational searches — is ultimately calling the same function: a force field that turns a set of atomic coordinates into a single number, the energy. This module is that engine.
+          Docking, MD, and conformational searches all need energy or scoring models, but they do not use the same function. Here we study molecular-mechanics force fields; docking may instead use empirical or knowledge-based scoring functions.
         </p>
       </div>
 
@@ -106,7 +109,7 @@ export default function MolecularMechanicsPage() {
           <strong>Molecular mechanics (MM)</strong> treats a molecule as a set of point masses (atoms) connected by springs (bonds), governed entirely by <em>classical</em> physics. It throws away the electrons.
         </p>
         <p>
-          That sounds like an outrageous simplification — and it is. Quantum mechanics gives the true energy, but its cost scales steeply with system size (formally <em>N</em>⁴ or worse for correlated methods), which puts a solvated protein permanently out of reach. MM scales roughly as <em>N</em>², so it can evaluate a 100,000-atom system in milliseconds. <strong>The entire field of computational drug discovery exists inside that trade-off.</strong>
+          That sounds like an outrageous simplification — and it is. Quantum methods approximate electronic energies at method-dependent cost; no single scaling law or permanent size limit applies. Classical models are usually much cheaper, with neighbor lists and long-range solvers changing practical scaling. <strong>The entire field of computational drug discovery exists inside that trade-off.</strong>
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 not-prose">
           <div className="p-4 rounded-xl border border-border bg-white space-y-1">
@@ -189,7 +192,7 @@ export default function MolecularMechanicsPage() {
           <h3 className="font-bold text-base text-slate-900">Interactive Playground: The Butane Torsional Profile</h3>
         </div>
         <p className="text-sm text-slate-800 leading-normal">
-          The single most important curve in conformational analysis. Rotate the central <strong>C–C–C–C</strong> dihedral of butane and watch the Newman projection turn while the torsion term reports the energy. The numbers are not illustrative — this is a real OPLS Fourier torsion, and it reproduces butane&apos;s textbook profile.
+          The single most important curve in conformational analysis. Rotate the central <strong>C–C–C–C</strong> dihedral of butane and watch the Newman projection turn while the torsion term reports the energy. This is an OPLS-style Fourier torsion-term demonstration, not a full relaxed rotational potential or a measured solution free-energy profile. Nonbonded interactions, relaxation, solvent, and basin widths affect the full ensemble.
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6 bg-white p-5 rounded-lg border border-slate-200">
@@ -317,7 +320,7 @@ export default function MolecularMechanicsPage() {
           </span>
           <ul className="list-disc pl-5 space-y-1 font-medium leading-relaxed">
             <li><strong>Rotatable bonds are cheap to rotate.</strong> The barriers here are only ~3–5 kcal/mol — comparable to thermal energy — so at 298 K butane is constantly interconverting. That is precisely why a flexible ligand has so many conformers to search (Module 6) and why each rotatable bond costs entropy on binding (Module 3).</li>
-            <li><strong>The bioactive conformation is rarely the global minimum.</strong> Anti dominates in solution (~{pAnti.toFixed(0)}%), but a receptor can pay a kcal or two to bind a gauche-like shape. A conformer search that only keeps the global minimum will miss it.</li>
+            <li><strong>The bioactive conformation is rarely the global minimum.</strong> This discrete-well teaching approximation assigns anti ~{pAnti.toFixed(0)}% (not a measured solution population), but a receptor can pay a kcal or two to bind a gauche-like shape. A conformer search that only keeps the global minimum will miss it.</li>
             <li><strong>Note the two-to-one degeneracy.</strong> Gauche sits {torsionEnergy(60).toFixed(2)} kcal/mol <em>above</em> anti yet still accounts for ~{pGauche.toFixed(0)}% of molecules — because there are <em>two</em> gauche wells and only one anti. Energy alone never determines population; you must count states.</li>
           </ul>
         </div>
@@ -442,7 +445,7 @@ print(f"Spread across {len(energies)} conformers: {energies[-1]-energies[0]:.2f}
           <div className="p-4 rounded-xl border border-border bg-white space-y-1">
             <h4 className="font-bold text-sm text-slate-900 flex items-center gap-1.5"><AlertTriangle className="h-4 w-4 text-amber-500" />No reactivity</h4>
             <p className="text-sm text-slate-800 leading-relaxed">
-              Harmonic bonds cannot break. Any covalent inhibitor, any enzyme mechanism, any proton transfer is outside the model. <strong>Fix:</strong> QM/MM — treat the reacting centre quantum-mechanically and the rest classically (Module 10).
+              Fixed-topology harmonic bonds cannot model bond breaking or formation. Reactions and proton transfer require another treatment; reactive classical force fields also exist, with their own parameterization and scope. <strong>Fix:</strong> QM/MM — treat the reacting centre quantum-mechanically and the rest classically (Module 10).
             </p>
           </div>
           <div className="p-4 rounded-xl border border-border bg-white space-y-1">
@@ -466,6 +469,7 @@ print(f"Spread across {len(energies)} conformers: {energies[-1]-energies[0]:.2f}
       {/* Quiz */}
       <section className="space-y-5">
         <h2>Knowledge check</h2>
+        <ScientificPractice moduleNumber={4} />
         <Quiz
           moduleTitle="Module 4: Molecular Mechanics & Force Fields"
           questions={[

@@ -73,7 +73,7 @@ function RangeField({
       <div className="flex items-center justify-between gap-4 text-sm font-bold text-slate-700">
         <label htmlFor={id}>{label}</label>
         <output htmlFor={id} className="font-mono text-slate-950">
-          {value}%
+          {value}/100
         </output>
       </div>
       <input
@@ -96,12 +96,7 @@ export function StructureReadinessPlayground() {
   const [inputs, setInputs] = useState<StructureInputs>(DEFAULT_INPUTS);
 
   const assessment = useMemo(() => {
-    const methodScore: Record<StructureMethod, number> = {
-      xray: 92,
-      cryoem: 80,
-      nmr: 74,
-      predicted: 55,
-    };
+    // Method supplies context and cautions, not an intrinsic quality ranking.
     const stateScore: Record<StructureState, number> = {
       holo: task === "docking" ? 100 : 85,
       apo: task === "docking" ? 48 : 72,
@@ -110,21 +105,18 @@ export function StructureReadinessPlayground() {
 
     const score =
       task === "md"
-        ? methodScore[inputs.method] * 0.15 +
-          inputs.localQuality * 0.2 +
+        ? inputs.localQuality * 0.35 +
           inputs.pocketCompleteness * 0.3 +
           stateScore[inputs.state] * 0.05 +
           (inputs.assemblyVerified ? 15 : 0) +
           (inputs.chemistryReviewed ? 15 : 0)
         : task === "template"
-          ? methodScore[inputs.method] * 0.2 +
-            inputs.localQuality * 0.25 +
+          ? inputs.localQuality * 0.45 +
             inputs.pocketCompleteness * 0.25 +
             stateScore[inputs.state] * 0.1 +
             (inputs.assemblyVerified ? 10 : 0) +
             (inputs.chemistryReviewed ? 10 : 0)
-          : methodScore[inputs.method] * 0.15 +
-            inputs.localQuality * 0.3 +
+          : inputs.localQuality * 0.45 +
             inputs.pocketCompleteness * 0.2 +
             stateScore[inputs.state] * 0.15 +
             (inputs.assemblyVerified ? 10 : 0) +
@@ -227,6 +219,7 @@ export function StructureReadinessPlayground() {
             <label className="space-y-1.5 text-sm font-bold text-slate-700">
               Intended use
               <select
+                aria-label="Intended use"
                 value={task}
                 onChange={(event) => setTask(event.target.value as StructureTask)}
                 className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
@@ -239,6 +232,7 @@ export function StructureReadinessPlayground() {
             <label className="space-y-1.5 text-sm font-bold text-slate-700">
               Structure source
               <select
+                aria-label="Structure source"
                 value={inputs.method}
                 onChange={(event) => updateInput("method", event.target.value as StructureMethod)}
                 className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
@@ -265,7 +259,7 @@ export function StructureReadinessPlayground() {
 
           <RangeField
             id="structure-local-quality"
-            label="Local pocket confidence"
+            label="Illustrative local-quality rating"
             value={inputs.localQuality}
             onChange={(value) => updateInput("localQuality", value)}
           />
@@ -337,7 +331,7 @@ export function StructureReadinessPlayground() {
       </div>
 
       <p id="structure-readiness-boundary" className="rounded-lg bg-amber-50 p-3 text-xs leading-relaxed text-amber-950 ring-1 ring-inset ring-amber-200">
-        <strong>Model boundary:</strong> This score is an educational checklist, not a structure-validation metric. Inspect the experimental map or prediction confidence, chemistry, biological assembly, and task-specific retrospective performance before using a receptor prospectively.
+        <strong>Model boundary:</strong> This score and local-quality rating are educational checklist values, not measured confidence or a structure-validation metric. Method labels do not receive fixed quality bonuses; map support, NMR restraints, pLDDT, and PAE are distinct evidence types. Inspect the experimental map or prediction confidence, chemistry, biological assembly, and task-specific retrospective performance before using a receptor prospectively.
       </p>
     </section>
   );

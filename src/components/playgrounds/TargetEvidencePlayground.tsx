@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { hasFunctionalEvidence } from "@/lib/scientific-models";
 
 type EvidenceKey = "genetics" | "perturbation" | "expression" | "chemical" | "structure" | "safety";
 type EvidenceInputs = Record<EvidenceKey, number>;
@@ -106,13 +107,13 @@ export function TargetEvidencePlayground() {
       0,
     );
     const score = Math.round((observed / maximum) * 100);
-    const causalEvidence = Math.min(inputs.genetics, inputs.perturbation);
+    const functionalEvidence = hasFunctionalEvidence(inputs.perturbation);
     const tractability = Math.max(inputs.chemical, inputs.structure);
 
     let status = "Promising, conditional";
     let summary = "The evidence is useful, but the target hypothesis still depends on one or more untested assumptions.";
 
-    if (causalEvidence <= 1) {
+    if (!functionalEvidence) {
       status = "Causal evidence gap";
       summary = "Tractability cannot compensate for weak evidence that modulating this target changes disease biology.";
     } else if (tractability <= 1) {
@@ -121,7 +122,7 @@ export function TargetEvidencePlayground() {
     } else if (inputs.safety <= 1) {
       status = "Safety uncertainty";
       summary = "The target may be biologically and chemically promising, but the therapeutic window is not yet supported.";
-    } else if (score >= 75 && causalEvidence >= 2) {
+    } else if (score >= 75 && functionalEvidence) {
       status = "Triangulated hypothesis";
       summary = "Independent evidence types converge, making this a stronger candidate for milestone-driven CADD work.";
     }
@@ -142,7 +143,7 @@ export function TargetEvidencePlayground() {
         <p className="text-xs font-extrabold uppercase tracking-wider text-blue-700">Interactive evidence exercise</p>
         <h2 className="mt-1 text-lg font-extrabold text-slate-950">Would you advance this target?</h2>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-slate-700">
-          Grade each independent evidence stream. Watch how a chemically tractable target can still
+          Grade each evidence stream; they may be correlated, not independent. Human genetics strengthens a hypothesis but is not mandatory. A chemically tractable target can still
           fail when disease causality or safety remains weak.
         </p>
       </div>
@@ -228,7 +229,7 @@ export function TargetEvidencePlayground() {
             <h3 className="text-sm font-extrabold text-slate-950">Triangulation check</h3>
             <dl className="mt-3 space-y-2 text-sm">
               {[
-                ["Disease causality", Math.min(inputs.genetics, inputs.perturbation)],
+                ["Functional perturbation", inputs.perturbation],
                 ["Chemical or structural access", Math.max(inputs.chemical, inputs.structure)],
                 ["Biological context", inputs.expression],
                 ["Safety margin", inputs.safety],

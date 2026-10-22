@@ -14,7 +14,7 @@ const sections: LessonSection[] = [
         description:
           "X-ray crystallography, cryo-EM, and NMR provide coordinates supported by experimental data, but each method has characteristic uncertainty and preparation needs.",
         items: [
-          "Check method, resolution or map quality, R-values, and local confidence.",
+          "Use method-specific evidence: X-ray density, resolution and R-free; cryo-EM local map support; NMR restraint agreement and ensemble consistency. These are not interchangeable quality percentages.",
           "Inspect mutations, tags, missing loops, alternate locations, and crystal contacts.",
           "Use the biologically relevant assembly rather than assuming the asymmetric unit is correct.",
         ],
@@ -73,7 +73,7 @@ const sections: LessonSection[] = [
         ["ATOM", "Standard polymer atoms", "Defines the protein or nucleic-acid receptor coordinates."],
         ["HETATM", "Ligands, cofactors, ions, modified residues, and often solvent", "Separates the reference ligand and essential cofactors from removable crystallization components."],
         ["Chain and residue IDs", "Polymer membership and residue position", "Prevents accidental deletion of interfaces or docking against the wrong construct."],
-        ["Occupancy and B-factor", "Alternate occupancy and positional disorder", "Flags uncertain atoms and flexible pocket regions."],
+        ["Occupancy and B-factor", "Alternate occupancy and experimental displacement parameters", "Inspect local ligand/map support. AlphaFold pLDDT stored in a B-factor field is predicted confidence, not experimental displacement."],
         ["Connectivity", "Covalent links and chemical components", "Important for metals, covalent inhibitors, disulfides, and non-standard residues."],
       ],
     },

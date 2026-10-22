@@ -1,5 +1,7 @@
 "use client";
 
+import { ScientificPractice } from "@/components/ScientificPractice";
+
 import React, { useState } from "react";
 import Link from "next/link";
 import {
@@ -46,10 +48,10 @@ const COMPOUNDS_DATABASE: CompoundToxData[] = [
       basicNitrogens: 1
     },
     shapFeatures: [
-      { feature: "Basic Tertiary Amine", impact: 0.45, description: "Fits the hERG channel electrostatic cavity, triggering severe block risk." },
+      { feature: "Basic Tertiary Amine", impact: 0.45, description: "A basic center can support hERG binding in some chemotypes; pKa, geometry, concentration, and assay evidence matter." },
       { feature: "High Lipophilicity (LogP > 5)", impact: 0.25, description: "Promotes non-specific membrane accumulation and off-target bindings." },
       { feature: "Hydrophobic Phenyl Rings", impact: 0.15, description: "Forms stable hydrophobic interactions with aromatic residues inside the hERG vestibule." },
-      { feature: "No Electrophilic Alerts", impact: -0.10, description: "Reduces mutagenicity/DNA-alkylating potential close to zero." }
+      { feature: "No Electrophilic Alerts", impact: -0.10, description: "No obvious electrophilic alert in this illustration; absence of an alert does not establish a negative Ames result." }
     ]
   },
   {
@@ -66,7 +68,7 @@ const COMPOUNDS_DATABASE: CompoundToxData[] = [
     shapFeatures: [
       { feature: "Quinone-Imine Precursor", impact: 0.55, description: "Metabolic oxidation yields highly reactive NAPQI, causing cellular oxidative stress and DILI." },
       { feature: "Phenol Hydroxyl Group", impact: 0.20, description: "Subject to phase-II conjugation but also direct oxidation paths generating free radical intermediates." },
-      { feature: "Low Lipophilicity", impact: -0.15, description: "Prevents hERG channel binding and membrane toxicity." },
+      { feature: "Low Lipophilicity", impact: -0.15, description: "May reduce some lipophilicity-related liabilities; it does not rule out channel block or other toxicity." },
       { feature: "Small Molecular Size", impact: -0.10, description: "Facilitates rapid clearance pathways in healthy liver tissue." }
     ]
   },
@@ -85,7 +87,7 @@ const COMPOUNDS_DATABASE: CompoundToxData[] = [
       { feature: "Ester Cleavage Site", impact: -0.25, description: "Rapidly hydrolyzed in vivo to salicylate, preventing accumulation and reactive metabolism." },
       { feature: "Polar Carboxylate Group", impact: -0.20, description: "Charged state at physiological pH minimizes cellular membrane penetration and off-target cardiotoxicity." },
       { feature: "Salicylate Core", impact: 0.05, description: "Weak acidic profile with low liver toxicity at standard dosage." },
-      { feature: "No Reactive Elements", impact: -0.15, description: "Reduces overall mutagenicity profile to background levels." }
+      { feature: "No Reactive Elements", impact: -0.15, description: "No obvious alert in this illustration; mutagenicity still requires endpoint-specific evidence." }
     ]
   }
 ];
@@ -281,7 +283,7 @@ export default function InSilicoToxicologyPage() {
       ? "More than ten rotatable bonds tracked with lower oral bioavailability in Veber’s set."
       : null,
     tpsa > 140
-      ? "TPSA above 140 Å² usually means the compound will not cross a membrane by passive diffusion."
+      ? "High TPSA can reduce passive permeability, but it is not an absolute membrane-crossing rule; ionization, transporters, and molecular conformation also matter."
       : null,
     dlLogP <= 5 && mw <= 500 && hbd <= 5 && hba <= 10 && rotb <= 10 && tpsa <= 140
       ? "No Lipinski or Veber alert is lit. That does not show the compound is absorbed, selective, or safe."
@@ -297,7 +299,7 @@ export default function InSilicoToxicologyPage() {
       <div>
         <h1>Module 12: In Silico ADMET &amp; Safety Assessment</h1>
         <p className="lead text-slate-600">
-          Predict whether a molecule can become a drug and whether it will be safe. Start with the physicochemical rules of ADME and oral drug-likeness (Lipinski, Veber), then predict toxicity endpoints (cardiotoxicity, hepatotoxicity, mutagenicity) with machine learning, comparing models with DeLong&apos;s test and interpreting alerts using SHAP values.
+          Use properties, hazard models, and experimental evidence to prioritize drug-discovery hypotheses; these methods cannot establish drug potential or clinical safety alone. Start with the physicochemical rules of ADME and oral drug-likeness (Lipinski, Veber), then predict toxicity endpoints (cardiotoxicity, hepatotoxicity, mutagenicity) with machine learning, comparing models with DeLong&apos;s test and interpreting alerts using SHAP values.
         </p>
       </div>
 
@@ -329,7 +331,7 @@ export default function InSilicoToxicologyPage() {
               Cardiotoxicity (hERG)
             </h4>
             <p className="text-xs text-slate-800 leading-relaxed font-medium">
-              Blockade of the potassium voltage-gated channel <strong>hERG</strong> delays cardiac repolarization, causing QT interval prolongation and potentially fatal arrhythmias. Models predict structural binding affinity to hERG using regression or classification.
+              Blockade of the potassium voltage-gated channel <strong>hERG</strong> delays cardiac repolarization, causing QT interval prolongation and potentially fatal arrhythmias. Models can estimate assay-defined hERG inhibition using regression or classification. Channel inhibition, QT prolongation, and clinical arrhythmia are distinct endpoints; exposure margins and integrated evidence are needed.
             </p>
           </div>
 
@@ -349,7 +351,7 @@ export default function InSilicoToxicologyPage() {
               Mutagenicity (Ames Test)
             </h4>
             <p className="text-xs text-slate-800 leading-relaxed font-medium">
-              Mutagenic compounds react with DNA, causing genetic lesions that lead to carcinogenicity. In silico models identify structural electrophilic alerts (e.g. aromatic nitro groups, alkyl halides) that correlate with a positive bacterial Ames test.
+              The Ames test measures bacterial mutagenicity, usually with and without metabolic activation. Structural alerts can prioritize follow-up, but an alert or a predicted Ames result does not establish human carcinogenicity; mechanisms, exposure, and other evidence matter.
             </p>
           </div>
         </div>
@@ -372,7 +374,7 @@ export default function InSilicoToxicologyPage() {
           <div className="p-4 rounded-xl border border-border bg-white space-y-1">
             <h4 className="font-bold text-sm text-slate-900">Polar Surface Area (TPSA)</h4>
             <p className="text-xs text-slate-800 leading-relaxed font-medium">
-              The surface area over polar (N, O) atoms and their attached hydrogens. Predicts passive absorption: <strong>&lt;140 Å²</strong> for gut absorption, <strong>&lt;90 Å²</strong> to cross the blood-brain barrier.
+              The surface area over polar (N, O) atoms and their attached hydrogens. Values such as <strong>140 Å²</strong> for oral absorption and <strong>90 Å²</strong> for brain penetration are screening heuristics, not hard boundaries. Ionization, transporters, and conformation also affect permeability.
             </p>
           </div>
           <div className="p-4 rounded-xl border border-border bg-white space-y-1">
@@ -524,7 +526,7 @@ export default function InSilicoToxicologyPage() {
       <section className="space-y-4 border-t border-border pt-8">
         <h2>4. Step-by-Step Toxicology Modeling &amp; SHAP Interpretation</h2>
         <p>
-          Below is a highly documented Python implementation using RDKit, Scikit-learn, and SHAP to train a toxicity classifier, compute model applicability domains, and extract chemical explanations:
+          Below is a minimal RDKit, Scikit-learn, and SHAP API demonstration. Its three example compounds cannot support validation, calibration, or an applicability-domain claim. Use assay-matched data, independent evaluation, and a separately assessed domain before interpreting predictions:
         </p>
 
         {/* Detailed Annotations */}
@@ -613,15 +615,15 @@ print("Toxicity-driving fragment SHAP value: " + str(np.max(first_comp_shap[:, 1
           <h3 className="font-bold text-base text-slate-900">Interactive Playground: Discovery Toxicology Sandbox</h3>
         </div>
         <p className="text-sm text-slate-800">
-          Analyze chemical toxicophores, inspect interactive SHAP feature contributions, and use DeLong&apos;s test to ask whether paired ROC-AUC estimates are distinguishable.
+          Compare illustrative structural alerts, then use the separate synthetic DeLong exercise to interpret paired ROC-AUC estimates.
         </p>
 
         {/* Sandbox Component 1: SHAP Explainer */}
         <div className="bg-white p-5 rounded-lg border border-slate-200 space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div>
-              <h4 className="font-bold text-sm text-slate-900">1. Interactive SHAP Structural Profiler</h4>
-              <p className="text-xs text-slate-500 font-medium">Select a compound to analyze the positive (toxic) and negative (safe) Shapley contributions.</p>
+              <h4 className="font-bold text-sm text-slate-900">1. Illustrative Toxicology Annotations</h4>
+              <p className="text-xs text-slate-500 font-medium">Select a compound to compare invented endpoint scores and qualitative structural annotations. No fitted model or SHAP calculation runs in this profiler.</p>
             </div>
             <div className="flex gap-2">
               {COMPOUNDS_DATABASE.map((comp) => (
@@ -664,24 +666,24 @@ print("Toxicity-driving fragment SHAP value: " + str(np.max(first_comp_shap[:, 1
               </div>
 
               <div className="space-y-1.5 pt-1">
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Predicted Safety Probabilities</span>
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Illustrative endpoint scores (0–100)</span>
                 <div className="space-y-1 text-xs">
                   <div className="flex justify-between items-center bg-white px-2 py-1 rounded border border-slate-200">
-                    <span className="font-semibold text-slate-700">hERG Cardiotox:</span>
+                    <span className="font-semibold text-slate-700">hERG inhibition score:</span>
                     <span className={`font-bold ${selectedComp.cardioProb > 0.5 ? "text-red-600" : "text-emerald-600"}`}>
-                      {(selectedComp.cardioProb * 100).toFixed(0)}%
+                      {(selectedComp.cardioProb * 100).toFixed(0)} / 100
                     </span>
                   </div>
                   <div className="flex justify-between items-center bg-white px-2 py-1 rounded border border-slate-200">
-                    <span className="font-semibold text-slate-700">DILI Hepatotox:</span>
+                    <span className="font-semibold text-slate-700">DILI annotation score:</span>
                     <span className={`font-bold ${selectedComp.hepatoProb > 0.5 ? "text-red-600" : "text-emerald-600"}`}>
-                      {(selectedComp.hepatoProb * 100).toFixed(0)}%
+                      {(selectedComp.hepatoProb * 100).toFixed(0)} / 100
                     </span>
                   </div>
                   <div className="flex justify-between items-center bg-white px-2 py-1 rounded border border-slate-200">
-                    <span className="font-semibold text-slate-700">Ames Mutagenicity:</span>
+                    <span className="font-semibold text-slate-700">Ames annotation score:</span>
                     <span className={`font-bold ${selectedComp.mutagenProb > 0.5 ? "text-red-600" : "text-emerald-600"}`}>
-                      {(selectedComp.mutagenProb * 100).toFixed(0)}%
+                      {(selectedComp.mutagenProb * 100).toFixed(0)} / 100
                     </span>
                   </div>
                 </div>
@@ -690,7 +692,7 @@ print("Toxicity-driving fragment SHAP value: " + str(np.max(first_comp_shap[:, 1
 
             {/* Right side: SHAP Forces graph */}
             <div className="md:col-span-7 space-y-4">
-              <span className="text-xs font-bold text-slate-700 block">SHAP Contribution Analysis (Toxicity Driving Forces)</span>
+              <span className="text-xs font-bold text-slate-700 block">Illustrative feature annotations (arbitrary units)</span>
               
               <div className="space-y-2">
                 {selectedComp.shapFeatures.map((f, idx) => (
@@ -724,7 +726,7 @@ print("Toxicity-driving fragment SHAP value: " + str(np.max(first_comp_shap[:, 1
               <div className="p-3 rounded-lg bg-indigo-50 border border-indigo-100 text-xs font-medium text-indigo-950 flex items-start gap-2">
                 <Sparkles size={14} className="text-indigo-600 flex-shrink-0 mt-0.5" />
                 <p>
-                  The red bars push the model towards a positive toxic classification. The blue bars pull the probability back down. An active basic tertiary nitrogen (Terfenadine) or a reactive quinone-imine metabolite (Acetaminophen) are massive positive forces pushing the compound into the high-risk region.
+                  These values and bars are hand-authored teaching examples, not measured risks, calibrated probabilities, or endpoint-specific SHAP values. They have no additive baseline and must not be summed to reconstruct an endpoint. A real explanation must identify its model, endpoint, output scale, background data, and applicability domain.
                 </p>
               </div>
             </div>
@@ -899,19 +901,20 @@ print("Toxicity-driving fragment SHAP value: " + str(np.max(first_comp_shap[:, 1
       <hr className="border-slate-200 my-8" />
       <section className="space-y-5">
         <h2>Knowledge check</h2>
+        <ScientificPractice moduleNumber={12} />
         <Quiz 
           moduleTitle="Module 12: In Silico ADMET & Safety Assessment"
           questions={[
             {
-              question: "Why is a basic tertiary nitrogen frequently flagged with a high positive SHAP value in predictive cardiotoxicity models?",
+              question: "Why can a basic lipophilic amine be a useful hERG screening alert without establishing cardiotoxicity?",
               options: [
                 "Because basic tertiary nitrogens are highly electrophilic, reacting immediately with cellular DNA.",
                 "Because basic tertiary nitrogens form strong electrostatic salt bridges with Acid 189 in the active site of metabolic kinase receptors.",
-                "Because at physiological pH 7.4, the basic nitrogen is protonated and fits the hydrophobic/electrostatic inner cavity of the hERG channel, causing cardiotoxic blockade.",
+                "A basic nitrogen may be protonated depending on its pKa and can favor interactions in the hERG cavity, but this feature alone does not establish channel blockade or cardiotoxicity.",
                 "Because it prevents phase-I oxidation pathways, leading to direct cell painting degradation."
               ],
               correctIndex: 2,
-              explanation: "At physiological pH 7.4, basic tertiary nitrogens are protonated (positively charged). The hERG potassium channel possesses a large hydrophobic vestibule lined with negative electrostatic potential and aromatic residues (like Tyr652 and Phe656). The protonated nitrogen fits perfectly into this cavity, making it a critical toxicophore structural flag with massive positive SHAP impact in cardiotoxicity models."
+              explanation: "The protonated fraction depends on pKa and pH. Basic, lipophilic motifs can be associated with hERG inhibition, but geometry, other substituents, assay conditions, and exposure matter. A structural motif neither proves blockade nor implies a particular SHAP contribution in an uncomputed model."
             },
             {
               question: "When comparing two ROC curves on the same chemical database, why is DeLong's test preferred over a standard independent t-test for comparing AUC scores?",
