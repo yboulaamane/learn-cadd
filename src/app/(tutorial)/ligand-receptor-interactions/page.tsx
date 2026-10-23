@@ -9,6 +9,7 @@ import {
   Flame
 } from "lucide-react";
 import { Quiz } from "@/components/Quiz";
+import { HYDROGEN_BOND_DIAGRAM, HYDROGEN_BOND_PLOT, hydrogenBondDiagram, hydrogenBondPlotPoint } from "@/lib/playground-layout";
 
 const RT_KCAL = 0.592;
 
@@ -47,6 +48,8 @@ export default function LigandReceptorInteractionsPage() {
   };
 
   const currentEnergy = calculateEnergy(distance);
+  const geometry = hydrogenBondDiagram(angle);
+  const currentPoint = hydrogenBondPlotPoint(distance, currentEnergy);
 
   const hydrophobicDg = -0.025 * nonpolarArea;
   const polarPenalty = unmatchedPolar ? 4.5 : 0;
@@ -70,14 +73,12 @@ export default function LigandReceptorInteractionsPage() {
   };
 
   const generateCurvePath = () => {
-    let path = "M";
-    for (let r = 2.0; r <= 6.0; r += 0.05) {
-      const x = 50 + (r - 2.0) * 60; 
-      const energy = calculateEnergy(r);
-      const y = 80 - energy * 10; 
-      path += `${r === 2.0 ? "" : " L"}${x},${y}`;
-    }
-    return path;
+    return Array.from({ length: 101 }, (_, index) => {
+      const r = HYDROGEN_BOND_PLOT.minDistance + (index / 100) *
+        (HYDROGEN_BOND_PLOT.maxDistance - HYDROGEN_BOND_PLOT.minDistance);
+      const point = hydrogenBondPlotPoint(r, calculateEnergy(r));
+      return `${index === 0 ? "M" : "L"}${point.x},${point.y}`;
+    }).join(" ");
   };
 
   return (
@@ -210,10 +211,10 @@ export default function LigandReceptorInteractionsPage() {
       </section>
 
       {/* Interactive Widget 1: Bond energy curve */}
-      <section className="p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-4">
+      <section className="not-prose p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-4" aria-labelledby="hbond-playground-title">
         <div className="flex items-center gap-2">
           <Activity size={16} className="text-slate-900" />
-          <h3 className="font-bold text-sm text-slate-900">Interactive Playground: Hydrogen-Bond Distance and Angle</h3>
+          <h3 id="hbond-playground-title" className="font-bold text-sm text-slate-900">Hydrogen-bond distance and angle</h3>
         </div>
         <p className="text-sm text-slate-800">
           Leave the donor–acceptor distance at 2.9 Å and bend the angle. A hydrogen bond that looks right in distance can still be weak, because the attraction is directional. The curve is a model potential, not a measured enthalpy.
@@ -227,21 +228,23 @@ export default function LigandReceptorInteractionsPage() {
               <button
                 type="button"
                 onClick={() => { setDistance(2.9); setAngle(180); }}
-                className="rounded-md border border-slate-300 bg-white px-2.5 py-1 text-xs font-bold text-slate-800 hover:border-slate-500"
+                aria-pressed={Math.abs(distance - 2.9) < 0.001 && angle === 180}
+                className="rounded-md border border-slate-300 bg-white px-2.5 py-1 text-xs font-bold text-slate-800 hover:border-slate-500 aria-pressed:border-blue-500 aria-pressed:bg-blue-50"
               >
                 Linear, 2.9 Å
               </button>
               <button
                 type="button"
                 onClick={() => { setDistance(2.9); setAngle(120); }}
-                className="rounded-md border border-slate-300 bg-white px-2.5 py-1 text-xs font-bold text-slate-800 hover:border-slate-500"
+                aria-pressed={Math.abs(distance - 2.9) < 0.001 && angle === 120}
+                className="rounded-md border border-slate-300 bg-white px-2.5 py-1 text-xs font-bold text-slate-800 hover:border-slate-500 aria-pressed:border-blue-500 aria-pressed:bg-blue-50"
               >
                 Same distance, bent
               </button>
             </div>
 
             <div className="space-y-1">
-              <div className="flex justify-between items-center text-sm text-slate-800 font-bold">
+              <div className="flex flex-wrap justify-between items-center gap-x-3 gap-y-1 text-sm text-slate-800 font-bold">
                 <label htmlFor="hbond-distance">Donor–acceptor distance (Å)</label>
                 <output htmlFor="hbond-distance" className="font-bold text-slate-900">{distance.toFixed(2)} Å</output>
               </div>
@@ -259,7 +262,7 @@ export default function LigandReceptorInteractionsPage() {
             </div>
 
             <div className="space-y-1">
-              <div className="flex justify-between items-center text-sm text-slate-800 font-bold">
+              <div className="flex flex-wrap justify-between items-center gap-x-3 gap-y-1 text-sm text-slate-800 font-bold">
                 <label htmlFor="hbond-angle">D–H···A angle</label>
                 <output htmlFor="hbond-angle" className="font-bold text-slate-900">{angle.toFixed(0)}°</output>
               </div>
@@ -277,29 +280,30 @@ export default function LigandReceptorInteractionsPage() {
               <p className="text-xs text-slate-600">180° is linear. The attractive term is scaled by cos² of the bend, now {(angularFactor * 100).toFixed(0)}% of a linear bond.</p>
             </div>
 
-            <svg viewBox="0 0 180 90" role="img" aria-label={`Hydrogen-bond geometry at ${angle.toFixed(0)} degrees`} className="w-full max-w-[240px] rounded-lg border border-slate-200 bg-slate-50">
-              <line x1="28" y1="68" x2="78" y2="68" stroke="#334155" strokeWidth="2" />
+            <svg viewBox={`0 0 ${HYDROGEN_BOND_DIAGRAM.width} ${HYDROGEN_BOND_DIAGRAM.height}`} role="img" aria-label={`Hydrogen-bond geometry at ${angle.toFixed(0)} degrees`} className="mx-auto w-full max-w-[320px] rounded-lg border border-slate-200 bg-slate-50">
+              <line x1={geometry.donor.x} y1={geometry.donor.y} x2={geometry.hydrogen.x} y2={geometry.hydrogen.y} className="stroke-slate-600 dark:stroke-slate-300" strokeWidth="2" />
               <line
-                x1="78"
-                y1="68"
-                x2={78 + 48 * Math.cos(((180 - angle) * Math.PI) / 180)}
-                y2={68 - 48 * Math.sin(((180 - angle) * Math.PI) / 180)}
+                x1={geometry.hydrogen.x}
+                y1={geometry.hydrogen.y}
+                x2={geometry.acceptor.x}
+                y2={geometry.acceptor.y}
                 stroke="#0284c7"
                 strokeWidth="2"
                 strokeDasharray="4 3"
               />
-              <circle cx="28" cy="68" r="7" fill="#0f172a" />
-              <circle cx="78" cy="68" r="5" fill="#e2e8f0" stroke="#334155" />
+              <circle cx={geometry.donor.x} cy={geometry.donor.y} r="8" className="fill-slate-900" />
+              <circle cx={geometry.hydrogen.x} cy={geometry.hydrogen.y} r="6" fill="#e2e8f0" stroke="#334155" />
               <circle
-                cx={78 + 48 * Math.cos(((180 - angle) * Math.PI) / 180)}
-                cy={68 - 48 * Math.sin(((180 - angle) * Math.PI) / 180)}
-                r="7"
+                cx={geometry.acceptor.x}
+                cy={geometry.acceptor.y}
+                r="8"
                 fill="#0284c7"
               />
-              <text x="28" y="86" textAnchor="middle" fontSize="9" fill="#334155">donor</text>
-              <text x="78" y="86" textAnchor="middle" fontSize="9" fill="#334155">H</text>
-              <text x="150" y="16" fontSize="9" fill="#0369a1">acceptor</text>
+              <text x={geometry.donor.x} y="103" textAnchor="middle" fontSize="11" className="fill-slate-700">donor</text>
+              <text x={geometry.hydrogen.x} y="103" textAnchor="middle" fontSize="11" className="fill-slate-700">H</text>
+              <text x={geometry.acceptorLabel.x} y={geometry.acceptorLabel.y} dominantBaseline="middle" fontSize="11" className="fill-sky-700 dark:fill-sky-300">acceptor</text>
             </svg>
+            <p className="text-center text-xs text-slate-600">Geometry schematic, not to scale.</p>
 
             <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-lg space-y-1.5">
               <span className="text-sm text-slate-800 font-bold uppercase tracking-wider block">Model potential</span>
@@ -322,44 +326,38 @@ export default function LigandReceptorInteractionsPage() {
           </div>
 
           {/* Interactive Graph SVG */}
-          <div className="md:col-span-7 flex justify-center">
-            <div className="w-full max-w-[280px] aspect-square relative bg-slate-50 border border-slate-200 rounded-lg p-4 flex flex-col justify-between">
-              
-              <div className="relative flex-1">
+          <div className="md:col-span-7 min-w-0 flex justify-center">
+            <figure className="w-full min-w-0 max-w-[500px] space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-3">
                 <svg
-                  viewBox="0 0 300 200"
-                  className="w-full h-full"
+                  viewBox={`0 0 ${HYDROGEN_BOND_PLOT.width} ${HYDROGEN_BOND_PLOT.height}`}
+                  className="w-full h-auto"
                   role="img"
                   aria-label={`Illustrative hydrogen-bond distance potential at ${distance.toFixed(2)} angstroms and ${currentEnergy.toFixed(2)} kilocalories per mole`}
                 >
-                  <line x1="0" y1="80" x2="300" y2="80" stroke="currentColor" className="text-slate-300" strokeWidth="0.5" strokeDasharray="3,3" />
+                  {[-4, 0, 4, 8].map((value) => {
+                    const y = hydrogenBondPlotPoint(1.8, value).y;
+                    return <g key={value}>
+                      <line x1="48" y1={y} x2="336" y2={y} className="stroke-slate-300 dark:stroke-slate-700" strokeWidth="0.5" strokeDasharray={value === 0 ? undefined : "3 3"} />
+                      <text x="39" y={y} dominantBaseline="middle" textAnchor="end" fontSize="11" className="fill-slate-600">{value}</text>
+                    </g>;
+                  })}
+                  {[2, 3, 4, 5].map((value) => (
+                    <text key={value} x={hydrogenBondPlotPoint(value, 0).x} y="204" textAnchor="middle" fontSize="11" className="fill-slate-600">{value}</text>
+                  ))}
+                  <text x="48" y="16" fontSize="11" className="fill-slate-700 font-bold">Potential (kcal/mol)</text>
+                  <text x="192" y="228" textAnchor="middle" fontSize="11" className="fill-slate-700 font-bold">Donor–acceptor distance (Å)</text>
                   
                   {/* Energy Curve Path */}
                   <path d={generateCurvePath()} fill="none" stroke="currentColor" className="text-slate-900" strokeWidth="1.8" />
                   
                   {/* Active Point marker */}
-                  {(() => {
-                    const x = 50 + (distance - 2.0) * 60;
-                    const y = 80 - currentEnergy * 10;
-                    return (
-                      <g>
-                        <circle cx={x} cy={y} r="4" fill="currentColor" className="text-slate-900" stroke="currentColor" strokeWidth="1" />
-                      </g>
-                    );
-                  })()}
-                  
-                  {/* Annotations */}
-                  <text x="10" y="72" fill="#1e293b" className="text-sm font-bold fill-slate-800" fontSize="10">0 Energy (Unbound)</text>
-                  <text x="230" y="92" fill="#1e293b" className="text-sm font-bold fill-slate-800" fontSize="10">Distance (r)</text>
-                  <text x="10" y="20" fill="#1e293b" className="text-sm font-bold fill-slate-800" fontSize="10">Repulsion (+V)</text>
-                  <text x="10" y="180" fill="#1e293b" className="text-sm font-bold fill-slate-800" fontSize="10">Attraction (-V)</text>
+                  <circle cx={currentPoint.x} cy={currentPoint.y} r="4" className="fill-blue-600 stroke-white dark:stroke-slate-950" strokeWidth="1.5" />
                 </svg>
-              </div>
-
-              <div className="text-sm text-center text-slate-800 font-bold mt-1">
+              <figcaption className="text-sm text-center text-slate-800 font-bold">
                 Illustrative radial interaction potential
-              </div>
-            </div>
+                <span className="mt-1 block text-xs font-normal text-slate-600">Positive: repulsive · Negative: attractive</span>
+              </figcaption>
+            </figure>
           </div>
         </div>
         <p id="hbond-model-boundary" className="text-xs leading-relaxed text-slate-600">
@@ -533,14 +531,14 @@ export default function LigandReceptorInteractionsPage() {
             </label>
             <svg viewBox="0 0 280 120" role="img" aria-label="Pocket cross-section showing buried nonpolar surface and an optional unmatched polar group" className="w-full rounded-lg border border-slate-200 bg-slate-50">
               <path d="M30 20 H160 Q200 20 200 55 V100 H30 Z" fill="#e2e8f0" stroke="#64748b" />
-              <text x="40" y="112" fontSize="11" fill="#334155">pocket</text>
+              <text x="40" y="112" fontSize="11" className="fill-slate-700">pocket</text>
               <rect x="70" y="48" width={Math.max(12, nonpolarArea * 0.7)} height="22" rx="4" fill="#334155" />
-              <text x="70" y="42" fontSize="11" fill="#334155">nonpolar contact</text>
+              <text x="70" y="42" fontSize="11" className="fill-slate-700">nonpolar contact</text>
               {unmatchedPolar && (
                 <g>
                   <circle cx="230" cy="62" r="14" fill="#fee2e2" stroke="#dc2626" />
                   <text x="230" y="66" textAnchor="middle" fontSize="11" fontWeight="700" fill="#991b1b">C=O</text>
-                  <text x="214" y="92" fontSize="11" fill="#991b1b">no partner</text>
+                  <text x="214" y="92" fontSize="11" className="fill-red-800 dark:fill-red-300">no partner</text>
                 </g>
               )}
             </svg>
@@ -600,28 +598,28 @@ export default function LigandReceptorInteractionsPage() {
             </div>
 
             <svg viewBox="0 0 360 170" role="img" aria-label="Schematic of benzamidine in the trypsin S1 pocket, with the amidinium next to Asp189" className="w-full rounded-lg border border-slate-200 bg-slate-50">
-              <text x="16" y="22" fontSize="13" fontWeight="700" fill="#0f172a">Trypsin S1</text>
+              <text x="16" y="22" fontSize="13" fontWeight="700" className="fill-slate-900">Trypsin S1</text>
               <path d="M24 40 H210 Q250 40 250 78 V150 H24 Z" fill="#f8fafc" stroke="#94a3b8" />
               <g opacity={saltOn ? 1 : 0.35}>
                 <circle cx="58" cy="92" r="18" fill="#fee2e2" stroke="#dc2626" />
                 <text x="58" y="96" textAnchor="middle" fontSize="12" fontWeight="700" fill="#991b1b">Asp</text>
-                <text x="58" y="128" textAnchor="middle" fontSize="11" fill="#7f1d1d">Asp189</text>
+                <text x="58" y="128" textAnchor="middle" fontSize="11" className="fill-red-900 dark:fill-red-300">Asp189</text>
               </g>
               {countSolvent && saltOn && (
                 <g>
                   <circle cx="92" cy="58" r="6" fill="#bae6fd" stroke="#0284c7" />
-                  <text x="104" y="62" fontSize="11" fill="#0369a1">water</text>
+                  <text x="104" y="62" fontSize="11" className="fill-sky-700 dark:fill-sky-300">water</text>
                 </g>
               )}
               <polygon points="168,78 184,88 184,106 168,116 152,106 152,88" fill="#e2e8f0" stroke="#334155" strokeWidth="1.5" />
-              <text x="168" y="140" textAnchor="middle" fontSize="11" fill="#334155">phenyl</text>
+              <text x="168" y="140" textAnchor="middle" fontSize="11" className="fill-slate-700">phenyl</text>
               <line x1="152" y1="97" x2="112" y2="92" stroke="#334155" strokeWidth="2" />
               <circle cx="104" cy="90" r="12" fill="#dbeafe" stroke="#1d4ed8" />
               <text x="104" y="94" textAnchor="middle" fontSize="10" fontWeight="700" fill="#1e3a8a">C⁺</text>
               {polarOn && (
                 <g>
                   <line x1="184" y1="90" x2="230" y2="70" stroke="#0284c7" strokeDasharray="4 3" />
-                  <text x="214" y="60" fontSize="11" fill="#0369a1">Ser190 / Gly219</text>
+                  <text x="214" y="60" fontSize="11" className="fill-sky-700 dark:fill-sky-300">Ser190 / Gly219</text>
                 </g>
               )}
             </svg>

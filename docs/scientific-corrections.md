@@ -91,3 +91,7 @@ The inherited package lock fails `npm ci` with missing `@emnapi/core@1.11.3`
 and `@emnapi/runtime@1.11.3` entries. For this correction pass dependencies were
 installed with `npm install --no-package-lock`; the dependency lock was not rewritten.
 A passing build therefore does not establish that a lockfile-only clean CI install works.
+
+Update, 23 October 2026: the missing lockfile entries were repaired as part of the
+[playground layout cleanup](playground-layout.md). A fresh `npm ci --ignore-scripts`
+installation passed; the historical limitation above describes the earlier correction pass.

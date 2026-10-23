@@ -234,10 +234,11 @@ export default function MolecularMechanicsPage() {
           <div className="md:col-span-7 space-y-3">
             <div className="space-y-1">
               <div className="flex justify-between items-center text-sm font-bold text-slate-800">
-                <span>Dihedral angle φ</span>
-                <span className="font-mono text-slate-900">{phi.toFixed(0)}°</span>
+                <label htmlFor="butane-dihedral">Dihedral angle φ</label>
+                <output htmlFor="butane-dihedral" className="font-mono text-slate-900">{phi.toFixed(0)}°</output>
               </div>
               <input
+                id="butane-dihedral"
                 type="range"
                 min="0"
                 max="360"

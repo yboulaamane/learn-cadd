@@ -625,10 +625,12 @@ print("Toxicity-driving fragment SHAP value: " + str(np.max(first_comp_shap[:, 1
               <h4 className="font-bold text-sm text-slate-900">1. Illustrative Toxicology Annotations</h4>
               <p className="text-xs text-slate-500 font-medium">Select a compound to compare invented endpoint scores and qualitative structural annotations. No fitted model or SHAP calculation runs in this profiler.</p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2" aria-label="Illustrative toxicology compounds">
               {COMPOUNDS_DATABASE.map((comp) => (
                 <button
                   key={comp.name}
+                  type="button"
+                  aria-pressed={selectedComp.name === comp.name}
                   onClick={() => setSelectedComp(comp)}
                   className={`px-3 py-1 rounded-lg text-xs font-semibold border transition-all ${
                     selectedComp.name === comp.name

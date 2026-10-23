@@ -63,6 +63,8 @@ An optional scientific-example check, `python3 tests/curation-example.test.py`, 
 
 Each module includes a research-decision checkpoint, suggested output, background links, and an evidence anchor. The browser playgrounds include schematic or synthetic teaching models; they do not establish experimental activity, model validity, convergence, or clinical safety. See [scientific correction notes](docs/scientific-corrections.md) for scope and verification limits.
 
+For responsive, light/dark, and SVG-label regression checks, see [playground layout testing](docs/playground-layout.md). Run `npm run test:playgrounds` against a running local server after installing a Playwright browser.
+
 ## License
 
 Released under the [MIT License](LICENSE). You are free to use, adapt, and

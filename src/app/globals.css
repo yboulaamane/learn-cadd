@@ -96,6 +96,7 @@ html {
 .course-article {
   --course-line-length: 72ch;
   text-wrap: pretty;
+  overflow-wrap: break-word;
 }
 
 .course-article :where(h1, h2, h3, h4) {
@@ -123,12 +124,12 @@ html {
   line-height: 1.78;
 }
 
-.course-article[data-reading-mode="learn"] .text-sm {
+.course-article[data-reading-mode="learn"] .text-sm:not(:where(svg *)) {
   font-size: 0.9375rem;
   line-height: 1.65;
 }
 
-.course-article[data-reading-mode="learn"] .text-xs {
+.course-article[data-reading-mode="learn"] .text-xs:not(:where(svg *)) {
   font-size: 0.8125rem;
   line-height: 1.55;
 }
@@ -204,6 +205,11 @@ html {
 .prose code::before,
 .prose code::after {
   content: none;
+}
+
+/* Wrap inline identifiers; code blocks keep their horizontal scrolling. */
+.course-article code:not(:where(pre *)) {
+  overflow-wrap: anywhere;
 }
 
 pre,
@@ -434,6 +440,7 @@ pre,
 
 /* Widget container styling */
 .widget-container {
+  min-width: 0;
   background: var(--color-widget-bg);
   border: 1px solid var(--color-widget-border);
   border-radius: 0.75rem;
@@ -443,16 +450,6 @@ pre,
 
 .widget-container:hover {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.06), 0 2px 4px rgba(0, 0, 0, 0.04);
-}
-
-@media (max-width: 1023.98px) {
-  .widget-container {
-    margin-left: -1rem;
-    margin-right: -1rem;
-    border-left: 0;
-    border-right: 0;
-    border-radius: 0;
-  }
 }
 
 @media (max-width: 639.98px) {

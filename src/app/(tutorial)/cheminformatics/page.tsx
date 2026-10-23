@@ -582,9 +582,10 @@ for idx, isomer in enumerate(isomers):
           
           {/* Column 1: Molecule A - Graph Viewer */}
           <div className="lg:col-span-6 space-y-4">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-wrap justify-between items-center gap-2">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-600">Molecule A: Graph Explorer</span>
               <select 
+                aria-label="Molecule A"
                 value={selectedA}
                 onChange={(e) => {
                   setSelectedA(e.target.value);
@@ -599,7 +600,7 @@ for idx, isomer in enumerate(isomers):
             </div>
 
             <div className="relative bg-slate-50 dark:bg-slate-950 border border-slate-200 rounded-lg p-3 flex flex-col items-center">
-              <div className="text-xs font-mono bg-white px-2 py-0.5 rounded border mb-2 max-w-full truncate">
+              <div className="text-xs font-mono bg-white px-2 py-0.5 rounded border mb-2 max-w-full break-all">
                 SMILES: <span className="font-bold text-slate-700">{molA.smiles}</span>
               </div>
 
@@ -677,7 +678,7 @@ for idx, isomer in enumerate(isomers):
                           cx={node.x} 
                           cy={node.y} 
                           r={13} 
-                          className={`fill-white stroke-2 transition-all ${
+                          className={`fill-white dark:fill-slate-950 stroke-2 transition-all ${
                             isCenter ? "stroke-accent" : isHighlighted ? "stroke-accent/70" : nodeHovered ? "stroke-slate-700" : "stroke-slate-200"
                           }`} 
                         />
@@ -702,7 +703,7 @@ for idx, isomer in enumerate(isomers):
 
               {/* Atom Explorer controls */}
               <div className="w-full mt-2 border-t border-slate-100 pt-2.5 space-y-2">
-                <div className="flex justify-between items-center text-xs">
+                <div className="flex flex-wrap justify-between items-center gap-2 text-xs">
                   <span className="font-bold text-slate-700">Circular neighborhood (radius changes highlight only)</span>
                   {selectedAtom !== null ? (
                     <span className="text-accent font-semibold">Atom {molA.nodes.find(n => n.id === selectedAtom)?.label}#{selectedAtom} Selected</span>
@@ -711,11 +712,20 @@ for idx, isomer in enumerate(isomers):
                   )}
                 </div>
                 
-                <div className="flex gap-2">
+                <label className="flex flex-wrap items-center justify-between gap-2 text-xs font-bold text-slate-700">
+                  Neighborhood center
+                  <select aria-label="Neighborhood center" value={selectedAtom ?? ""} onChange={(event) => setSelectedAtom(event.target.value === "" ? null : Number(event.target.value))} className="max-w-full rounded border border-slate-300 bg-white px-2 py-1">
+                    <option value="">Select an atom</option>
+                    {molA.nodes.map((node) => <option key={node.id} value={node.id}>{node.label} · atom {node.id}</option>)}
+                  </select>
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   {[0, 1, 2].map((r) => (
                     <button
                       key={r}
+                      type="button"
                       disabled={selectedAtom === null}
+                      aria-pressed={ecfpRadius === r && selectedAtom !== null}
                       onClick={() => setEcfpRadius(r)}
                       className={`flex-1 py-1 rounded text-xs font-medium border transition-colors ${
                         selectedAtom === null ? "opacity-40 cursor-not-allowed" :
@@ -748,9 +758,10 @@ for idx, isomer in enumerate(isomers):
           {/* Column 2: Similarity Analysis */}
           <div className="lg:col-span-6 space-y-4 flex flex-col justify-between">
             <div className="space-y-4">
-              <div className="flex justify-between items-center">
+              <div className="flex flex-wrap justify-between items-center gap-2">
                 <span className="text-xs font-bold uppercase tracking-wider text-slate-600">Molecule B: Similarity Compare</span>
                 <select 
+                  aria-label="Molecule B"
                   value={selectedB}
                   onChange={(e) => setSelectedB(e.target.value)}
                   className="text-xs border border-border rounded p-1 bg-white"

@@ -219,27 +219,28 @@ export default function MolecularDynamicsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 bg-white dark:bg-slate-950 p-5 rounded-lg border border-slate-100 dark:border-slate-900 not-prose">
           
           {/* Column 1: System Config & SVG Simulator */}
-          <div className="lg:col-span-5 space-y-4">
-            <div className="flex justify-between items-center">
+          <div className="lg:col-span-5 min-w-0 space-y-4">
+            <div className="flex flex-wrap justify-between items-center gap-2">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-600">Trajectory Viewer</span>
               <select 
+                aria-label="Trajectory system"
                 value={selectedSystem}
                 onChange={(e) => {
                   setSelectedSystem(e.target.value);
                   handleReset();
                 }}
-                className="text-xs border border-border rounded p-1 bg-white"
+                className="w-full min-w-0 max-w-full text-xs border border-border rounded p-1 bg-white"
               >
-                <option value="egfr">EGFR - Erlotinib</option>
-                <option value="cov2">SARS-CoV-2 Mpro - Nirmatrelvir</option>
+                <option value="egfr">EGFR · Erlotinib</option>
+                <option value="cov2">Mpro · Nirmatrelvir</option>
               </select>
             </div>
 
             {/* Simulated Frame Screen */}
-            <div className="relative aspect-video w-full border border-slate-200 rounded-lg bg-slate-50 overflow-hidden flex flex-col justify-between p-3.5 select-none">
+            <div className="relative w-full space-y-3 border border-slate-200 rounded-lg bg-slate-50 p-3.5 select-none">
               
               {/* Simulated physical layout */}
-              <div className="relative flex-1">
+              <div className="relative aspect-[5/3]">
                 <svg role="img" aria-label="Simulation cell: the solvated protein-ligand system inside a periodic water box." viewBox="0 0 200 120" className="w-full h-full">
                   {/* Solvation Water Box Boundary */}
                   <rect x="5" y="5" width="190" height="110" rx="3" fill="none" stroke="currentColor" className="text-slate-200" strokeWidth="0.8" strokeDasharray="3,3" />
@@ -288,7 +289,7 @@ export default function MolecularDynamicsPage() {
               </div>
 
               {/* Water Box label */}
-              <div className="flex justify-between items-center text-[10px] text-slate-500 font-bold uppercase border-t border-slate-100 pt-2 mt-1">
+              <div className="flex flex-wrap justify-between items-center gap-x-3 gap-y-1 text-[10px] text-slate-500 font-bold uppercase border-t border-slate-100 pt-2 mt-1">
                 <span>Solvent: Aqueous TIP3P</span>
                 <span>T = 310 K | P = 1 atm</span>
               </div>
@@ -296,13 +297,15 @@ export default function MolecularDynamicsPage() {
 
             {/* Animation Controls */}
             <div className="space-y-2">
-              <div className="flex justify-between text-xs text-slate-600">
+              <div className="flex flex-wrap justify-between gap-x-3 gap-y-1 text-xs text-slate-600">
                 <span className="font-semibold">Trajectory Timeline</span>
                 <span className="font-mono">Frame {frame + 1} / 20 ({((frame + 1) * 5).toFixed(0)} ns)</span>
               </div>
               
               <div className="flex gap-2 items-center">
                 <button
+                  type="button"
+                  aria-label={isPlaying ? "Pause teaching trajectory" : "Play teaching trajectory"}
                   onClick={() => setIsPlaying(!isPlaying)}
                   className={`p-2 rounded-lg text-white transition-colors ${
                     isPlaying ? "bg-amber-600 hover:bg-amber-700" : "bg-accent hover:bg-accent-dark"
@@ -311,12 +314,15 @@ export default function MolecularDynamicsPage() {
                   {isPlaying ? <Pause size={14} /> : <Play size={14} />}
                 </button>
                 <button
+                  type="button"
+                  aria-label="Reset teaching trajectory"
                   onClick={handleReset}
                   className="p-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700"
                 >
                   <RotateCcw size={14} />
                 </button>
                 <input
+                  aria-label="Trajectory frame"
                   type="range"
                   min="0"
                   max="19"
@@ -325,7 +331,7 @@ export default function MolecularDynamicsPage() {
                     setFrame(parseInt(e.target.value));
                     setIsPlaying(false);
                   }}
-                  className="flex-1 h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-accent"
+                  className="min-w-0 w-0 flex-1 h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-accent"
                 />
               </div>
             </div>
@@ -345,15 +351,17 @@ export default function MolecularDynamicsPage() {
           </div>
 
           {/* Column 2: Dashboard Charts */}
-          <div className="lg:col-span-7 flex flex-col justify-between">
+          <div className="lg:col-span-7 min-w-0 flex flex-col justify-between">
             
             {/* Chart selection tabs */}
-            <div className="flex border-b border-border text-xs font-semibold">
+            <div className="grid grid-cols-2 sm:grid-cols-4 border-b border-border text-xs font-semibold" role="group" aria-label="Trajectory observables">
               {["rmsd", "rmsf", "hBonds", "sasa"].map((tab) => (
                 <button
                   key={tab}
+                  type="button"
+                  aria-pressed={activeTab === tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`pb-2.5 px-3 capitalize border-b-2 transition-colors ${
+                  className={`min-w-0 pb-2.5 px-2 capitalize border-b-2 transition-colors ${
                     activeTab === tab 
                       ? "border-accent text-accent font-bold" 
                       : "border-transparent text-slate-500 hover:text-slate-900"

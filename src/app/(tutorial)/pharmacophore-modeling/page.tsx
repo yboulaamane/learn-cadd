@@ -286,7 +286,7 @@ export default function PharmacophoreModelingPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 text-sm">
           
           {/* Left panel: Controls & Alignment Metrics */}
-          <div className="lg:col-span-4 p-5 border-r border-border space-y-6 flex flex-col justify-between">
+          <div className="lg:col-span-4 min-w-0 p-5 border-b lg:border-b-0 lg:border-r border-border space-y-6 flex flex-col justify-between">
             <div className="space-y-5">
               <div>
                 <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block mb-2">1. Query Features</span>
@@ -418,31 +418,31 @@ export default function PharmacophoreModelingPage() {
           </div>
 
           {/* Right panel: SVG Canvas */}
-          <div className="lg:col-span-8 p-5 flex flex-col justify-between bg-surface/30 min-h-[360px] relative">
+          <div className="lg:col-span-8 min-w-0 p-5 flex flex-col justify-between gap-4 bg-surface/30 min-h-[360px]">
             
-            {/* Absolute badge overlay */}
-            <div className="absolute top-4 left-4 z-10 space-y-1">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block">Selected Conformational Projection</span>
-              <span className="inline-block px-2.5 py-0.5 rounded-md bg-white border border-border font-mono text-xs font-semibold">
-                Core: {currentMolecule.scaffold}
-              </span>
-            </div>
-
-            {/* Molecule details drawer */}
-            <div className="absolute top-4 right-4 z-10 hidden sm:block">
-              <div className="bg-white/80 backdrop-blur border border-border rounded-lg p-2.5 max-w-[200px] text-xs space-y-1 shadow-sm">
-                <div className="flex justify-between font-bold text-foreground">
-                  <span className="truncate pr-2">{currentMolecule.name.split(" (")[0]}</span>
-                  <span className="text-accent">{currentMolecule.chemicalFormula}</span>
-                </div>
-                <div className="text-xs text-slate-800 border-t border-border pt-1">
-                  Affinity: <span className="font-semibold text-foreground">{currentMolecule.bindingAffinity}</span>
+            {/* Metadata stays in normal flow instead of covering the molecule. */}
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div className="min-w-0 space-y-1">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-800 block">Selected Conformational Projection</span>
+                <span className="inline-block px-2.5 py-0.5 rounded-md bg-white border border-border font-mono text-xs font-semibold">
+                  Core: {currentMolecule.scaffold}
+                </span>
+              </div>
+              <div className="min-w-0 sm:max-w-[220px]">
+                <div className="bg-white border border-border rounded-lg p-2.5 text-xs space-y-1 shadow-sm">
+                  <div className="flex flex-wrap justify-between gap-2 font-bold text-foreground">
+                    <span className="min-w-0">{currentMolecule.name.split(" (")[0]}</span>
+                    <span className="text-accent">{currentMolecule.chemicalFormula}</span>
+                  </div>
+                  <div className="text-xs text-slate-800 border-t border-border pt-1">
+                    Affinity: <span className="font-semibold text-foreground">{currentMolecule.bindingAffinity}</span>
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* SVG Visual Canvas */}
-            <div className="flex-1 flex items-center justify-center p-2">
+            <div className="min-w-0 flex-1 flex items-center justify-center py-2">
               <svg 
                 role="img"
                 aria-label="Pharmacophore alignment canvas: the skeleton of the selected molecule overlaid on the aromatic, acceptor and donor query points, each drawn with its tolerance sphere."

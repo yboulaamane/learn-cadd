@@ -52,9 +52,9 @@ export function CollapsibleCode({ code, title = "Python Programming Guide" }: Co
 
   return (
     <div className="border border-slate-200 rounded-xl overflow-hidden my-4 bg-white shadow-sm transition-all duration-150">
-      <div className="flex items-center justify-between p-3.5 bg-slate-50 border-b border-slate-200">
-        <div className="flex items-center gap-2">
-          <Terminal size={16} className="text-slate-600" />
+      <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 bg-slate-50 border-b border-slate-200">
+        <div className="flex min-w-0 flex-1 basis-48 items-center gap-2">
+          <Terminal size={16} className="shrink-0 text-slate-600" />
           <span className="font-bold text-xs text-slate-800">{title}</span>
         </div>
         <button
@@ -62,7 +62,7 @@ export function CollapsibleCode({ code, title = "Python Programming Guide" }: Co
           onClick={() => setIsOpen(!isOpen)}
           aria-expanded={isOpen}
           aria-controls={panelId}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-300 hover:border-slate-400 bg-white text-xs font-semibold text-slate-700 hover:bg-slate-50 active:bg-slate-100 transition-all cursor-pointer"
+          className="flex w-full max-w-full shrink-0 items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-300 hover:border-slate-400 bg-white text-xs font-semibold text-slate-700 hover:bg-slate-50 active:bg-slate-100 transition-all cursor-pointer sm:w-auto"
         >
           {isOpen ? (
             <>
