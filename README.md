@@ -1,72 +1,52 @@
 # Learn CADD
 
-An interactive, visual, first-principles web guide to computer-aided drug design (CADD) — from the physics of binding to generative molecular design. Every module pairs the theory with a hands-on browser playground.
+Interactive, visual guide to computer-aided drug design — from binding physics to generative design. Each module pairs theory with a browser playground.
 
-<img width="1372" height="912" alt="image" src="https://github.com/user-attachments/assets/192b8d61-f2d0-44d9-b3f5-872af438ff3f" />
+Live site: [learn-cadd.vercel.app](https://learn-cadd.vercel.app/)
 
-## Course Structure
+<img width="1372" height="912" alt="Learn CADD screenshot" src="https://github.com/user-attachments/assets/192b8d61-f2d0-44d9-b3f5-872af438ff3f" />
 
-The curriculum runs to **18 modules across two tracks**, each pairing theory with a browser playground and a short knowledge check:
+## Curriculum
 
-- **Modules 1–12 — Core curriculum.** CADD from first principles, in the order the concepts build on each other. Work through these in sequence.
-- **Modules 13–18 — Applied extensions.** Shorter, research-practice modules covering the structural, computational, pharmacokinetic, biologics, and systems-level material a real project needs. Read them in any order once the core is done.
+**18 modules** — core (1–12) in order, then applied extensions (13–18) in any order.
 
-### Core curriculum
+**Core**
+1. Introduction to Drug Discovery
+2. Target Identification, Validation & Druggability
+3. Ligand–Receptor Interactions
+4. Molecular Mechanics & Force Fields
+5. Cheminformatics & Molecular Representations
+6. Molecular Docking
+7. Pharmacophore Modeling
+8. Virtual Screening Strategies
+9. QSAR Modeling & AI Interpretation
+10. Molecular Dynamics & Free Energy Methods
+11. De Novo & Generative Molecular Design
+12. In Silico ADMET & Safety Assessment
 
-1. **Introduction to Drug Discovery:** The R&D funnel, hit/lead/candidate terminology, hit-finding strategies (HTS, fragment-based, DNA-encoded libraries), and the "undruggable" proteome. *Playground: R&D attrition funnel.*
-2. **Target Identification, Validation & Druggability:** Target classes, the validation evidence chain, binding-site detection (fpocket, FTMap, SiteMap), druggability scoring, and polypharmacology / target fishing. *Playground: SiteMap Dscore druggability scorecard.*
-3. **Fundamentals of Ligand-Receptor Interactions:** Thermodynamics, non-covalent contacts (H-bonds, halogen bonds, salt bridges, cation-π, dispersion), and binding affinity ($\Delta G^\circ = R \cdot T \cdot \ln(K_d/C^\circ)$). *Playgrounds: Lennard-Jones potential, desolvation, supramolecular binding sandbox.*
-4. **Molecular Mechanics & Force Fields:** The energy decomposition (bond/angle/torsion/improper/vdW/electrostatics), force field families (AMBER, CHARMM, OPLS, GROMOS, GAFF), parameterization, energy minimization, and the multiple-minimum problem. *Playground: butane torsional profile with Newman projection and Boltzmann populations.*
-5. **Cheminformatics & Molecular Representations:** SMILES, InChI/InChIKey, the isomerism landscape (constitutional, stereo, E/Z, atropisomers), fingerprint families (ECFP, atom-pair, 2D pharmacophore), and Tanimoto/Tversky similarity. *Playground: chemical graph + ECFP neighbourhood + Tanimoto.*
-6. **Molecular Docking:** Search algorithms, scoring functions, pose validation, covalent docking, receptor flexibility, and PROTAC ternary complexes. *Playgrounds: manual pose matcher, PROTAC hook effect.*
-7. **Pharmacophore Modeling:** Structure vs. ligand-based pharmacophores, 3D hashes, and scaffold hopping. *Playground: 3D-to-2D pharmacophore alignment with a tolerance sweep from missed scaffold hops to admitted decoys.*
-8. **Virtual Screening Strategies:** LBVS vs. SBVS cascading filters, database curation, and performance metrics (ROC, EF). *Playgrounds: ROC/enrichment, live HTS simulator.*
-9. **QSAR Modeling & AI Interpretation:** Classical Hansch analysis (π, σ, Eₛ) and Craig plots, ML models (SVM, RF, XGBoost, KNN, Naive Bayes), GNNs, and validation with applicability domains. *Playgrounds: Hansch/Craig plot, decision tree, illustrative projected-domain interpretation.*
-10. **Molecular Dynamics & Free Energy Methods:** Equilibration, trajectory analysis (RMSD/RMSF/Rg/SASA), enhanced sampling (umbrella, metadynamics, steered MD, T-REMD), QM/MM, binding free energy (MM/GBSA and FEP), and machine-learned force fields. *Playground: MD trajectory dashboard.*
-11. **De Novo & Generative Molecular Design:** The three pillars — construction (atom/fragment/reaction), scoring (explicit/implicit, multi-objective), and search (MC, GA, MCTS, RL) — plus 3D pocket-conditioned diffusion. *Playground: Pareto frontier explorer.*
-12. **In Silico ADMET & Safety Assessment:** Drug-likeness (Lipinski, Veber), LogP/TPSA/clearance, hERG, DILI, Ames, explainable AI (SHAP), and DeLong validation. *Playgrounds: drug-likeness scorecard, illustrative toxicology annotations, synthetic paired-AUC comparison.*
+**Extensions**
+13. Structural Bioinformatics & Visualization
+14. Applied CADD Workflows & Reproducibility
+15. Pharmacokinetics & DMPK
+16. Protein, Antibody & PPI Modeling
+17. Bioinformatics & Systems Biology
+18. Sequence Bioinformatics & Evolution
 
-### Applied extensions
+## Run locally
 
-13. **Structural Bioinformatics & Molecular Visualization:** Sequence-to-structure hierarchy, PDB/mmCIF records, experimental vs. predicted vs. comparative models, homology modeling, and validation with resolution, Ramachandran, QMEAN, pLDDT, and PAE. *Playground: structure readiness triage.*
-14. **Applied CADD Workflows & Reproducibility:** Auditable chemical-data, docking, MD, ML, KNIME, Python, and HPC pipelines with explicit provenance, configuration, and failure checks. *Playground: workflow provenance audit.*
-15. **Pharmacokinetics & DMPK:** Absorption, distribution, metabolism, excretion, exposure, clearance, dosing, and modality-aware PK design. *Playground: one-compartment oral PK (Bateman function).*
-16. **Protein, Antibody & Protein-Protein Modeling:** Flexible interfaces, antibody paratopes, multispecific architectures, and developability risk. *Playground: interface evidence review.*
-17. **Bioinformatics & Systems Biology Foundations:** Omics integration, interaction networks, pathways, perturbation data, and chemical-biology evidence for target selection. *Playground: target evidence scorecard.*
-18. **Sequence Bioinformatics & Evolution:** Biological databases, pairwise and multiple alignments, BLAST, profiles, phylogenetic trees, and genomic context. *Playground: alignment interpretation.*
-
-## Getting Started
-
-First, install the npm dependencies:
 ```bash
 npm install
-```
-
-Then, run the Next.js development server:
-```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to explore the course locally.
+Open [http://localhost:3000](http://localhost:3000).
 
-## Compilation & Verification
-
-Use Node.js 24 LTS (native TypeScript support is used by the regression tests). Run:
 ```bash
-npm test
-npm run lint
-npx tsc --noEmit
-npm run build
+npm test && npm run lint && npx tsc --noEmit && npm run build
 ```
 
-An optional scientific-example check, `python3 tests/curation-example.test.py`, executes the Module 14 snippet with pandas, NumPy, and RDKit.
-
-Each module includes a research-decision checkpoint, suggested output, background links, and an evidence anchor. The browser playgrounds include schematic or synthetic teaching models; they do not establish experimental activity, model validity, convergence, or clinical safety. See [scientific correction notes](docs/scientific-corrections.md) for scope and verification limits.
-
-For responsive, light/dark, and SVG-label regression checks, see [playground layout testing](docs/playground-layout.md). Run `npm run test:playgrounds` against a running local server after installing a Playwright browser.
+Playgrounds are teaching models, not experimental claims. See [scientific corrections](docs/scientific-corrections.md) and [playground layout tests](docs/playground-layout.md).
 
 ## License
 
-Released under the [MIT License](LICENSE). You are free to use, adapt, and
-redistribute the material, including for teaching, provided the copyright
-notice is retained.
+[MIT](LICENSE)
