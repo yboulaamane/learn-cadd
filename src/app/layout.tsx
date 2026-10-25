@@ -20,6 +20,7 @@ const siteDescription =
   "An interactive, first-principles course in computer-aided drug design, from structural bioinformatics and molecular docking to AI, DMPK, biologics, and reproducible workflows.";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://learn-cadd.vercel.app"),
   // Module routes supply their own `title`; the template appends the site name
   // so every page gets a distinct, self-describing tab and search result.
   title: {
@@ -32,11 +33,15 @@ export const metadata: Metadata = {
     description: siteDescription,
     siteName: "Learn CADD",
     type: "website",
+    url: "https://learn-cadd.vercel.app",
   },
   twitter: {
     card: "summary_large_image",
     title: "Learn CADD — Computer-Aided Drug Design",
     description: siteDescription,
+  },
+  alternates: {
+    canonical: "/",
   },
 };
 
